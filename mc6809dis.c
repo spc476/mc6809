@@ -9,20 +9,20 @@
 
 /**************************************************************************/
 
-static int		page2		(mc6809dis__t *const,mc6809__t *const);
-static int		page3		(mc6809dis__t *const,mc6809__t *const);
+static int		page2		(mc6809dis__t *const,mc6809__t *const) __attribute__((nonnull(1)));
+static int		page3		(mc6809dis__t *const,mc6809__t *const) __attribute__((nonnull(1)));
 
-static void		indexed		(mc6809dis__t *const,mc6809__t *const,const char *const,const bool);
-static void		immediate	(mc6809dis__t *const,const char *const,const bool);
-static void		direct		(mc6809dis__t *const,mc6809__t *const,const char *const,const bool);
-static void		extended	(mc6809dis__t *const,mc6809__t *const,const char *const,const bool);
-static void		relative	(mc6809dis__t *const,const char *const,const char *const);
-static void		lrelative	(mc6809dis__t *const,const char *const,const char *const);
-static void		psh		(mc6809dis__t *const,const char *const,const bool);
-static void		pul		(mc6809dis__t *const,const char *const,const bool);
+static void		indexed		(mc6809dis__t *const,mc6809__t *const,const char *const,const bool) __attribute__((nonnull(1,3)));
+static void		immediate	(mc6809dis__t *const,const char *const,const bool)                  __attribute__((nonnull(1)));
+static void		direct		(mc6809dis__t *const,mc6809__t *const,const char *const,const bool) __attribute__((nonnull(1,3)));
+static void		extended	(mc6809dis__t *const,mc6809__t *const,const char *const,const bool) __attribute__((nonnull(1,3)));
+static void		relative	(mc6809dis__t *const,const char *const,const char *const)           __attribute__((nonnull));
+static void		lrelative	(mc6809dis__t *const,const char *const,const char *const)           __attribute__((nonnull));
+static void		psh		(mc6809dis__t *const,const char *const,const bool)                  __attribute__((nonnull));
+static void		pul		(mc6809dis__t *const,const char *const,const bool)                  __attribute__((nonnull));
 
-static void		cc		(char *dest,size_t size,mc6809byte__t);
-static mc6809byte__t	cctobyte	(mc6809__t *const);
+static void		cc		(char *dest,size_t size,mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t	cctobyte	(mc6809__t *const)                     __attribute__((nonnull));
 
 /***************************************************************************/
 

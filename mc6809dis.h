@@ -30,10 +30,10 @@ typedef struct mc6809dis
 
 /************************************************************************/
 
-int mc6809dis_format	(mc6809dis__t *const,char *,size_t);
-int mc6809dis_registers	(mc6809__t *const,char *,size_t);
+int mc6809dis_format	(mc6809dis__t *const,char *,size_t) __attribute__((nonnull));
+int mc6809dis_registers	(mc6809__t    *const,char *,size_t) __attribute__((nonnull));
 
-int mc6809dis_run	(mc6809dis__t *const,mc6809__t *const);
-int mc6809dis_step	(mc6809dis__t *const,mc6809__t *const);
+int mc6809dis_run	(mc6809dis__t *const,mc6809__t *const) __attribute__((nonnull(1)));
+int mc6809dis_step	(mc6809dis__t *const,mc6809__t *const) __attribute__((nonnull(1)));
 
 #endif
