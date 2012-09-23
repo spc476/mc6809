@@ -1903,14 +1903,28 @@ static void lrelative(
 
 /*************************************************************************/
 
+static const char *const m_pshsreg[] =
+{
+  "CC" , "A" , "B" , "DP" , "X" , "Y" , "U" , "PC"
+};
+
+static const char *const m_pshureg[] =
+{
+  "CC" , "A" , "B" , "DP" , "X" , "Y" , "S" , "PC"
+};
+
+/*************************************************************************/
+
 static void psh(mc6809dis__t *const dis,const char *const op,const bool s)
 {
-  mc6809byte__t  post;
-  size_t         len;
-  size_t         bytes;
-  char          *p;
-  char          *sep;
+  mc6809byte__t      post;
+  size_t             len;
+  size_t             bytes;
+  char              *p;
+  char              *sep;
+  const char *const *regs;
   
+  regs = s ? m_pshsreg : m_pshureg;
   len  = sizeof(dis->toperand);
   p    = dis->toperand;
   sep  = "";
@@ -1918,76 +1932,32 @@ static void psh(mc6809dis__t *const dis,const char *const op,const bool s)
   snprintf(dis->operand,sizeof(dis->operand),"%02X",post);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
 
-  if ((post & 0x80) != 0)
+  for (int i = 7 ; i > -1 ; i--)
   {
-    bytes = snprintf(p,len,"PC");
-    len  -= bytes;
-    p    += bytes;
-    sep  = ",";
+    int mask = 1 << i;
+
+    if ((post & mask) != 0)
+    {
+      bytes = snprintf(p,len,"%s%s",sep,regs[i]);
+      len  -= bytes;
+      p    += bytes;
+      sep   = ",";
+    }
   }
-  
-  if ((post & 0x40) != 0)
-  {
-    bytes = snprintf(p,len,"%s%s",sep,s ? "U" : "S");
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x20) != 0)
-  {
-    bytes = snprintf(p,len,"%sY",sep);
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x10) != 0)
-  {
-    bytes = snprintf(p,len,"%sX",sep);
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x08) != 0)
-  {
-    bytes = snprintf(p,len,"%sDP",sep);
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x04) != 0)
-  {
-    bytes = snprintf(p,len,"%sB",sep);
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x02) != 0)
-  {
-    bytes = snprintf(p,len,"%sA",sep);
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x01) != 0)
-    snprintf(p,len,"%sCC",sep);
 }
 
 /*************************************************************************/
 
 static void pul(mc6809dis__t *const dis,const char *const op,const bool s)
 {
-  mc6809byte__t post;
-  size_t        len;
-  size_t        bytes;
-  char         *p;
-  char         *sep;
+  mc6809byte__t      post;
+  size_t             len;
+  size_t             bytes;
+  char              *p;
+  char              *sep;
+  const char *const *regs;
   
+  regs = s ? m_pshsreg : m_pshureg;
   len  = sizeof(dis->toperand);
   p    = dis->toperand;
   sep  = "";
@@ -1995,64 +1965,18 @@ static void pul(mc6809dis__t *const dis,const char *const op,const bool s)
   snprintf(dis->operand,sizeof(dis->operand),"%02X",post);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
   
-  if ((post & 0x01) != 0)
+  for (int i = 0 ; i < 8 ; i++)
   {
-    bytes = snprintf(p,len,"CC");
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
+    int mask = 1 << i;
+    
+    if ((post & mask) != 0)
+    {
+      bytes = snprintf(p,len,"%s%s",sep,regs[i]);
+      len  -= bytes;
+      p    += bytes;
+      sep   = ",";
+    }
   }
-  
-  if ((post & 0x02) != 0)
-  {
-    bytes = snprintf(p,len,"%sA",sep);
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x04) != 0)
-  {
-    bytes = snprintf(p,len,"%sB",sep);
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x08) != 0)
-  {
-    bytes = snprintf(p,len,"%sDP",sep);
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x10) != 0)
-  {
-    bytes = snprintf(p,len,"%sX",sep);
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x20) != 0)
-  {
-    bytes = snprintf(p,len,"%sY",sep);
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x40) != 0)
-  {
-    bytes = snprintf(p,len,"%s%s",sep,s ? "U" : "S");
-    len  -= bytes;
-    p    += bytes;
-    sep   = ",";
-  }
-  
-  if ((post & 0x80) != 0)
-    snprintf(p,len,"%sPC",sep);
 }
 
 /*************************************************************************/
