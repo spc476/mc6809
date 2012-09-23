@@ -1155,7 +1155,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0xDD:
-         (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
+    	 direct(dis,cpu,"STD",true);
          break;
     
     case 0xDE:
@@ -1219,7 +1219,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0xED:
-         (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
+         indexed(dis,cpu,"STD",true);
          break;
     
     case 0xEE:
@@ -1283,7 +1283,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0xFD:
-         (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
+         extended(dis,cpu,"STD",true);
          break;
     
     case 0xFE:
