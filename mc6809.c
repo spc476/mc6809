@@ -426,9 +426,9 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x19:	/* DAA */
          cpu->cycles++;
          cpu->data = cpu->A;
-         if (cpu->cc.h || ((cpu->A & 0x0F) > 9))
+         if (cpu->cc.h || ((cpu->A & 0x0F) > 0x09))
            cpu->data += 0x06;
-         if (cpu->cc.c || ((cpu->A & 0xF0) > 9))
+         if (cpu->cc.c || ((cpu->A & 0xF0) > 0x90))
            cpu->data += 0x60;
          cpu->A = cpu->data;
          break;
