@@ -20,6 +20,8 @@ static void		relative	(mc6809dis__t *const,const char *const,const char *const) 
 static void		lrelative	(mc6809dis__t *const,const char *const,const char *const)           __attribute__((nonnull));
 static void		psh		(mc6809dis__t *const,const char *const,const bool)                  __attribute__((nonnull));
 static void		pul		(mc6809dis__t *const,const char *const,const bool)                  __attribute__((nonnull));
+static void		exgtfr		(mc6809dis__t *const,const char *const);
+static void		ccimmediate	(mc6809dis__t *const,const char *const);
 
 static void		cc		(char *dest,size_t size,mc6809byte__t) __attribute__((nonnull));
 static mc6809byte__t	cctobyte	(mc6809__t *const)                     __attribute__((nonnull));
@@ -109,8 +111,7 @@ int mc6809dis_run(mc6809dis__t *const dis,mc6809__t *const cpu)
 
 int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
 {
-  mc6809byte__t byte;
-  int           rc;
+  int rc;
   
   assert(dis != NULL);
 
@@ -232,11 +233,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
          
     case 0x1A:
-         byte = (*dis->read)(dis,dis->next++);
-         snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
-         snprintf(dis->topcode,sizeof(dis->topcode),"ORCC");
-         snprintf(dis->toperand,sizeof(dis->toperand),"#%02X",byte);
-         cc(dis->data,sizeof(dis->data),byte);
+         ccimmediate(dis,"ORCC");
          break;
          
     case 0x1B:
@@ -244,11 +241,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
          
     case 0x1C:
-         byte = (*dis->read)(dis,dis->next++);
-         snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
-         snprintf(dis->topcode,sizeof(dis->topcode),"ANDCC");
-         snprintf(dis->toperand,sizeof(dis->toperand),"#%02X",byte);
-         cc(dis->data,sizeof(dis->data),byte);
+         ccimmediate(dis,"ANDCC");
          break;
     
     case 0x1D:
@@ -256,145 +249,13 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0x1E:
-         byte = (*dis->read)(dis,dis->next++);
-         snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
-         snprintf(dis->topcode,sizeof(dis->topcode),"EXG");
-         
-         if ((byte & 0x88) == 0x00)
-         {
-           const char *s;
-           const char *d;
-           
-           switch(byte & 0xF0)
-           {
-             case 0x00: s = "D"; break;
-             case 0x10: s = "X"; break;
-             case 0x20: s = "Y"; break;
-             case 0x30: s = "U"; break;
-             case 0x40: s = "S"; break;
-             case 0x50: s = "PC"; break;
-             default:
-                  (*dis->fault)(dis,MC6809_FAULT_EXG);
-                  return 0;
-           }
-           
-           switch(byte & 0x0F)
-           {
-             case 0x00: d = "D"; break;
-             case 0x01: d = "X"; break;
-             case 0x02: d = "Y"; break;
-             case 0x03: d = "U"; break;
-             case 0x04: d = "S"; break;
-             case 0x05: d = "PC"; break;
-             default:
-                  (*dis->fault)(dis,MC6809_FAULT_EXG);
-                  return 0;
-           }
-           snprintf(dis->toperand,sizeof(dis->toperand),"%s,%s",s,d);
-         }
-         else if ((byte & 0x88) == 0x88)
-         {
-           const char *s;
-           const char *d;
-           
-           switch(byte & 0xF0)
-           {
-             case 0x80:
-             case 0x90:
-             case 0xA0:
-             case 0xB0:
-             default:
-                  (*dis->fault)(dis,MC6809_FAULT_EXG);
-                  return 0;
-           }
-           
-           switch(byte & 0x0F)
-           {
-             case 0x08:
-             case 0x09:
-             case 0x0A:
-             case 0x0B:
-             default:
-                  (*dis->fault)(dis,MC6809_FAULT_EXG);
-                  return 0;
-           }
-           
-           snprintf(dis->toperand,sizeof(dis->toperand),"%s,%s",s,d);
-         }
-         else
-           (*dis->fault)(dis,MC6809_FAULT_EXG);
+         exgtfr(dis,"EXG");
          break;
-         
+    
     case 0x1F:
-         byte = (*dis->read)(dis,dis->next++);
-         snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
-         snprintf(dis->topcode,sizeof(dis->topcode),"TFR");
-         
-         if ((byte & 0x88) == 0x00)
-         {
-           const char *s;
-           const char *d;
-           
-           switch(byte & 0xF0)
-           {
-             case 0x00: s = "D"; break;
-             case 0x10: s = "X"; break;
-             case 0x20: s = "Y"; break;
-             case 0x30: s = "U"; break;
-             case 0x40: s = "S"; break;
-             case 0x50: s = "PC"; break;
-             default:
-                  (*dis->fault)(dis,MC6809_FAULT_TFR);
-                  return 0;
-           }
-           
-           switch(byte & 0x0F)
-           {
-             case 0x00: d = "D"; break;
-             case 0x01: d = "X"; break;
-             case 0x02: d = "Y"; break;
-             case 0x03: d = "U"; break;
-             case 0x04: d = "S"; break;
-             case 0x05: d = "PC"; break;
-             default:
-                  (*dis->fault)(dis,MC6809_FAULT_TFR);
-                  return 0;
-           }
-           snprintf(dis->toperand,sizeof(dis->toperand),"%s,%s",s,d);
-         }
-         else if ((byte & 0x88) == 0x88)
-         {
-           const char *s;
-           const char *d;
-           
-           switch(byte & 0xF0)
-           {
-             case 0x80: s = "A";  break;
-             case 0x90: s = "B";  break;
-             case 0xA0: s = "CC"; break;
-             case 0xB0: s = "DP"; break;
-             default:
-                  (*dis->fault)(dis,MC6809_FAULT_TFR);
-                  return 0;
-           }
-           
-           switch(byte & 0x0F)
-           {
-             case 0x08: d = "A";  break;
-             case 0x09: d = "B";  break;
-             case 0x0A: d = "CC"; break;
-             case 0x0B: d = "DP"; break;
-             default:
-                  (*dis->fault)(dis,MC6809_FAULT_TFR);
-                  return 0;
-           }
-           
-           snprintf(dis->toperand,sizeof(dis->toperand),"%s,%s",s,d);
-         }
-         else
-           (*dis->fault)(dis,MC6809_FAULT_TFR);
+         exgtfr(dis,"TFR");
          break;
-             
+         
     case 0x20:
          relative(dis,"BRA","");
          break;
@@ -507,11 +368,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0x3C:
-         byte = (*dis->read)(dis,dis->next++);
-         snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
-         snprintf(dis->topcode,sizeof(dis->topcode),"CWAI");
-         snprintf(dis->toperand,sizeof(dis->toperand),"#%02X",byte);
-         cc(dis->data,sizeof(dis->data),byte);
+         ccimmediate(dis,"CWAI");
          break;
          
     case 0x3D:
@@ -2196,6 +2053,57 @@ static void pul(mc6809dis__t *const dis,const char *const op,const bool s)
   
   if ((post & 0x80) != 0)
     snprintf(p,len,"%sPC",sep);
+}
+
+/*************************************************************************/
+
+static void exgtfr(mc6809dis__t *const dis,const char *const op)
+{
+  static const char *const etregs[] =
+  {
+    "D" , "X" , "Y"  , "U"  , "S"  , "PC" , NULL , NULL ,
+    "A" , "B" , "CC" , "DP" , NULL , NULL , NULL , NULL
+  };
+
+  mc6809byte__t  byte;
+  const char    *s;
+  const char    *d;
+  
+  assert(dis != NULL);
+  assert(op  != NULL);
+  
+  byte = (*dis->read)(dis,dis->next++);
+  snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
+  snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
+         
+  if (((byte & 0x88) == 0x00) || ((byte & 0x88) == 0x88))
+  {
+    s = etregs[byte >> 4];
+    d = etregs[byte &  0x0F];
+           
+    if ((s != NULL) && (d != NULL))
+      snprintf(dis->toperand,sizeof(dis->toperand),"%s,%s",s,d);
+    else
+      (*dis->fault)(dis,MC6809_FAULT_EXG);
+  }
+  else
+    (*dis->fault)(dis,MC6809_FAULT_EXG);  
+}
+
+/*************************************************************************/
+
+static void ccimmediate(mc6809dis__t *const dis,const char *const op)
+{
+  mc6809byte__t byte;
+  
+  assert(dis != NULL);
+  assert(op  != NULL);
+
+  byte = (*dis->read)(dis,dis->next++);
+  snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
+  snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
+  snprintf(dis->toperand,sizeof(dis->toperand),"#%02X",byte);
+  cc(dis->data,sizeof(dis->data),byte);
 }
 
 /*************************************************************************/
