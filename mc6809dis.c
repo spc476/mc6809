@@ -142,6 +142,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
   dis->inst   = (*dis->read)(dis,dis->next++);
   
   dis->operand[0]  = '\0';
+  dis->topcode[0]  = '\0';
   dis->toperand[0] = '\0';
   dis->data[0]     = '\0';
   
