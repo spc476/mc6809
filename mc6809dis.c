@@ -841,7 +841,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0xAD:
-         indexed(dis,cpu,"JMP",false);
+         indexed(dis,cpu,"JSR",false);
          break;
     
     case 0xAE:
@@ -965,7 +965,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0xCC:
-         immediate(dis,"CMPX",true);
+         immediate(dis,"LDD",true);
          break;
     
     case 0xCD:
