@@ -1690,7 +1690,7 @@ static void indexed(
          if (cpu != NULL)
          {
            addr.b[M]  = (addr.b[L] < 0x80) ? 0x00 : 0xFF;
-           addr.w    += cpu->pc.w;
+           addr.w    += dis->next;
            ind        = true;
          }
          break;
@@ -1703,7 +1703,7 @@ static void indexed(
          snprintf(dis->toperand,sizeof(dis->toperand),"[%d,PC]",ioff);
          if (cpu != NULL)
          {
-           addr.w += cpu->pc.w;
+           addr.w += dis->next;
            ind     = true;
          }
          break;
