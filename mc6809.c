@@ -2194,6 +2194,7 @@ static int page2(mc6809__t *const cpu)
   assert(cpu != NULL);
   
   cpu->page2 = true;
+  cpu->inst  = (*cpu->read)(cpu,cpu->pc.w++,true);
   
   /*-----------------------------------------------------------------------
   ; While the cycle counts may appear to be one less than stated in the
@@ -2201,7 +2202,7 @@ static int page2(mc6809__t *const cpu)
   ; mc6809_step() function (the same applies for the page3() routine).
   ;-----------------------------------------------------------------------*/
   
-  switch((*cpu->read)(cpu,cpu->pc.w++,true))
+  switch(cpu->inst)
   {
     case 0x21:
          cpu->cycles += 4;
@@ -2560,12 +2561,13 @@ static int page3(mc6809__t *const cpu)
   assert(cpu != NULL);
   
   cpu->page3 = true;
+  cpu->inst  = (*cpu->read)(cpu,cpu->pc.w++,true);
   
   /*-----------------------------------------------------------------
   ; see the comment in mc6809_step() for an explanation on cycle counts
   ;------------------------------------------------------------------*/
   
-  switch((*cpu->read)(cpu,cpu->pc.w++,true))
+  switch(cpu->inst)
   {
     case 0x3F:
          cpu->cycles += 19;
