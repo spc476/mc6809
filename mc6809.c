@@ -2834,18 +2834,14 @@ static void indexed(mc6809__t *const cpu)
     case 0x13:
          cpu->cycles       += 6;
          cpu->index[reg].w -= 2;
-         cpu->d16.b[M]      = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[L]      = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->addr.w        = cpu->d16.w;         
+         cpu->addr.b[M]     = (*cpu->read)(cpu,cpu->index[reg].w,false);
+         cpu->addr.b[L]     = (*cpu->read)(cpu,cpu->index[reg].w + 1,false);
          break;
          
     case 0x14:
          cpu->cycles    += 3;
          cpu->addr.b[M]  = (*cpu->read)(cpu,cpu->index[reg].w,false);
          cpu->addr.b[L]  = (*cpu->read)(cpu,cpu->index[reg].w + 1,false);
-         cpu->d16.b[M]   = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[L]   = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->addr.w     = cpu->d16.w;         
          break;
          
     case 0x15:
