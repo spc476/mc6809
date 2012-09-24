@@ -429,7 +429,8 @@ int mc6809_step(mc6809__t *const cpu)
            mc6809byte__t msn = cpu->A >> 4;
            mc6809byte__t lsn = cpu->A & 0x0F;
            mc6809byte__t cf  = 0;
-           bool          hc  = cpu->cc.h;
+           bool          h   = cpu->cc.h;
+           bool          c   = cpu->cc.c;  
 
            if (cpu->cc.c || (msn > 9) || ((msn > 8) && (lsn > 9)))
              cf |= 0x60;      
@@ -437,7 +438,8 @@ int mc6809_step(mc6809__t *const cpu)
              cf |= 0x06;
              
            cpu->A    = op_add(cpu,cpu->A,cf);
-           cpu->cc.h = hc;
+           cpu->cc.h = h;
+           cpu->cc.c = cpu->cc.c || c;
          }
          break;
          
