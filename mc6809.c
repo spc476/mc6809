@@ -571,7 +571,7 @@ int mc6809_step(mc6809__t *const cpu)
              case 0x01: cpu->X.w = cpu->addr.w; break;
              case 0x02: cpu->Y.w = cpu->addr.w; break;
              case 0x03: cpu->U.w = cpu->addr.w; break;
-             case 0x04: cpu->S.w = cpu->addr.w; break;
+             case 0x04: cpu->S.w = cpu->addr.w; cpu->nmi_armed = true; break;
              case 0x05: cpu->pc.w = cpu->addr.w; break;
              default:
                   (*cpu->fault)(cpu,MC6809_FAULT_TFR);
@@ -733,6 +733,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->cycles += 3;
          indexed(cpu);
          cpu->S.w = cpu->addr.w;
+         cpu->nmi_armed = true;
          break;
     
     case 0x33:
@@ -928,6 +929,7 @@ int mc6809_step(mc6809__t *const cpu)
            cpu->cycles += 2;
            cpu->S.b[M] = (*cpu->read)(cpu,cpu->U.w++,false);
            cpu->S.b[L] = (*cpu->read)(cpu,cpu->U.w++,false);
+           cpu->nmi_armed = true;
          }
          if (cpu->data & 0x80)
          {
