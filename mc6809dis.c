@@ -777,7 +777,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0x9D:
-         direct(dis,cpu,"JMP",false);
+         direct(dis,cpu,"JSR",false);
          break;
     
     case 0x9E:
@@ -905,7 +905,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0xBD:
-         extended(dis,cpu,"JMP",false);
+         extended(dis,cpu,"JSR",false);
          break;
     
     case 0xBE:
@@ -1029,7 +1029,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0xDC:
-         direct(dis,cpu,"CMPX",true);
+         direct(dis,cpu,"LDD",true);
          break;
     
     case 0xDD:
@@ -1093,7 +1093,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0xEC:
-         indexed(dis,cpu,"CMPX",true);
+         indexed(dis,cpu,"LDD",true);
          break;
     
     case 0xED:
@@ -1157,7 +1157,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0xFC:
-         extended(dis,cpu,"CMPX",true);
+         extended(dis,cpu,"LDD",true);
          break;
     
     case 0xFD:
