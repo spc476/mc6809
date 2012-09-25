@@ -1467,7 +1467,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->cycles += 5;
          direct(cpu);
          cpu->d16.b[M] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[M] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[L] = (*cpu->read)(cpu,cpu->addr.w,false);
          cpu->d.w      = op_sub16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
@@ -1575,7 +1575,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->cycles += 5;
          indexed(cpu);
          cpu->d16.b[M] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[M] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[L] = (*cpu->read)(cpu,cpu->addr.w,false);
          cpu->d.w      = op_sub16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
@@ -1875,7 +1875,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->cycles += 5;
          direct(cpu);
          cpu->d16.b[M] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[M] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[L] = (*cpu->read)(cpu,cpu->addr.w,false);
          cpu->d.w      = op_add16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
@@ -1983,7 +1983,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->cycles += 5;
          indexed(cpu);
          cpu->d16.b[M] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[M] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[L] = (*cpu->read)(cpu,cpu->addr.w,false);
          cpu->d.w      = op_add16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
@@ -2091,7 +2091,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->cycles += 6;
          extended(cpu);
          cpu->d16.b[M] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[M] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[L] = (*cpu->read)(cpu,cpu->addr.w,false);
          cpu->d.w      = op_add16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
