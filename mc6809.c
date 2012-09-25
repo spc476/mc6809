@@ -170,12 +170,9 @@ void mc6809_reset(mc6809__t *const cpu)
   cpu->page3     = false;
   cpu->pc.b[M]   = (*cpu->read)(cpu,MC6809_VECTOR_RESET,false);
   cpu->pc.b[L]   = (*cpu->read)(cpu,MC6809_VECTOR_RESET + 1,false);
-  cpu->S.w       = 0;
-  cpu->U.w       = 0;
-  cpu->Y.w       = 0;
-  cpu->X.w       = 0;
-  cpu->d.w       = 0;
   cpu->dp        = 0;
+  cpu->cc.f      = true;
+  cpu->cc.i      = true;
   cpu->instpc    = cpu->pc.w;  
   bytetocc(cpu,0);
 }
