@@ -1359,7 +1359,7 @@ static int page3(mc6809dis__t *const dis,mc6809__t *const cpu)
 {
   mc6809byte__t byte;
   
-  assert(cpu != NULL);
+  assert(dis != NULL);
   
   byte = (*dis->read)(dis,dis->next++);
   snprintf(&dis->opcode[2],sizeof(dis->opcode)-2,"%02X",byte);
