@@ -31,8 +31,8 @@
 #endif
 
 #if defined(__i386)
-#  define M 1
-#  define L 0
+#  define MSB 1
+#  define LSB 0
 #else
 #  warning You need to define the byte order
 #endif
@@ -122,8 +122,8 @@ typedef struct mc6809
 #define Y	index[1]
 #define U	index[2]
 #define S	index[3]
-#define A	d.b[M]
-#define B	d.b[L]
+#define A	d.b[MSB]
+#define B	d.b[LSB]
 
 /**********************************************************************/
 

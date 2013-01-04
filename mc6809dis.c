@@ -1451,8 +1451,8 @@ static void indexed(
       addr.w = cpu->index[reg].w + (mc6809addr__t)off;
       if (b16)
       {
-        d16.b[M] = (*dis->read)(dis,addr.w);
-        d16.b[L] = (*dis->read)(dis,addr.w + 1);
+        d16.b[MSB] = (*dis->read)(dis,addr.w);
+        d16.b[LSB] = (*dis->read)(dis,addr.w + 1);
         snprintf(dis->data,sizeof(dis->data),"%04X = %04X",addr.w,d16.w);
       }
       else
@@ -1500,8 +1500,8 @@ static void indexed(
          snprintf(dis->toperand,sizeof(dis->toperand),"B,%c",regs[reg]);
          if (cpu != NULL)
          {
-           addr.b[L]  = cpu->B;
-           addr.b[M]  = (cpu->B < 0x80) ? 0x00 : 0xFF;
+           addr.b[LSB]  = cpu->B;
+           addr.b[MSB]  = (cpu->B < 0x80) ? 0x00 : 0xFF;
            addr.w    += cpu->index[reg].w;
          }
          break;
@@ -1510,8 +1510,8 @@ static void indexed(
          snprintf(dis->toperand,sizeof(dis->toperand),"A,%c",regs[reg]);
          if (cpu != NULL)
          {
-           addr.b[L]  = cpu->A;
-           addr.b[M]  = (cpu->A < 0x80) ? 0x00 : 0xFF;
+           addr.b[LSB]  = cpu->A;
+           addr.b[MSB]  = (cpu->A < 0x80) ? 0x00 : 0xFF;
            addr.w    += cpu->index[reg].w;
          }
          break;
@@ -1521,20 +1521,20 @@ static void indexed(
          break;
          
     case 0x08:
-         addr.b[L] = (*dis->read)(dis,dis->next++);
-         ioff      = (addr.b[L] < 0x80) ? addr.b[L] : addr.b[L] - 256;
-         snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%02X",addr.b[L]);
+         addr.b[LSB] = (*dis->read)(dis,dis->next++);
+         ioff      = (addr.b[LSB] < 0x80) ? addr.b[LSB] : addr.b[LSB] - 256;
+         snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%02X",addr.b[LSB]);
          snprintf(dis->toperand,sizeof(dis->toperand),"%d,%c",ioff,regs[reg]);
          if (cpu != NULL)
          {
-           addr.b[M]  = (addr.b[L] < 0x80) ? 0x00: 0xFF;
+           addr.b[MSB]  = (addr.b[LSB] < 0x80) ? 0x00: 0xFF;
            addr.w    += cpu->index[reg].w;
          }
          break;
          
     case 0x09:
-         addr.b[M] = (*dis->read)(dis,dis->next++);
-         addr.b[L] = (*dis->read)(dis,dis->next++);
+         addr.b[MSB] = (*dis->read)(dis,dis->next++);
+         addr.b[LSB] = (*dis->read)(dis,dis->next++);
          ioff      = ((int16_t)addr.w);
          snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%04X",addr.w);
          snprintf(dis->toperand,sizeof(dis->toperand),"%d,%c",ioff,regs[reg]);
@@ -1553,20 +1553,20 @@ static void indexed(
          break;
          
     case 0x0C:
-         addr.b[L] = (*dis->read)(dis,dis->next++);
-         ioff      = (addr.b[L] < 0x80) ? addr.b[L] : addr.b[L] - 256;
-         snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%02X",addr.b[L]);
+         addr.b[LSB] = (*dis->read)(dis,dis->next++);
+         ioff      = (addr.b[LSB] < 0x80) ? addr.b[LSB] : addr.b[LSB] - 256;
+         snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%02X",addr.b[LSB]);
          snprintf(dis->toperand,sizeof(dis->toperand),"%d,PC",ioff);
          if (cpu != NULL)
          {
-           addr.b[M]  = (addr.b[L] < 0x80) ? 0x00 : 0xFF;
+           addr.b[MSB]  = (addr.b[LSB] < 0x80) ? 0x00 : 0xFF;
            addr.w    += cpu->pc.w;
          }
          break;
          
     case 0x0D:
-         addr.b[M] = (*dis->read)(dis,dis->next++);
-         addr.b[L] = (*dis->read)(dis,dis->next++);
+         addr.b[MSB] = (*dis->read)(dis,dis->next++);
+         addr.b[LSB] = (*dis->read)(dis,dis->next++);
          ioff      = ((int16_t)addr.w);
          snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%04X",addr.w);
          snprintf(dis->toperand,sizeof(dis->toperand),"%d,PC",ioff);
@@ -1621,8 +1621,8 @@ static void indexed(
          snprintf(dis->toperand,sizeof(dis->toperand),"[B,%c]",regs[reg]);
          if (cpu != NULL)
          {
-           addr.b[L]  = cpu->B;
-           addr.b[M]  = (cpu->B < 0x80) ? 0x00 : 0xFF;
+           addr.b[LSB]  = cpu->B;
+           addr.b[MSB]  = (cpu->B < 0x80) ? 0x00 : 0xFF;
            addr.w    += cpu->index[reg].w;
            ind        = true;
          }
@@ -1632,8 +1632,8 @@ static void indexed(
          snprintf(dis->toperand,sizeof(dis->toperand),"[A,%c]",regs[reg]);
          if (cpu != NULL)
          {
-           addr.b[L]  = cpu->A;
-           addr.b[M]  = (cpu->A < 0x80) ? 0x00 : 0xFF;
+           addr.b[LSB]  = cpu->A;
+           addr.b[MSB]  = (cpu->A < 0x80) ? 0x00 : 0xFF;
            addr.w    += cpu->index[reg].w;
            ind        = true;
          }
@@ -1644,21 +1644,21 @@ static void indexed(
          break;
          
     case 0x18:
-         addr.b[L] = (*dis->read)(dis,dis->next++);
-         ioff      = (addr.b[L] < 0x80) ? addr.b[L] : addr.b[L] - 256;
-         snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%02X",addr.b[L]);
+         addr.b[LSB] = (*dis->read)(dis,dis->next++);
+         ioff      = (addr.b[LSB] < 0x80) ? addr.b[LSB] : addr.b[LSB] - 256;
+         snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%02X",addr.b[LSB]);
          snprintf(dis->toperand,sizeof(dis->toperand),"[%d,%c]",ioff,regs[reg]);
          if (cpu != NULL)
          {
-           addr.b[M]  = (addr.b[L] < 0x80) ? 0x00: 0xFF;
+           addr.b[MSB]  = (addr.b[LSB] < 0x80) ? 0x00: 0xFF;
            addr.w    += cpu->index[reg].w;
            ind        = true;
          }
          break;
 
     case 0x19:
-         addr.b[M] = (*dis->read)(dis,dis->next++);
-         addr.b[L] = (*dis->read)(dis,dis->next++);
+         addr.b[MSB] = (*dis->read)(dis,dis->next++);
+         addr.b[LSB] = (*dis->read)(dis,dis->next++);
          ioff      = ((int16_t)addr.w);
          snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%04X",addr.w);
          snprintf(dis->toperand,sizeof(dis->toperand),"[%d,%c]",ioff,regs[reg]);
@@ -1683,21 +1683,21 @@ static void indexed(
          break;
          
     case 0x1C:
-         addr.b[L] = (*dis->read)(dis,dis->next++);
-         ioff      = (addr.b[L] < 0x80) ? addr.b[L] : addr.b[L] - 256;
-         snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%02X",addr.b[L]);
+         addr.b[LSB] = (*dis->read)(dis,dis->next++);
+         ioff      = (addr.b[LSB] < 0x80) ? addr.b[LSB] : addr.b[LSB] - 256;
+         snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%02X",addr.b[LSB]);
          snprintf(dis->toperand,sizeof(dis->toperand),"[%d,PC]",ioff);
          if (cpu != NULL)
          {
-           addr.b[M]  = (addr.b[L] < 0x80) ? 0x00 : 0xFF;
+           addr.b[MSB]  = (addr.b[LSB] < 0x80) ? 0x00 : 0xFF;
            addr.w    += dis->next;
            ind        = true;
          }
          break;
          
     case 0x1D:
-         addr.b[M] = (*dis->read)(dis,dis->next++);
-         addr.b[L] = (*dis->read)(dis,dis->next++);
+         addr.b[MSB] = (*dis->read)(dis,dis->next++);
+         addr.b[LSB] = (*dis->read)(dis,dis->next++);
          ioff      = ((int16_t)addr.w);
          snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%04X",addr.w);
          snprintf(dis->toperand,sizeof(dis->toperand),"[%d,PC]",ioff);
@@ -1715,8 +1715,8 @@ static void indexed(
     case 0x1F:
          if (reg == 0)
          {
-           addr.b[M] = (*dis->read)(dis,dis->next++);
-           addr.b[L] = (*dis->read)(dis,dis->next++);
+           addr.b[MSB] = (*dis->read)(dis,dis->next++);
+           addr.b[LSB] = (*dis->read)(dis,dis->next++);
            snprintf(&dis->operand[2],sizeof(dis->operand)-2,"%04X",addr.w);
            snprintf(dis->toperand,sizeof(dis->toperand),"[%04X]",addr.w);
            ind = true;
@@ -1735,13 +1735,13 @@ static void indexed(
   {
     if (ind)
     {
-      iaddr.b[M] = (*dis->read)(dis,addr.w);
-      iaddr.b[L] = (*dis->read)(dis,addr.w+1);
+      iaddr.b[MSB] = (*dis->read)(dis,addr.w);
+      iaddr.b[LSB] = (*dis->read)(dis,addr.w+1);
       
       if (b16)
       {
-        d16.b[M] = (*dis->read)(dis,iaddr.w);
-        d16.b[L] = (*dis->read)(dis,iaddr.w + 1);
+        d16.b[MSB] = (*dis->read)(dis,iaddr.w);
+        d16.b[LSB] = (*dis->read)(dis,iaddr.w + 1);
         snprintf(dis->data,sizeof(dis->data),"[%04X] = %04X = %04X",addr.w,iaddr.w,d16.w);
       }
       else
@@ -1754,8 +1754,8 @@ static void indexed(
     {
       if (b16)
       {
-        d16.b[M] = (*dis->read)(dis,addr.w);
-        d16.b[L] = (*dis->read)(dis,addr.w + 1);
+        d16.b[MSB] = (*dis->read)(dis,addr.w);
+        d16.b[LSB] = (*dis->read)(dis,addr.w + 1);
         snprintf(dis->data,sizeof(dis->data),"%04X = %04X",addr.w,d16.w);
       }
       else
@@ -1785,8 +1785,8 @@ static void immediate(
   
   if (b16)
   {
-    d16.b[M] = (*dis->read)(dis,dis->next++);
-    d16.b[L] = (*dis->read)(dis,dis->next++);
+    d16.b[MSB] = (*dis->read)(dis,dis->next++);
+    d16.b[LSB] = (*dis->read)(dis,dis->next++);
     snprintf(dis->operand,sizeof(dis->operand),"%04X",d16.w);
     snprintf(dis->toperand,sizeof(dis->toperand),"#%04X",d16.w);
   }
@@ -1814,19 +1814,19 @@ static void direct(
   assert(dis != NULL);
   assert(op  != NULL);
   
-  addr.b[M] = 0;
-  addr.b[L] = (*dis->read)(dis,dis->next++);
+  addr.b[MSB] = 0;
+  addr.b[LSB] = (*dis->read)(dis,dis->next++);
   
-  snprintf(dis->operand,sizeof(dis->operand),"%02X",addr.b[L]);
+  snprintf(dis->operand,sizeof(dis->operand),"%02X",addr.b[LSB]);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
-  snprintf(dis->toperand,sizeof(dis->toperand),"%02X",addr.b[L]);
+  snprintf(dis->toperand,sizeof(dis->toperand),"%02X",addr.b[LSB]);
   
   if (cpu != NULL)
   {
     if (b16)
     {
-      word.b[M] = (*dis->read)(dis,addr.w++);
-      word.b[L] = (*dis->read)(dis,addr.w);
+      word.b[MSB] = (*dis->read)(dis,addr.w++);
+      word.b[LSB] = (*dis->read)(dis,addr.w);
       snprintf(dis->data,sizeof(dis->data),"%04X",word.w);
     }
     else
@@ -1853,8 +1853,8 @@ static void extended(
   assert(dis != NULL);
   assert(op  != NULL);
   
-  addr.b[M] = (*dis->read)(dis,dis->next++);
-  addr.b[L] = (*dis->read)(dis,dis->next++);
+  addr.b[MSB] = (*dis->read)(dis,dis->next++);
+  addr.b[LSB] = (*dis->read)(dis,dis->next++);
   
   snprintf(dis->operand,sizeof(dis->operand),"%04X",addr.w);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
@@ -1864,8 +1864,8 @@ static void extended(
   {
     if (b16)
     {
-      word.b[M] = (*dis->read)(dis,addr.w++);
-      word.b[L] = (*dis->read)(dis,addr.w);
+      word.b[MSB] = (*dis->read)(dis,addr.w++);
+      word.b[LSB] = (*dis->read)(dis,addr.w);
       snprintf(dis->data,sizeof(dis->data),"%04X",word.w);
     }
     else
@@ -1886,9 +1886,9 @@ static void relative(
 {
   mc6809word__t addr;
   
-  addr.b[L] = (*dis->read)(dis,dis->next++);
-  addr.b[M] = (addr.b[L] < 0x80) ? 0x00 : 0xFF;
-  snprintf(dis->operand,sizeof(dis->operand),"%02X",addr.b[L]);
+  addr.b[LSB] = (*dis->read)(dis,dis->next++);
+  addr.b[MSB] = (addr.b[LSB] < 0x80) ? 0x00 : 0xFF;
+  snprintf(dis->operand,sizeof(dis->operand),"%02X",addr.b[LSB]);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
   
   addr.w += dis->next;
@@ -1909,8 +1909,8 @@ static void lrelative(
 {
   mc6809word__t addr;
   
-  addr.b[M] = (*dis->read)(dis,dis->next++);
-  addr.b[L] = (*dis->read)(dis,dis->next++);
+  addr.b[MSB] = (*dis->read)(dis,dis->next++);
+  addr.b[LSB] = (*dis->read)(dis,dis->next++);
   snprintf(dis->operand,sizeof(dis->operand),"%04X",addr.w);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
   
