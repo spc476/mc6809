@@ -88,6 +88,7 @@ typedef struct mc6809
   
   unsigned long cycles;
   mc6809addr__t instpc;
+  mc6809word__t ea;
   mc6809byte__t inst;
   bool          nmi_armed;
   bool          nmi;
@@ -113,7 +114,7 @@ typedef struct mc6809
   ; thing.  You have been warned.
   ;-----------------------------------------------------------------------*/
   
-  mc6809word__t addr;
+  /*mc6809word__t addr;*/
   mc6809word__t d16;
   mc6809byte__t data;
 } mc6809__t;

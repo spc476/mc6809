@@ -167,7 +167,8 @@ void mc6809_reset(mc6809__t *const cpu)
   cpu->dp          = 0;
   cpu->cc.f        = true;
   cpu->cc.i        = true;
-  cpu->instpc      = cpu->pc.w;  
+  cpu->instpc      = cpu->pc.w;
+  cpu->ea.w        = 0;
   bytetocc(cpu,0);
 }
 
@@ -287,7 +288,7 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x00:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_neg(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_neg(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
     
     case 0x01:
@@ -301,13 +302,13 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x03:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_com(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_com(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x04:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_lsr(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_lsr(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x05:
@@ -317,31 +318,31 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x06:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_ror(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_ror(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x07:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_asr(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_asr(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x08:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_lsl(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_lsl(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
     
     case 0x09:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_rol(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_rol(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x0A:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_dec(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_dec(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x0B:
@@ -351,26 +352,26 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x0C:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_inc(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_inc(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x0D:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         op_tst(cpu,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_tst(cpu,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x0E:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->pc.w = cpu->addr.w;
+         cpu->pc.w = cpu->ea.w;
          break;
          
     case 0x0F:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->read) (cpu,cpu->addr.w,false);
-         (*cpu->write)(cpu,cpu->addr.w,op_clr(cpu));
+         (*cpu->read) (cpu,cpu->ea.w,false);
+         (*cpu->write)(cpu,cpu->ea.w,op_clr(cpu));
          break;
          
     case 0x10:
@@ -399,7 +400,7 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x16:
          cpu->cycles += 4;
          mc6809_lrelative(cpu);
-         cpu->pc.w += cpu->addr.w;
+         cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x17:
@@ -407,7 +408,7 @@ int mc6809_step(mc6809__t *const cpu)
          mc6809_lrelative(cpu);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
-         cpu->pc.w += cpu->addr.w;
+         cpu->pc.w += cpu->ea.w;
          break;
     
     case 0x18:
@@ -550,12 +551,12 @@ int mc6809_step(mc6809__t *const cpu)
          {
            switch(cpu->d16.b[LSB] & 0xF0)
            {
-             case 0x00: cpu->addr.w = cpu->d.w; break;
-             case 0x10: cpu->addr.w = cpu->X.w; break;
-             case 0x20: cpu->addr.w = cpu->Y.w; break;
-             case 0x30: cpu->addr.w = cpu->U.w; break;
-             case 0x40: cpu->addr.w = cpu->S.w; cpu->nmi_armed = true; break;
-             case 0x50: cpu->addr.w = cpu->pc.w; break;
+             case 0x00: cpu->ea.w = cpu->d.w; break;
+             case 0x10: cpu->ea.w = cpu->X.w; break;
+             case 0x20: cpu->ea.w = cpu->Y.w; break;
+             case 0x30: cpu->ea.w = cpu->U.w; break;
+             case 0x40: cpu->ea.w = cpu->S.w; cpu->nmi_armed = true; break;
+             case 0x50: cpu->ea.w = cpu->pc.w; break;
              default:
                   (*cpu->fault)(cpu,MC6809_FAULT_TFR);
                   return 0;
@@ -563,12 +564,12 @@ int mc6809_step(mc6809__t *const cpu)
            
            switch(cpu->d16.b[LSB] & 0x0F)
            {
-             case 0x00: cpu->d.w = cpu->addr.w; break;
-             case 0x01: cpu->X.w = cpu->addr.w; break;
-             case 0x02: cpu->Y.w = cpu->addr.w; break;
-             case 0x03: cpu->U.w = cpu->addr.w; break;
-             case 0x04: cpu->S.w = cpu->addr.w; cpu->nmi_armed = true; break;
-             case 0x05: cpu->pc.w = cpu->addr.w; break;
+             case 0x00: cpu->d.w = cpu->ea.w; break;
+             case 0x01: cpu->X.w = cpu->ea.w; break;
+             case 0x02: cpu->Y.w = cpu->ea.w; break;
+             case 0x03: cpu->U.w = cpu->ea.w; break;
+             case 0x04: cpu->S.w = cpu->ea.w; cpu->nmi_armed = true; break;
+             case 0x05: cpu->pc.w = cpu->ea.w; break;
              default:
                   (*cpu->fault)(cpu,MC6809_FAULT_TFR);
                   return 0;
@@ -605,7 +606,7 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x20:
          cpu->cycles += 2;
          mc6809_relative(cpu);
-         cpu->pc.w += cpu->addr.w;
+         cpu->pc.w += cpu->ea.w;
          break;
     
     case 0x21:
@@ -617,125 +618,125 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (bhi(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
     
     case 0x23:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (bls(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x24:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (bhs(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x25:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (blo(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
            
     case 0x26:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (bne(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x27:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (beq(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x28:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (bvc(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x29:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (bvs(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x2A:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (bpl(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x2B:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (bmi(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x2C:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (bge(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x2D:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (blt(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x2E:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (bgt(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x2F:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          if (ble(cpu))
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          break;
     
     case 0x30:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->X.w = cpu->addr.w;
+         cpu->X.w = cpu->ea.w;
          cpu->cc.z = (cpu->X.w == 0x0000);
          break;
     
     case 0x31:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->Y.w = cpu->addr.w;
+         cpu->Y.w = cpu->ea.w;
          cpu->cc.z = (cpu->Y.w == 0x0000);
          break;
          
     case 0x32:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->S.w = cpu->addr.w;
+         cpu->S.w = cpu->ea.w;
          cpu->nmi_armed = true;
          break;
     
     case 0x33:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->U.w = cpu->addr.w;
+         cpu->U.w = cpu->ea.w;
          break;
          
     case 0x34:
@@ -957,10 +958,10 @@ int mc6809_step(mc6809__t *const cpu)
          bytetocc(cpu,(*cpu->read)(cpu,cpu->S.w++,false));
          if (cpu->cc.e)
          {
-           cpu->cycles += 9;
-           cpu->A      = (*cpu->read)(cpu,cpu->S.w++,false);
-           cpu->B      = (*cpu->read)(cpu,cpu->S.w++,false);
-           cpu->dp     = (*cpu->read)(cpu,cpu->S.w++,false);
+           cpu->cycles  += 9;
+           cpu->A        = (*cpu->read)(cpu,cpu->S.w++,false);
+           cpu->B        = (*cpu->read)(cpu,cpu->S.w++,false);
+           cpu->dp       = (*cpu->read)(cpu,cpu->S.w++,false);
            cpu->X.b[MSB] = (*cpu->read)(cpu,cpu->S.w++,false);
            cpu->X.b[LSB] = (*cpu->read)(cpu,cpu->S.w++,false);
            cpu->Y.b[MSB] = (*cpu->read)(cpu,cpu->S.w++,false);
@@ -1018,8 +1019,8 @@ int mc6809_step(mc6809__t *const cpu)
          (*cpu->write)(cpu,--cpu->S.w,cpu->B);
          (*cpu->write)(cpu,--cpu->S.w,cpu->A);
          (*cpu->write)(cpu,--cpu->S.w,cctobyte(cpu));
-         cpu->cc.f    = true;
-         cpu->cc.i    = true;
+         cpu->cc.f      = true;
+         cpu->cc.i      = true;
          cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_SWI,false);
          cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_SWI + 1,false);
          break;
@@ -1177,7 +1178,7 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x60:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_neg(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_neg(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x61:
@@ -1191,13 +1192,13 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x63:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_com(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_com(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x64:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_lsr(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_lsr(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x65:
@@ -1207,31 +1208,31 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x66:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_ror(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_ror(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x67:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_asr(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_asr(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x68:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_lsl(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_lsl(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x69:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_rol(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_rol(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x6A:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_dec(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_dec(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x6B:
@@ -1241,32 +1242,32 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x6C:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_inc(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_inc(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x6D:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         op_tst(cpu,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_tst(cpu,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x6E:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->pc.w = cpu->addr.w;
+         cpu->pc.w = cpu->ea.w;
          break;
          
     case 0x6F:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->read) (cpu,cpu->addr.w,false);
-         (*cpu->write)(cpu,cpu->addr.w,op_clr(cpu));
+         (*cpu->read) (cpu,cpu->ea.w,false);
+         (*cpu->write)(cpu,cpu->ea.w,op_clr(cpu));
          break;
          
     case 0x70:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_neg(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_neg(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
     
     case 0x71:
@@ -1280,13 +1281,13 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x73:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_com(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_com(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x74:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_lsr(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_lsr(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x75:
@@ -1296,31 +1297,31 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x76:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_ror(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_ror(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x77:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_asr(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_asr(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x78:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_lsl(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_lsl(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
     
     case 0x79:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_rol(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_rol(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x7A:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_dec(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_dec(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x7B:
@@ -1330,26 +1331,26 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x7C:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,op_inc(cpu,(*cpu->read)(cpu,cpu->addr.w,false)));
+         (*cpu->write)(cpu,cpu->ea.w,op_inc(cpu,(*cpu->read)(cpu,cpu->ea.w,false)));
          break;
          
     case 0x7D:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         op_tst(cpu,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_tst(cpu,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x7E:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->pc.w = cpu->addr.w;
+         cpu->pc.w = cpu->ea.w;
          break;
          
     case 0x7F:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->read) (cpu,cpu->addr.w,false);
-         (*cpu->write)(cpu,cpu->addr.w,op_clr(cpu));
+         (*cpu->read) (cpu,cpu->ea.w,false);
+         (*cpu->write)(cpu,cpu->ea.w,op_clr(cpu));
          break;
     
     case 0x80:
@@ -1368,10 +1369,10 @@ int mc6809_step(mc6809__t *const cpu)
          break;
          
     case 0x83:
-         cpu->cycles += 3;
+         cpu->cycles    += 3;
          cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
          cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->d.w      = op_sub16(cpu,cpu->d.w,cpu->d16.w);
+         cpu->d.w        = op_sub16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
     case 0x84:
@@ -1415,7 +1416,7 @@ int mc6809_step(mc6809__t *const cpu)
          break;
          
     case 0x8C:
-         cpu->cycles += 3;
+         cpu->cycles    += 3;
          cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
          cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
          op_cmp16(cpu,cpu->X.w,cpu->d16.w);
@@ -1426,11 +1427,11 @@ int mc6809_step(mc6809__t *const cpu)
          mc6809_relative(cpu);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
-         cpu->pc.w += cpu->addr.w;
+         cpu->pc.w += cpu->ea.w;
          break;
          
     case 0x8E:
-         cpu->cycles += 2;
+         cpu->cycles   += 2;
          cpu->X.b[MSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
          cpu->X.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
          op_ldst16(cpu,cpu->X.w);
@@ -1443,84 +1444,84 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x90:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->A = op_sub(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_sub(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x91:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         op_cmp(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_cmp(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x92:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->A = op_sbc(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_sbc(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x93:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->d.w      = op_sub16(cpu,cpu->d.w,cpu->d16.w);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->d.w        = op_sub16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
     case 0x94:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->A = op_and(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_and(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x95:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         op_bit(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_bit(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x96:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->A = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->A = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst(cpu,cpu->A);
          break;
     
     case 0x97:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->A);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->A);
          op_ldst(cpu,cpu->A);
          break;
          
     case 0x98:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->A = op_eor(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_eor(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x99:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->A = op_adc(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_adc(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x9A:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->A = op_or(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_or(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x9B:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->A = op_add(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_add(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0x9C:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->X.w,cpu->d16.w);
          break;
          
@@ -1529,106 +1530,106 @@ int mc6809_step(mc6809__t *const cpu)
          mc6809_direct(cpu);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
-         cpu->pc.w = cpu->addr.w;
+         cpu->pc.w = cpu->ea.w;
          break;
          
     case 0x9E:
          cpu->cycles += 4;
          mc6809_direct(cpu);
-         cpu->X.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->X.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->X.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->X.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->X.w);
          break;
          
     case 0x9F:
          cpu->cycles += 4;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->X.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->X.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->X.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->X.b[LSB]);
          op_ldst16(cpu,cpu->X.w);
          break;
 
     case 0xA0:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->A = op_sub(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_sub(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xA1:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         op_cmp(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_cmp(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xA2:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->A = op_sbc(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_sbc(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xA3:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->d.w      = op_sub16(cpu,cpu->d.w,cpu->d16.w);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->d.w        = op_sub16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
     case 0xA4:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->A = op_and(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_and(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xA5:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         op_bit(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_bit(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xA6:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->A = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->A = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst(cpu,cpu->A);
          break;
     
     case 0xA7:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->A);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->A);
          op_ldst(cpu,cpu->A);
          break;
          
     case 0xA8:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->A = op_eor(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_eor(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xA9:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->A = op_adc(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_adc(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xAA:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->A = op_or(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_or(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xAB:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->A = op_add(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_add(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xAC:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->X.w,cpu->d16.w);
          break;
          
@@ -1637,106 +1638,106 @@ int mc6809_step(mc6809__t *const cpu)
          mc6809_indexed(cpu);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
-         cpu->pc.w = cpu->addr.w;
+         cpu->pc.w = cpu->ea.w;
          break;
          
     case 0xAE:
          cpu->cycles += 4;
          mc6809_indexed(cpu);
-         cpu->X.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->X.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->X.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->X.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->X.w);
          break;
          
     case 0xAF:
          cpu->cycles += 4;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->X.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->X.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->X.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->X.b[LSB]);
          op_ldst16(cpu,cpu->X.w);
          break;
 
     case 0xB0:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->A = op_sub(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_sub(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xB1:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         op_cmp(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_cmp(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xB2:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->A = op_sbc(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_sbc(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xB3:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->d.w      = op_sub16(cpu,cpu->d.w,cpu->d16.w);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->d.w        = op_sub16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
     case 0xB4:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->A = op_and(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_and(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xB5:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         op_bit(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_bit(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xB6:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->A = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->A = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst(cpu,cpu->A);
          break;
     
     case 0xB7:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->A);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->A);
          op_ldst(cpu,cpu->A);
          break;
          
     case 0xB8:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->A = op_eor(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_eor(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xB9:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->A = op_adc(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_adc(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xBA:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->A = op_or(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_or(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xBB:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->A = op_add(cpu,cpu->A,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->A = op_add(cpu,cpu->A,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xBC:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->X.w,cpu->d16.w);
          break;
          
@@ -1745,22 +1746,22 @@ int mc6809_step(mc6809__t *const cpu)
          mc6809_extended(cpu);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
-         cpu->pc.w = cpu->addr.w;
+         cpu->pc.w = cpu->ea.w;
          break;
          
     case 0xBE:
          cpu->cycles += 5;
          mc6809_extended(cpu);
-         cpu->X.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->X.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->X.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->X.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->X.w);
          break;
          
     case 0xBF:
          cpu->cycles += 5;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->X.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->X.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->X.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->X.b[LSB]);
          op_ldst16(cpu,cpu->X.w);
          break;
 
@@ -1783,7 +1784,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->cycles += 3;
          cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
          cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->d.w      = op_add16(cpu,cpu->d.w,cpu->d16.w);
+         cpu->d.w        = op_add16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
     case 0xC4:
@@ -1851,324 +1852,324 @@ int mc6809_step(mc6809__t *const cpu)
     case 0xD0:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->B = op_sub(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_sub(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xD1:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         op_cmp(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_cmp(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xD2:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->B = op_sbc(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_sbc(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xD3:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->d.w      = op_add16(cpu,cpu->d.w,cpu->d16.w);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->d.w        = op_add16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
     case 0xD4:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->B = op_and(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_and(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xD5:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         op_bit(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_bit(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xD6:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->B = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->B = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst(cpu,cpu->B);
          break;
     
     case 0xD7:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->B);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->B);
          op_ldst(cpu,cpu->B);
          break;
          
     case 0xD8:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->B = op_eor(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_eor(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xD9:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->B = op_adc(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_adc(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xDA:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->B = op_or(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_or(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xDB:
          cpu->cycles += 3;
          mc6809_direct(cpu);
-         cpu->B = op_add(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_add(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xDC:
          cpu->cycles += 4;
          mc6809_direct(cpu);
-         cpu->A    = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->B    = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->A    = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->B    = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->d.w);
          break;
          
     case 0xDD:
          cpu->cycles += 6;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->A);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->B);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->A);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->B);
          op_ldst16(cpu,cpu->d.w);
          break;
          
     case 0xDE:
          cpu->cycles += 4;
          mc6809_direct(cpu);
-         cpu->U.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->U.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->U.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->U.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->d.w);
          break;
          
     case 0xDF:
          cpu->cycles += 4;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->U.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->U.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->U.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->U.b[LSB]);
          op_ldst16(cpu,cpu->d.w);
          break;
 
     case 0xE0:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->B = op_sub(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_sub(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xE1:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         op_cmp(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_cmp(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xE2:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->B = op_sbc(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_sbc(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xE3:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->d.w      = op_add16(cpu,cpu->d.w,cpu->d16.w);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->d.w        = op_add16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
     case 0xE4:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->B = op_and(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_and(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xE5:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         op_bit(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_bit(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xE6:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->B = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->B = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst(cpu,cpu->B);
          break;
     
     case 0xE7:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->B);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->B);
          op_ldst(cpu,cpu->B);
          break;
          
     case 0xE8:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->B = op_eor(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_eor(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xE9:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->B = op_adc(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_adc(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xEA:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->B = op_or(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_or(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xEB:
          cpu->cycles += 3;
          mc6809_indexed(cpu);
-         cpu->B = op_add(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_add(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xEC:
          cpu->cycles += 4;
          mc6809_indexed(cpu);
-         cpu->A    = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->B    = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->A    = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->B    = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->d.w);
          break;
          
     case 0xED:
          cpu->cycles += 6;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->A);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->B);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->A);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->B);
          op_ldst16(cpu,cpu->d.w);
          break;
          
     case 0xEE:
          cpu->cycles += 4;
          mc6809_indexed(cpu);
-         cpu->U.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->U.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->U.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->U.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->U.w);
          break;
          
     case 0xEF:
          cpu->cycles += 4;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->U.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->U.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->U.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->U.b[LSB]);
          op_ldst16(cpu,cpu->U.w);
          break;
 
     case 0xF0:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->B = op_sub(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_sub(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xF1:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         op_cmp(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_cmp(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xF2:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->B = op_sbc(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_sbc(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xF3:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->d.w      = op_add16(cpu,cpu->d.w,cpu->d16.w);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->d.w        = op_add16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
     case 0xF4:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->B = op_and(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_and(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xF5:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         op_bit(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         op_bit(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xF6:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->B = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->B = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst(cpu,cpu->B);
          break;
     
     case 0xF7:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->B);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->B);
          op_ldst(cpu,cpu->B);
          break;
          
     case 0xF8:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->B = op_eor(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_eor(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xF9:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->B = op_adc(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_adc(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xFA:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->B = op_or(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_or(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xFB:
          cpu->cycles += 4;
          mc6809_extended(cpu);
-         cpu->B = op_add(cpu,cpu->B,(*cpu->read)(cpu,cpu->addr.w,false));
+         cpu->B = op_add(cpu,cpu->B,(*cpu->read)(cpu,cpu->ea.w,false));
          break;
          
     case 0xFC:
          cpu->cycles += 5;
          mc6809_extended(cpu);
-         cpu->A    = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->B    = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->A    = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->B    = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->d.w);
          break;
          
     case 0xFD:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->A);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->B);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->A);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->B);
          op_ldst16(cpu,cpu->d.w);
          break;
          
     case 0xFE:
          cpu->cycles += 5;
          mc6809_extended(cpu);
-         cpu->U.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->U.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->U.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->U.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->U.w);
          break;
          
     case 0xFF:
          cpu->cycles += 5;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->U.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->U.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->U.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->U.b[LSB]);
          op_ldst16(cpu,cpu->U.w);
          break;
         
@@ -2209,7 +2210,7 @@ static int page2(mc6809__t *const cpu)
          if (bhi(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2219,7 +2220,7 @@ static int page2(mc6809__t *const cpu)
          if (bls(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2229,7 +2230,7 @@ static int page2(mc6809__t *const cpu)
          if (bhs(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2239,7 +2240,7 @@ static int page2(mc6809__t *const cpu)
          if (blo(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2249,7 +2250,7 @@ static int page2(mc6809__t *const cpu)
          if (bne(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2259,7 +2260,7 @@ static int page2(mc6809__t *const cpu)
          if (beq(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2269,7 +2270,7 @@ static int page2(mc6809__t *const cpu)
          if (bvc(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2279,7 +2280,7 @@ static int page2(mc6809__t *const cpu)
          if (bvs(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2289,7 +2290,7 @@ static int page2(mc6809__t *const cpu)
          if (bpl(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
            
@@ -2299,7 +2300,7 @@ static int page2(mc6809__t *const cpu)
          if (bmi(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2309,7 +2310,7 @@ static int page2(mc6809__t *const cpu)
          if (bge(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2319,7 +2320,7 @@ static int page2(mc6809__t *const cpu)
          if (blt(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2329,7 +2330,7 @@ static int page2(mc6809__t *const cpu)
          if (bgt(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
          
@@ -2339,7 +2340,7 @@ static int page2(mc6809__t *const cpu)
          if (bhi(cpu))
          {
            cpu->cycles++;
-           cpu->pc.w += cpu->addr.w;
+           cpu->pc.w += cpu->ea.w;
          }
          break;
  
@@ -2386,96 +2387,96 @@ static int page2(mc6809__t *const cpu)
     case 0x93:
          cpu->cycles += 6;
          mc6809_direct(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
     case 0x9C:
          cpu->cycles += 6;
          mc6809_direct(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->Y.w,cpu->d16.w);
          break;
          
     case 0x9E:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         cpu->Y.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->Y.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->Y.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->Y.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->Y.w);
          break;
          
     case 0x9F:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->Y.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->Y.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->Y.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->Y.b[LSB]);
          op_ldst16(cpu,cpu->Y.w);
          break;
          
     case 0xA3:
          cpu->cycles += 6;
          mc6809_indexed(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
     case 0xAC:
          cpu->cycles += 6;
          mc6809_indexed(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->Y.w,cpu->d16.w);
          break;
          
     case 0xAE:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         cpu->Y.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->Y.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->Y.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->Y.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->Y.w);
          break;
          
     case 0xAF:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->Y.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->Y.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->Y.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->Y.b[LSB]);
          op_ldst16(cpu,cpu->Y.w);
          break;
 
     case 0xB3:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->d.w,cpu->d16.w);
          break;
          
     case 0xBC:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->Y.w,cpu->d16.w);
          break;
          
     case 0xBE:
          cpu->cycles += 5;
          mc6809_extended(cpu);
-         cpu->Y.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->Y.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->Y.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->Y.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->Y.w);
          break;
          
     case 0xBF:
          cpu->cycles += 5;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->Y.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->Y.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->Y.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->Y.b[LSB]);
          op_ldst16(cpu,cpu->Y.w);
          break;
 
@@ -2490,8 +2491,8 @@ static int page2(mc6809__t *const cpu)
     case 0xDE:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         cpu->S.b[MSB]    = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->S.b[LSB]    = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->S.b[MSB]    = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->S.b[LSB]    = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->S.w);
          cpu->nmi_armed = true;
          break;
@@ -2499,16 +2500,16 @@ static int page2(mc6809__t *const cpu)
     case 0xDF:
          cpu->cycles += 5;
          mc6809_direct(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->S.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->S.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->S.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->S.b[LSB]);
          op_ldst16(cpu,cpu->S.w);
          break;
          
     case 0xEE:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         cpu->S.b[MSB]    = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->S.b[LSB]    = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->S.b[MSB]    = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->S.b[LSB]    = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->S.w);
          cpu->nmi_armed = true;
          break;
@@ -2516,16 +2517,16 @@ static int page2(mc6809__t *const cpu)
     case 0xEF:
          cpu->cycles += 5;
          mc6809_indexed(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->S.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->S.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->S.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->S.b[LSB]);
          op_ldst16(cpu,cpu->S.w);
          break;
          
     case 0xFE:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         cpu->S.b[MSB]    = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->S.b[LSB]    = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->S.b[MSB]    = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->S.b[LSB]    = (*cpu->read)(cpu,cpu->ea.w,false);
          op_ldst16(cpu,cpu->S.w);
          cpu->nmi_armed = true;
          break;
@@ -2533,8 +2534,8 @@ static int page2(mc6809__t *const cpu)
     case 0xFF:
          cpu->cycles += 6;
          mc6809_extended(cpu);
-         (*cpu->write)(cpu,cpu->addr.w++,cpu->S.b[MSB]);
-         (*cpu->write)(cpu,cpu->addr.w,cpu->S.b[LSB]);
+         (*cpu->write)(cpu,cpu->ea.w++,cpu->S.b[MSB]);
+         (*cpu->write)(cpu,cpu->ea.w,cpu->S.b[LSB]);
          op_ldst16(cpu,cpu->S.w);
          break;
  
@@ -2599,48 +2600,48 @@ static int page3(mc6809__t *const cpu)
     case 0x93:
          cpu->cycles += 6;
          mc6809_direct(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->U.w,cpu->d16.w);
          break;
     
     case 0x9C:
          cpu->cycles += 6;
          mc6809_direct(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->S.w,cpu->d16.w);
          break;
     
     case 0xA3:
          cpu->cycles += 6;
          mc6809_indexed(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->U.w,cpu->d16.w);
          break;
          
     case 0xAC:
          cpu->cycles += 6;
          mc6809_indexed(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->S.w,cpu->d16.w);
          break;
          
     case 0xB3:
          cpu->cycles += 7;
          mc6809_extended(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->U.w,cpu->d16.w);
          break;
          
     case 0xBC:
          cpu->cycles += 7;
          mc6809_extended(cpu);
-         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->addr.w,false);
+         cpu->d16.b[MSB] = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB] = (*cpu->read)(cpu,cpu->ea.w,false);
          op_cmp16(cpu,cpu->S.w,cpu->d16.w);
          break;
     
@@ -2660,8 +2661,8 @@ void mc6809_direct(mc6809__t *const cpu)
 {
   assert(cpu != NULL);
   
-  cpu->addr.b[MSB] = cpu->dp;
-  cpu->addr.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
+  cpu->ea.b[MSB] = cpu->dp;
+  cpu->ea.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
 }
 
 /***********************************************************************/
@@ -2670,8 +2671,8 @@ void mc6809_relative(mc6809__t *const cpu)
 {
   assert(cpu != NULL);
   
-  cpu->addr.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
-  cpu->addr.b[MSB] = (cpu->addr.b[LSB] > 0x7F) ? 0xFF : 0x00;
+  cpu->ea.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
+  cpu->ea.b[MSB] = (cpu->ea.b[LSB] > 0x7F) ? 0xFF : 0x00;
 }
 
 /***********************************************************************/
@@ -2680,8 +2681,8 @@ void mc6809_lrelative(mc6809__t *const cpu)
 {
   assert(cpu != NULL);
   
-  cpu->addr.b[MSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
-  cpu->addr.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
+  cpu->ea.b[MSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
+  cpu->ea.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
 }
 
 /*********************************************************************/
@@ -2690,8 +2691,8 @@ void mc6809_extended(mc6809__t *const cpu)
 {
   assert(cpu != NULL);
 
-  cpu->addr.b[MSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
-  cpu->addr.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
+  cpu->ea.b[MSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
+  cpu->ea.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
 }
 
 /***********************************************************************/
@@ -2711,9 +2712,9 @@ void mc6809_indexed(mc6809__t *const cpu)
   if (mode < 0x80)
   {
     cpu->cycles++;
-    cpu->addr.w = (mc6809addr__t)off;
-    if (cpu->addr.w > 15) cpu->addr.w |= 0xFFE0;
-    cpu->addr.w += cpu->index[reg].w;
+    cpu->ea.w = (mc6809addr__t)off;
+    if (cpu->ea.w > 15) cpu->ea.w |= 0xFFE0;
+    cpu->ea.w += cpu->index[reg].w;
     return;
   }
 
@@ -2721,42 +2722,42 @@ void mc6809_indexed(mc6809__t *const cpu)
   {
     case 0x00:
          cpu->cycles += 2;
-         cpu->addr.w  = cpu->index[reg].w++;
+         cpu->ea.w    = cpu->index[reg].w++;
          break;
          
     case 0x01:
          cpu->cycles       += 3;
-         cpu->addr.w        = cpu->index[reg].w;
+         cpu->ea.w          = cpu->index[reg].w;
          cpu->index[reg].w += 2;
          break;
          
     case 0x02:
          cpu->cycles += 2;
-         cpu->addr.w  = --cpu->index[reg].w;
+         cpu->ea.w  = --cpu->index[reg].w;
          break;
          
     case 0x03:
          cpu->cycles       += 3;
          cpu->index[reg].w -= 2;
-         cpu->addr.w        = cpu->index[reg].w;
+         cpu->ea.w          = cpu->index[reg].w;
          break;
          
     case 0x04:
-         cpu->addr.w = cpu->index[reg].w;
+         cpu->ea.w = cpu->index[reg].w;
          break;
          
     case 0x05:
          cpu->cycles++;
-         cpu->addr.b[LSB]  = cpu->B;
-         cpu->addr.b[MSB]  = (cpu->B < 0x80) ? 0x00 : 0xFF;
-         cpu->addr.w    += cpu->index[reg].w;
+         cpu->ea.b[LSB]  = cpu->B;
+         cpu->ea.b[MSB]  = (cpu->B < 0x80) ? 0x00 : 0xFF;
+         cpu->ea.w      += cpu->index[reg].w;
          break;
          
     case 0x06:
          cpu->cycles++;
-         cpu->addr.b[LSB]  = cpu->A;
-         cpu->addr.b[MSB]  = (cpu->A < 0x80) ? 0x00: 0xFF;
-         cpu->addr.w    += cpu->index[reg].w;
+         cpu->ea.b[LSB]  = cpu->A;
+         cpu->ea.b[MSB]  = (cpu->A < 0x80) ? 0x00: 0xFF;
+         cpu->ea.w      += cpu->index[reg].w;
          break;
          
     case 0x07:
@@ -2765,16 +2766,16 @@ void mc6809_indexed(mc6809__t *const cpu)
          
     case 0x08:
          cpu->cycles++;
-         cpu->addr.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.b[MSB]  = (cpu->addr.b[LSB] < 0x80) ? 0x00 : 0xFF;
-         cpu->addr.w    += cpu->index[reg].w;
+         cpu->ea.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.b[MSB]  = (cpu->ea.b[LSB] < 0x80) ? 0x00 : 0xFF;
+         cpu->ea.w      += cpu->index[reg].w;
          break;
          
     case 0x09:
          cpu->cycles    += 4;
-         cpu->addr.b[MSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.w    += cpu->index[reg].w;
+         cpu->ea.b[MSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.w      += cpu->index[reg].w;
          break;
          
     case 0x0A:
@@ -2783,21 +2784,21 @@ void mc6809_indexed(mc6809__t *const cpu)
          
     case 0x0B:
          cpu->cycles += 4;
-         cpu->addr.w  = cpu->index[reg].w + cpu->d.w;
+         cpu->ea.w    = cpu->index[reg].w + cpu->d.w;
          break;
          
     case 0x0C:
          cpu->cycles++;
-         cpu->addr.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.b[MSB] = (cpu->addr.b[LSB] < 0x80) ? 0x00 : 0xFF;
-         cpu->addr.w    += cpu->pc.w;
+         cpu->ea.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.b[MSB] = (cpu->ea.b[LSB] < 0x80) ? 0x00 : 0xFF;
+         cpu->ea.w     += cpu->pc.w;
          break;
          
     case 0x0D:
          cpu->cycles    += 5;
-         cpu->addr.b[MSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.w    += cpu->pc.w;
+         cpu->ea.b[MSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.w      += cpu->pc.w;
          break;
          
     case 0x0E:
@@ -2814,11 +2815,11 @@ void mc6809_indexed(mc6809__t *const cpu)
          
     case 0x11:
          cpu->cycles       += 6;
-         cpu->addr.w        = cpu->index[reg].w;
+         cpu->ea.w          = cpu->index[reg].w;
          cpu->index[reg].w += 2;
-         cpu->d16.b[MSB]    = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB]    = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->addr.w        = cpu->d16.w;
+         cpu->d16.b[MSB]    = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB]    = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->ea.w          = cpu->d16.w;
          break;
          
     case 0x12:
@@ -2828,34 +2829,34 @@ void mc6809_indexed(mc6809__t *const cpu)
     case 0x13:
          cpu->cycles       += 6;
          cpu->index[reg].w -= 2;
-         cpu->addr.b[MSB]   = (*cpu->read)(cpu,cpu->index[reg].w,false);
-         cpu->addr.b[LSB]   = (*cpu->read)(cpu,cpu->index[reg].w + 1,false);
+         cpu->ea.b[MSB]     = (*cpu->read)(cpu,cpu->index[reg].w,false);
+         cpu->ea.b[LSB]     = (*cpu->read)(cpu,cpu->index[reg].w + 1,false);
          break;
          
     case 0x14:
          cpu->cycles      += 3;
-         cpu->addr.b[MSB]  = (*cpu->read)(cpu,cpu->index[reg].w,false);
-         cpu->addr.b[LSB]  = (*cpu->read)(cpu,cpu->index[reg].w + 1,false);
+         cpu->ea.b[MSB]    = (*cpu->read)(cpu,cpu->index[reg].w,false);
+         cpu->ea.b[LSB]    = (*cpu->read)(cpu,cpu->index[reg].w + 1,false);
          break;
          
     case 0x15:
          cpu->cycles      += 4;
-         cpu->addr.b[LSB]  = cpu->B;
-         cpu->addr.b[MSB]  = (cpu->B < 0x80) ? 0x00 : 0xFF;
-         cpu->addr.w      += cpu->index[reg].w;
-         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->addr.w       = cpu->d16.w;
+         cpu->ea.b[LSB]    = cpu->B;
+         cpu->ea.b[MSB]    = (cpu->B < 0x80) ? 0x00 : 0xFF;
+         cpu->ea.w        += cpu->index[reg].w;
+         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->ea.w         = cpu->d16.w;
          break;
          
     case 0x16:
          cpu->cycles      += 4;
-         cpu->addr.b[LSB]  = cpu->A;
-         cpu->addr.b[MSB]  = (cpu->A < 0x80) ? 0x00 : 0xFF;
-         cpu->addr.w      += cpu->index[reg].w;
-         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->addr.w       = cpu->d16.w;
+         cpu->ea.b[LSB]    = cpu->A;
+         cpu->ea.b[MSB]    = (cpu->A < 0x80) ? 0x00 : 0xFF;
+         cpu->ea.w        += cpu->index[reg].w;
+         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->ea.w         = cpu->d16.w;
          break;
          
     case 0x17:
@@ -2864,22 +2865,22 @@ void mc6809_indexed(mc6809__t *const cpu)
          
     case 0x18:
          cpu->cycles      += 4;
-         cpu->addr.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.b[MSB]  = (cpu->addr.b[LSB] < 0x80) ? 0x00 : 0xFF;
-         cpu->addr.w      += cpu->index[reg].w;
-         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->addr.w       = cpu->d16.w;
+         cpu->ea.b[LSB]    = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.b[MSB]    = (cpu->ea.b[LSB] < 0x80) ? 0x00 : 0xFF;
+         cpu->ea.w        += cpu->index[reg].w;
+         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->ea.w         = cpu->d16.w;
          break;
 
     case 0x19:
          cpu->cycles      += 4;
-         cpu->addr.b[MSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.w      += cpu->index[reg].w;
-         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->addr.w       = cpu->d16.w;
+         cpu->ea.b[MSB]    = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.b[LSB]    = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.w        += cpu->index[reg].w;
+         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->ea.w         = cpu->d16.w;
          break;
          
     case 0x1A:
@@ -2888,31 +2889,31 @@ void mc6809_indexed(mc6809__t *const cpu)
          
     case 0x1B:
          cpu->cycles     += 7;
-         cpu->addr.w      = cpu->d.w;
-         cpu->addr.w     += cpu->index[reg].w;
-         cpu->d16.b[MSB]  = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB]  = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->addr.w      = cpu->d16.w;
+         cpu->ea.w        = cpu->d.w;
+         cpu->ea.w       += cpu->index[reg].w;
+         cpu->d16.b[MSB]  = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB]  = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->ea.w        = cpu->d16.w;
          break;
          
     case 0x1C:
          cpu->cycles      += 4;
-         cpu->addr.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.b[MSB]  = (cpu->addr.b[LSB] < 0x80) ? 0x00 : 0xFF;
-         cpu->addr.w      += cpu->pc.w;
-         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->addr.w       = cpu->d16.w;
+         cpu->ea.b[LSB]    = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.b[MSB]    = (cpu->ea.b[LSB] < 0x80) ? 0x00 : 0xFF;
+         cpu->ea.w        += cpu->pc.w;
+         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->ea.w         = cpu->d16.w;
          break;
          
     case 0x1D:
          cpu->cycles      += 8;
-         cpu->addr.b[MSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->addr.w      += cpu->pc.w;
-         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->addr.w++,false);
-         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->addr.w,false);
-         cpu->addr.w       = cpu->d16.w;
+         cpu->ea.b[MSB]    = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.b[LSB]    = (*cpu->read)(cpu,cpu->pc.w++,true);
+         cpu->ea.w        += cpu->pc.w;
+         cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->ea.w++,false);
+         cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->ea.w,false);
+         cpu->ea.w         = cpu->d16.w;
          break;
          
     case 0x1E:
@@ -2922,12 +2923,12 @@ void mc6809_indexed(mc6809__t *const cpu)
     case 0x1F:
          if (reg == 0)
          {
-           cpu->cycles += 5;
-           cpu->addr.b[MSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-           cpu->addr.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
-           cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->addr.w++,false);
-           cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->addr.w,false);
-           cpu->addr.w       = cpu->d16.w;
+           cpu->cycles      += 5;
+           cpu->ea.b[MSB]    = (*cpu->read)(cpu,cpu->pc.w++,true);
+           cpu->ea.b[LSB]    = (*cpu->read)(cpu,cpu->pc.w++,true);
+           cpu->d16.b[MSB]   = (*cpu->read)(cpu,cpu->ea.w++,false);
+           cpu->d16.b[LSB]   = (*cpu->read)(cpu,cpu->ea.w,false);
+           cpu->ea.w         = cpu->d16.w;
          }
          else
            (*cpu->fault)(cpu,MC6809_FAULT_ADDRESS_MODE);
