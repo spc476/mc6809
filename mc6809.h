@@ -104,19 +104,6 @@ typedef struct mc6809
   mc6809byte__t (*read) (struct mc6809 *,mc6809addr__t,bool);
   void          (*write)(struct mc6809 *,mc6809addr__t,mc6809byte__t);
   void          (*fault)(struct mc6809 *,mc6809fault__t);
-
-  /*----------------------------------------------------------------------
-  ; WARNING: Below be dragons!
-  ;
-  ; Below here, nothing can be said.  These fields are used internally by
-  ; the MC6809 emulation engine, with results changing between even minor
-  ; versions.  Don't rely upon any values you may see here when using this
-  ; thing.  You have been warned.
-  ;-----------------------------------------------------------------------*/
-  
-  /*mc6809word__t addr;*/
-  mc6809word__t d16;
-/*  mc6809byte__t data;*/
 } mc6809__t;
 
 #define X	index[0]
