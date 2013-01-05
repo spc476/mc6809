@@ -116,7 +116,7 @@ typedef struct mc6809
   
   /*mc6809word__t addr;*/
   mc6809word__t d16;
-  mc6809byte__t data;
+/*  mc6809byte__t data;*/
 } mc6809__t;
 
 #define X	index[0]

@@ -191,7 +191,8 @@ int mc6809_run(mc6809__t *const cpu)
 
 int mc6809_step(mc6809__t *const cpu)
 {
-  int rc;
+  mc6809byte__t data;
+  int           rc;
   
   assert(cpu != NULL);
   
@@ -438,9 +439,9 @@ int mc6809_step(mc6809__t *const cpu)
          
     case 0x1A:
          cpu->cycles += 2;
-         cpu->data    = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->data   |= cctobyte(cpu);
-         bytetocc(cpu,cpu->data);
+         data    = (*cpu->read)(cpu,cpu->pc.w++,true);
+         data   |= cctobyte(cpu);
+         bytetocc(cpu,data);
          break;
     
     case 0x1B:
@@ -449,9 +450,9 @@ int mc6809_step(mc6809__t *const cpu)
          
     case 0x1C:
          cpu->cycles += 2;
-         cpu->data    = (*cpu->read)(cpu,cpu->pc.w++,true);
-         cpu->data   &= cctobyte(cpu);
-         bytetocc(cpu,cpu->data);
+         data    = (*cpu->read)(cpu,cpu->pc.w++,true);
+         data   &= cctobyte(cpu);
+         bytetocc(cpu,data);
          break;
     
     case 0x1D:
@@ -579,10 +580,10 @@ int mc6809_step(mc6809__t *const cpu)
          {
            switch(cpu->d16.b[LSB] & 0xF0)
            {
-             case 0x80: cpu->data = cpu->A; break;
-             case 0x90: cpu->data = cpu->B; break;
-             case 0xA0: cpu->data = cctobyte(cpu); break;
-             case 0xB0: cpu->data = cpu->dp; break;
+             case 0x80: data = cpu->A; break;
+             case 0x90: data = cpu->B; break;
+             case 0xA0: data = cctobyte(cpu); break;
+             case 0xB0: data = cpu->dp; break;
              default:
                   (*cpu->fault)(cpu,MC6809_FAULT_TFR);
                   return 0;
@@ -590,10 +591,10 @@ int mc6809_step(mc6809__t *const cpu)
            
            switch(cpu->d16.b[LSB] & 0x0F)
            {
-             case 0x08: cpu->A = cpu->data; break;
-             case 0x09: cpu->B = cpu->data; break;
-             case 0x0A: bytetocc(cpu,cpu->data); break;
-             case 0x0B: cpu->dp = cpu->data; break;
+             case 0x08: cpu->A = data; break;
+             case 0x09: cpu->B = data; break;
+             case 0x0A: bytetocc(cpu,data); break;
+             case 0x0B: cpu->dp = data; break;
              default:
                   (*cpu->fault)(cpu,MC6809_FAULT_TFR);
                   return 0;
@@ -741,47 +742,47 @@ int mc6809_step(mc6809__t *const cpu)
          
     case 0x34:
          cpu->cycles += 4;
-         cpu->data = (*cpu->read)(cpu,cpu->pc.w++,true);
-         if (cpu->data & 0x80)
+         data = (*cpu->read)(cpu,cpu->pc.w++,true);
+         if (data & 0x80)
          {
            cpu->cycles += 2;
            (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
            (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
          }
-         if (cpu->data & 0x40)
+         if (data & 0x40)
          {
            cpu->cycles += 2;
            (*cpu->write)(cpu,--cpu->S.w,cpu->U.b[LSB]);
            (*cpu->write)(cpu,--cpu->S.w,cpu->U.b[MSB]);
          }
-         if (cpu->data & 0x20)
+         if (data & 0x20)
          {
            cpu->cycles += 2;
            (*cpu->write)(cpu,--cpu->S.w,cpu->Y.b[LSB]);
            (*cpu->write)(cpu,--cpu->S.w,cpu->Y.b[MSB]);
          }
-         if (cpu->data & 0x10)
+         if (data & 0x10)
          {
            cpu->cycles += 2;
            (*cpu->write)(cpu,--cpu->S.w,cpu->X.b[LSB]);
            (*cpu->write)(cpu,--cpu->S.w,cpu->X.b[MSB]);
          }
-         if (cpu->data & 0x08)
+         if (data & 0x08)
          {
            cpu->cycles++;
            (*cpu->write)(cpu,--cpu->S.w,cpu->dp);
          }
-         if (cpu->data & 0x04)
+         if (data & 0x04)
          {
            cpu->cycles++;
            (*cpu->write)(cpu,--cpu->S.w,cpu->B);
          }
-         if (cpu->data & 0x02)
+         if (data & 0x02)
          {
            cpu->cycles++;
            (*cpu->write)(cpu,--cpu->S.w,cpu->A);
          }
-         if (cpu->data & 0x01)
+         if (data & 0x01)
          {
            cpu->cycles++;
            (*cpu->write)(cpu,--cpu->S.w,cctobyte(cpu));
@@ -790,46 +791,46 @@ int mc6809_step(mc6809__t *const cpu)
     
     case 0x35:
          cpu->cycles += 4;
-         cpu->data = (*cpu->read)(cpu,cpu->pc.w++,true);
-         if (cpu->data & 0x01)
+         data = (*cpu->read)(cpu,cpu->pc.w++,true);
+         if (data & 0x01)
          {
            cpu->cycles++;
            bytetocc(cpu,(*cpu->read)(cpu,cpu->S.w++,false));
          }
-         if (cpu->data & 0x02)
+         if (data & 0x02)
          {
            cpu->cycles++;
            cpu->A = (*cpu->read)(cpu,cpu->S.w++,false);
          }
-         if (cpu->data & 0x04)
+         if (data & 0x04)
          {
            cpu->cycles++;
            cpu->B = (*cpu->read)(cpu,cpu->S.w++,false);
          }
-         if (cpu->data & 0x08)
+         if (data & 0x08)
          {
            cpu->cycles++;
            cpu->dp = (*cpu->read)(cpu,cpu->S.w++,false);
          }
-         if (cpu->data & 0x10)
+         if (data & 0x10)
          {
            cpu->cycles += 2;
            cpu->X.b[MSB] = (*cpu->read)(cpu,cpu->S.w++,false);
            cpu->X.b[LSB] = (*cpu->read)(cpu,cpu->S.w++,false);
          }
-         if (cpu->data & 0x20)
+         if (data & 0x20)
          {
            cpu->cycles += 2;
            cpu->Y.b[MSB] = (*cpu->read)(cpu,cpu->S.w++,false);
            cpu->Y.b[LSB] = (*cpu->read)(cpu,cpu->S.w++,false);
          }
-         if (cpu->data & 0x40)
+         if (data & 0x40)
          {
            cpu->cycles += 2;
            cpu->U.b[MSB] = (*cpu->read)(cpu,cpu->S.w++,false);
            cpu->U.b[LSB] = (*cpu->read)(cpu,cpu->S.w++,false);
          }
-         if (cpu->data & 0x80)
+         if (data & 0x80)
          {
            cpu->cycles += 2;
            cpu->pc.b[MSB] = (*cpu->read)(cpu,cpu->S.w++,false);
@@ -839,47 +840,47 @@ int mc6809_step(mc6809__t *const cpu)
          
     case 0x36:
          cpu->cycles += 4;
-         cpu->data = (*cpu->read)(cpu,cpu->pc.w++,true);
-         if (cpu->data & 0x80)
+         data = (*cpu->read)(cpu,cpu->pc.w++,true);
+         if (data & 0x80)
          {
            cpu->cycles += 2;
            (*cpu->write)(cpu,--cpu->U.w,cpu->pc.b[LSB]);
            (*cpu->write)(cpu,--cpu->U.w,cpu->pc.b[MSB]);
          }
-         if (cpu->data & 0x40)
+         if (data & 0x40)
          {
            cpu->cycles += 2;
            (*cpu->write)(cpu,--cpu->U.w,cpu->S.b[LSB]);
            (*cpu->write)(cpu,--cpu->U.w,cpu->S.b[MSB]);
          }
-         if (cpu->data & 0x20)
+         if (data & 0x20)
          {
            cpu->cycles += 2;
            (*cpu->write)(cpu,--cpu->U.w,cpu->Y.b[LSB]);
            (*cpu->write)(cpu,--cpu->U.w,cpu->Y.b[MSB]);
          }
-         if (cpu->data & 0x10)
+         if (data & 0x10)
          {
            cpu->cycles += 2;
            (*cpu->write)(cpu,--cpu->U.w,cpu->X.b[LSB]);
            (*cpu->write)(cpu,--cpu->U.w,cpu->X.b[MSB]);
          }
-         if (cpu->data & 0x08)
+         if (data & 0x08)
          {
            cpu->cycles++;
            (*cpu->write)(cpu,--cpu->U.w,cpu->dp);
          }
-         if (cpu->data & 0x04)
+         if (data & 0x04)
          {
            cpu->cycles++;
            (*cpu->write)(cpu,--cpu->U.w,cpu->B);
          }
-         if (cpu->data & 0x02)
+         if (data & 0x02)
          {
            cpu->cycles++;
            (*cpu->write)(cpu,--cpu->U.w,cpu->A);
          }
-         if (cpu->data & 0x01)
+         if (data & 0x01)
          {
            cpu->cycles++;
            (*cpu->write)(cpu,--cpu->U.w,cctobyte(cpu));
@@ -888,47 +889,47 @@ int mc6809_step(mc6809__t *const cpu)
          
     case 0x37:
          cpu->cycles += 4;
-         cpu->data = (*cpu->read)(cpu,cpu->pc.w++,true);
-         if (cpu->data & 0x01)
+         data = (*cpu->read)(cpu,cpu->pc.w++,true);
+         if (data & 0x01)
          {
            cpu->cycles++;
            bytetocc(cpu,(*cpu->read)(cpu,cpu->U.w++,false));
          }
-         if (cpu->data & 0x02)
+         if (data & 0x02)
          {
            cpu->cycles++;
            cpu->A = (*cpu->read)(cpu,cpu->U.w++,false);
          }
-         if (cpu->data & 0x04)
+         if (data & 0x04)
          {
            cpu->cycles++;
            cpu->B = (*cpu->read)(cpu,cpu->U.w++,false);
          }
-         if (cpu->data & 0x08)
+         if (data & 0x08)
          {
            cpu->cycles++;
            cpu->dp = (*cpu->read)(cpu,cpu->U.w++,false);
          }
-         if (cpu->data & 0x10)
+         if (data & 0x10)
          {
            cpu->cycles += 2;
            cpu->X.b[MSB] = (*cpu->read)(cpu,cpu->U.w++,false);
            cpu->X.b[LSB] = (*cpu->read)(cpu,cpu->U.w++,false);
          }
-         if (cpu->data & 0x20)
+         if (data & 0x20)
          {
            cpu->cycles += 2;
            cpu->Y.b[MSB] = (*cpu->read)(cpu,cpu->U.w++,false);
            cpu->Y.b[LSB] = (*cpu->read)(cpu,cpu->U.w++,false);
          }
-         if (cpu->data & 0x40)
+         if (data & 0x40)
          {
            cpu->cycles += 2;
            cpu->S.b[MSB] = (*cpu->read)(cpu,cpu->U.w++,false);
            cpu->S.b[LSB] = (*cpu->read)(cpu,cpu->U.w++,false);
            cpu->nmi_armed = true;
          }
-         if (cpu->data & 0x80)
+         if (data & 0x80)
          {
            cpu->cycles += 2;
            cpu->pc.b[MSB] = (*cpu->read)(cpu,cpu->U.w++,false);
@@ -975,8 +976,8 @@ int mc6809_step(mc6809__t *const cpu)
     
     case 0x3C:
          cpu->cycles += 20;
-         cpu->data = (*cpu->read)(cpu,cpu->pc.w++,true);
-         bytetocc(cpu,cctobyte(cpu) & cpu->data);
+         data = (*cpu->read)(cpu,cpu->pc.w++,true);
+         bytetocc(cpu,cctobyte(cpu) & data);
          cpu->cc.e    = true;
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
