@@ -29,22 +29,16 @@
 
 /**************************************************************************/
 
-static int		page2		(mc6809dis__t *const,mc6809__t *const) __attribute__((nonnull(1)));
-static int		page3		(mc6809dis__t *const,mc6809__t *const) __attribute__((nonnull(1)));
+static int		page2		(mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
+static int		page3		(mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
 
-static void		indexed		(mc6809dis__t *const,mc6809__t *const,const char *const,const bool) __attribute__((nonnull(1,3)));
-static void		immediate	(mc6809dis__t *const,const char *const,const bool)                  __attribute__((nonnull(1)));
-static void		direct		(mc6809dis__t *const,mc6809__t *const,const char *const,const bool) __attribute__((nonnull(1,3)));
-static void		extended	(mc6809dis__t *const,mc6809__t *const,const char *const,const bool) __attribute__((nonnull(1,3)));
-static void		relative	(mc6809dis__t *const,const char *const,const char *const)           __attribute__((nonnull));
-static void		lrelative	(mc6809dis__t *const,const char *const,const char *const)           __attribute__((nonnull));
-static void		psh		(mc6809dis__t *const,const char *const,const bool)                  __attribute__((nonnull));
-static void		pul		(mc6809dis__t *const,const char *const,const bool)                  __attribute__((nonnull));
-static void		exgtfr		(mc6809dis__t *const,const char *const);
-static void		ccimmediate	(mc6809dis__t *const,const char *const);
+static void		psh		(mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
+static void		pul		(mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
+static void		exgtfr		(mc6809dis__t *const,const char *const)            __attribute__((nonnull));
+static void		ccimmediate	(mc6809dis__t *const,const char *const)            __attribute__((nonnull));
 
-static void		cc		(char *dest,size_t size,mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	cctobyte	(mc6809__t *const)                     __attribute__((nonnull));
+static void		cc		(char *dest,size_t size,mc6809byte__t)             __attribute__((nonnull));
+static mc6809byte__t	cctobyte	(mc6809__t *const)                                 __attribute__((nonnull));
 
 /***************************************************************************/
 
@@ -152,7 +146,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
   switch(dis->inst)
   {
     case 0x00:
-         direct(dis,cpu,"NEG",false);
+         mc6809dis_direct(dis,cpu,"NEG",false);
          break;
     
     case 0x01:
@@ -164,11 +158,11 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0x03:
-         direct(dis,cpu,"COM",false);
+         mc6809dis_direct(dis,cpu,"COM",false);
          break;
          
     case 0x04:
-         direct(dis,cpu,"LSR",false);
+         mc6809dis_direct(dis,cpu,"LSR",false);
          break;
          
     case 0x05:
@@ -176,23 +170,23 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
          
     case 0x06:
-         direct(dis,cpu,"ROR",false);
+         mc6809dis_direct(dis,cpu,"ROR",false);
          break;
          
     case 0x07:
-         direct(dis,cpu,"ASR",false);
+         mc6809dis_direct(dis,cpu,"ASR",false);
          break;
          
     case 0x08:
-         direct(dis,cpu,"LSL",false);
+         mc6809dis_direct(dis,cpu,"LSL",false);
          break;
     
     case 0x09:
-         direct(dis,cpu,"ROL",false);
+         mc6809dis_direct(dis,cpu,"ROL",false);
          break;
          
     case 0x0A:
-         direct(dis,cpu,"DEC",false);
+         mc6809dis_direct(dis,cpu,"DEC",false);
          break;
          
     case 0x0B:
@@ -200,19 +194,19 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
          
     case 0x0C:
-         direct(dis,cpu,"INC",false);
+         mc6809dis_direct(dis,cpu,"INC",false);
          break;
          
     case 0x0D:
-         direct(dis,cpu,"TST",false);
+         mc6809dis_direct(dis,cpu,"TST",false);
          break;
          
     case 0x0E:
-         direct(dis,cpu,"JMP",false);
+         mc6809dis_direct(dis,cpu,"JMP",false);
          break;
          
     case 0x0F:
-         direct(dis,cpu,"CLR",false);
+         mc6809dis_direct(dis,cpu,"CLR",false);
          break;
          
     case 0x10:
@@ -238,11 +232,11 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
          
     case 0x16:
-         lrelative(dis,"LBRA","");
+         mc6809dis_lrelative(dis,"LBRA","");
          break;
          
     case 0x17:
-         lrelative(dis,"LBSR","");
+         mc6809dis_lrelative(dis,"LBSR","");
          break;
     
     case 0x18:
@@ -278,82 +272,82 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
          
     case 0x20:
-         relative(dis,"BRA","");
+         mc6809dis_relative(dis,"BRA","");
          break;
     
     case 0x21:
-         relative(dis,"BRN","");
+         mc6809dis_relative(dis,"BRN","");
          break;
     
     case 0x22:
-         relative(dis,"BHI","unsigned");
+         mc6809dis_relative(dis,"BHI","unsigned");
          break;
     
     case 0x23:
-         relative(dis,"BLS","unsigned");
+         mc6809dis_relative(dis,"BLS","unsigned");
          break;
          
     case 0x24:
-         relative(dis,"BHS","unsigned");
+         mc6809dis_relative(dis,"BHS","unsigned");
          break;
          
     case 0x25:
-         relative(dis,"BLO","unsigned");
+         mc6809dis_relative(dis,"BLO","unsigned");
          break;
            
     case 0x26:
-         relative(dis,"BNE","");
+         mc6809dis_relative(dis,"BNE","");
          break;
          
     case 0x27:
-         relative(dis,"BEQ","");
+         mc6809dis_relative(dis,"BEQ","");
          break;
          
     case 0x28:
-         relative(dis,"BVC","");
+         mc6809dis_relative(dis,"BVC","");
          break;
          
     case 0x29:
-         relative(dis,"BVS","");
+         mc6809dis_relative(dis,"BVS","");
          break;
          
     case 0x2A:
-         relative(dis,"BPL","");
+         mc6809dis_relative(dis,"BPL","");
          break;
          
     case 0x2B:
-         relative(dis,"BMI","");
+         mc6809dis_relative(dis,"BMI","");
          break;
          
     case 0x2C:
-         relative(dis,"BGE","signed");
+         mc6809dis_relative(dis,"BGE","signed");
          
     case 0x2D:
-         relative(dis,"BLT","signed");
+         mc6809dis_relative(dis,"BLT","signed");
          break;
          
     case 0x2E:
-         relative(dis,"BGT","signed");
+         mc6809dis_relative(dis,"BGT","signed");
          break;
          
     case 0x2F:
-         relative(dis,"BLE","signed");
+         mc6809dis_relative(dis,"BLE","signed");
          break;
     
     case 0x30:
-         indexed(dis,cpu,"LEAX",false);
+         mc6809dis_indexed(dis,cpu,"LEAX",false);
          break;
     
     case 0x31:
-         indexed(dis,cpu,"LEAY",false);
+         mc6809dis_indexed(dis,cpu,"LEAY",false);
          break;
          
     case 0x32:
-         indexed(dis,cpu,"LEAS",false);
+         mc6809dis_indexed(dis,cpu,"LEAS",false);
          break;
     
     case 0x33:
-         indexed(dis,cpu,"LEAU",false);
+         mc6809dis_indexed(dis,cpu,"LEAU",false);
          break;
          
     case 0x34:
@@ -533,7 +527,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
 
     case 0x60:
-         indexed(dis,cpu,"NEG",false);
+         mc6809dis_indexed(dis,cpu,"NEG",false);
          break;
     
     case 0x61:
@@ -545,11 +539,11 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0x63:
-         indexed(dis,cpu,"COM",false);
+         mc6809dis_indexed(dis,cpu,"COM",false);
          break;
          
     case 0x64:
-         indexed(dis,cpu,"LSR",false);
+         mc6809dis_indexed(dis,cpu,"LSR",false);
          break;
          
     case 0x65:
@@ -557,23 +551,23 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
          
     case 0x66:
-         indexed(dis,cpu,"ROR",false);
+         mc6809dis_indexed(dis,cpu,"ROR",false);
          break;
          
     case 0x67:
-         indexed(dis,cpu,"ASR",false);
+         mc6809dis_indexed(dis,cpu,"ASR",false);
          break;
          
     case 0x68:
-         indexed(dis,cpu,"LSL",false);
+         mc6809dis_indexed(dis,cpu,"LSL",false);
          break;
     
     case 0x69:
-         indexed(dis,cpu,"ROL",false);
+         mc6809dis_indexed(dis,cpu,"ROL",false);
          break;
          
     case 0x6A:
-         indexed(dis,cpu,"DEC",false);
+         mc6809dis_indexed(dis,cpu,"DEC",false);
          break;
          
     case 0x6B:
@@ -581,23 +575,23 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
          
     case 0x6C:
-         indexed(dis,cpu,"INC",false);
+         mc6809dis_indexed(dis,cpu,"INC",false);
          break;
          
     case 0x6D:
-         indexed(dis,cpu,"TST",false);
+         mc6809dis_indexed(dis,cpu,"TST",false);
          break;
          
     case 0x6E:
-         indexed(dis,cpu,"JMP",false);
+         mc6809dis_indexed(dis,cpu,"JMP",false);
          break;
          
     case 0x6F:
-         indexed(dis,cpu,"CLR",false);
+         mc6809dis_indexed(dis,cpu,"CLR",false);
          break;
 
     case 0x70:
-         extended(dis,cpu,"NEG",false);
+         mc6809dis_extended(dis,cpu,"NEG",false);
          break;
     
     case 0x71:
@@ -609,11 +603,11 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0x73:
-         extended(dis,cpu,"COM",false);
+         mc6809dis_extended(dis,cpu,"COM",false);
          break;
          
     case 0x74:
-         extended(dis,cpu,"LSR",false);
+         mc6809dis_extended(dis,cpu,"LSR",false);
          break;
          
     case 0x75:
@@ -621,23 +615,23 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
          
     case 0x76:
-         extended(dis,cpu,"ROR",false);
+         mc6809dis_extended(dis,cpu,"ROR",false);
          break;
          
     case 0x77:
-         extended(dis,cpu,"ASR",false);
+         mc6809dis_extended(dis,cpu,"ASR",false);
          break;
          
     case 0x78:
-         extended(dis,cpu,"LSL",false);
+         mc6809dis_extended(dis,cpu,"LSL",false);
          break;
     
     case 0x79:
-         extended(dis,cpu,"ROL",false);
+         mc6809dis_extended(dis,cpu,"ROL",false);
          break;
          
     case 0x7A:
-         extended(dis,cpu,"DEC",false);
+         mc6809dis_extended(dis,cpu,"DEC",false);
          break;
          
     case 0x7B:
@@ -645,47 +639,47 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
          
     case 0x7C:
-         extended(dis,cpu,"INC",false);
+         mc6809dis_extended(dis,cpu,"INC",false);
          break;
          
     case 0x7D:
-         extended(dis,cpu,"TST",false);
+         mc6809dis_extended(dis,cpu,"TST",false);
          break;
          
     case 0x7E:
-         extended(dis,cpu,"JMP",false);
+         mc6809dis_extended(dis,cpu,"JMP",false);
          break;
          
     case 0x7F:
-         extended(dis,cpu,"CLR",false);
+         mc6809dis_extended(dis,cpu,"CLR",false);
          break;
 
     case 0x80:
-         immediate(dis,"SUBA",false);
+         mc6809dis_immediate(dis,"SUBA",false);
          break;
     
     case 0x81:
-         immediate(dis,"CMPA",false);
+         mc6809dis_immediate(dis,"CMPA",false);
          break;
     
     case 0x82:
-         immediate(dis,"SBCA",false);
+         mc6809dis_immediate(dis,"SBCA",false);
          break;
     
     case 0x83:
-         immediate(dis,"SUBD",true);
+         mc6809dis_immediate(dis,"SUBD",true);
          break;
     
     case 0x84:
-         immediate(dis,"ANDA",false);
+         mc6809dis_immediate(dis,"ANDA",false);
          break;
     
     case 0x85:
-         immediate(dis,"BITA",false);
+         mc6809dis_immediate(dis,"BITA",false);
          break;
     
     case 0x86:
-         immediate(dis,"LDA",false);
+         mc6809dis_immediate(dis,"LDA",false);
          break;
     
     case 0x87:
@@ -693,31 +687,31 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0x88:
-         immediate(dis,"EORA",false);
+         mc6809dis_immediate(dis,"EORA",false);
          break;
     
     case 0x89:
-         immediate(dis,"ADCA",false);
+         mc6809dis_immediate(dis,"ADCA",false);
          break;
     
     case 0x8A:
-         immediate(dis,"ORA",false);
+         mc6809dis_immediate(dis,"ORA",false);
          break;
     
     case 0x8B:
-         immediate(dis,"ADDA",false);
+         mc6809dis_immediate(dis,"ADDA",false);
          break;
     
     case 0x8C:
-         immediate(dis,"CMPX",true);
+         mc6809dis_immediate(dis,"CMPX",true);
          break;
     
     case 0x8D:
-         relative(dis,"BSR","");
+         mc6809dis_relative(dis,"BSR","");
          break;
     
     case 0x8E:
-         immediate(dis,"LDX",true);
+         mc6809dis_immediate(dis,"LDX",true);
          break;
     
     case 0x8F:
@@ -725,223 +719,223 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
          
     case 0x90:
-         direct(dis,cpu,"SUBA",false);
+         mc6809dis_direct(dis,cpu,"SUBA",false);
          break;
     
     case 0x91:
-         direct(dis,cpu,"CMPA",false);
+         mc6809dis_direct(dis,cpu,"CMPA",false);
          break;
     
     case 0x92:
-         direct(dis,cpu,"SBCA",false);
+         mc6809dis_direct(dis,cpu,"SBCA",false);
          break;
     
     case 0x93:
-         direct(dis,cpu,"SUBD",true);
+         mc6809dis_direct(dis,cpu,"SUBD",true);
          break;
     
     case 0x94:
-         direct(dis,cpu,"ANDA",false);
+         mc6809dis_direct(dis,cpu,"ANDA",false);
          break;
     
     case 0x95:
-         direct(dis,cpu,"BITA",false);
+         mc6809dis_direct(dis,cpu,"BITA",false);
          break;
     
     case 0x96:
-         direct(dis,cpu,"LDA",false);
+         mc6809dis_direct(dis,cpu,"LDA",false);
          break;
     
     case 0x97:
-         direct(dis,cpu,"STA",false);
+         mc6809dis_direct(dis,cpu,"STA",false);
          break;
     
     case 0x98:
-         direct(dis,cpu,"EORA",false);
+         mc6809dis_direct(dis,cpu,"EORA",false);
          break;
     
     case 0x99:
-         direct(dis,cpu,"ADCA",false);
+         mc6809dis_direct(dis,cpu,"ADCA",false);
          break;
     
     case 0x9A:
-         direct(dis,cpu,"ORA",false);
+         mc6809dis_direct(dis,cpu,"ORA",false);
          break;
     
     case 0x9B:
-         direct(dis,cpu,"ADDA",false);
+         mc6809dis_direct(dis,cpu,"ADDA",false);
          break;
     
     case 0x9C:
-         direct(dis,cpu,"CMPX",true);
+         mc6809dis_direct(dis,cpu,"CMPX",true);
          break;
     
     case 0x9D:
-         direct(dis,cpu,"JSR",false);
+         mc6809dis_direct(dis,cpu,"JSR",false);
          break;
     
     case 0x9E:
-         direct(dis,cpu,"LDX",true);
+         mc6809dis_direct(dis,cpu,"LDX",true);
          break;
     
     case 0x9F:
-         direct(dis,cpu,"STX",true);
+         mc6809dis_direct(dis,cpu,"STX",true);
          break;
 
     case 0xA0:
-         indexed(dis,cpu,"SUBA",false);
+         mc6809dis_indexed(dis,cpu,"SUBA",false);
          break;
     
     case 0xA1:
-         indexed(dis,cpu,"CMPA",false);
+         mc6809dis_indexed(dis,cpu,"CMPA",false);
          break;
     
     case 0xA2:
-         indexed(dis,cpu,"SBCA",false);
+         mc6809dis_indexed(dis,cpu,"SBCA",false);
          break;
     
     case 0xA3:
-         indexed(dis,cpu,"SUBD",true);
+         mc6809dis_indexed(dis,cpu,"SUBD",true);
          break;
     
     case 0xA4:
-         indexed(dis,cpu,"ANDA",false);
+         mc6809dis_indexed(dis,cpu,"ANDA",false);
          break;
     
     case 0xA5:
-         indexed(dis,cpu,"BITA",false);
+         mc6809dis_indexed(dis,cpu,"BITA",false);
          break;
     
     case 0xA6:
-         indexed(dis,cpu,"LDA",false);
+         mc6809dis_indexed(dis,cpu,"LDA",false);
          break;
     
     case 0xA7:
-         indexed(dis,cpu,"STA",false);
+         mc6809dis_indexed(dis,cpu,"STA",false);
          break;
     
     case 0xA8:
-         indexed(dis,cpu,"EORA",false);
+         mc6809dis_indexed(dis,cpu,"EORA",false);
          break;
     
     case 0xA9:
-         indexed(dis,cpu,"ADCA",false);
+         mc6809dis_indexed(dis,cpu,"ADCA",false);
          break;
     
     case 0xAA:
-         indexed(dis,cpu,"ORA",false);
+         mc6809dis_indexed(dis,cpu,"ORA",false);
          break;
     
     case 0xAB:
-         indexed(dis,cpu,"ADDA",false);
+         mc6809dis_indexed(dis,cpu,"ADDA",false);
          break;
     
     case 0xAC:
-         indexed(dis,cpu,"CMPX",true);
+         mc6809dis_indexed(dis,cpu,"CMPX",true);
          break;
     
     case 0xAD:
-         indexed(dis,cpu,"JSR",false);
+         mc6809dis_indexed(dis,cpu,"JSR",false);
          break;
     
     case 0xAE:
-         indexed(dis,cpu,"LDX",true);
+         mc6809dis_indexed(dis,cpu,"LDX",true);
          break;
     
     case 0xAF:
-         indexed(dis,cpu,"STX",true);
+         mc6809dis_indexed(dis,cpu,"STX",true);
          break;
 
     case 0xB0:
-         extended(dis,cpu,"SUBA",false);
+         mc6809dis_extended(dis,cpu,"SUBA",false);
          break;
     
     case 0xB1:
-         extended(dis,cpu,"CMPA",false);
+         mc6809dis_extended(dis,cpu,"CMPA",false);
          break;
     
     case 0xB2:
-         extended(dis,cpu,"SBCA",false);
+         mc6809dis_extended(dis,cpu,"SBCA",false);
          break;
     
     case 0xB3:
-         extended(dis,cpu,"SUBD",true);
+         mc6809dis_extended(dis,cpu,"SUBD",true);
          break;
     
     case 0xB4:
-         extended(dis,cpu,"ANDA",false);
+         mc6809dis_extended(dis,cpu,"ANDA",false);
          break;
     
     case 0xB5:
-         extended(dis,cpu,"BITA",false);
+         mc6809dis_extended(dis,cpu,"BITA",false);
          break;
     
     case 0xB6:
-         extended(dis,cpu,"LDA",false);
+         mc6809dis_extended(dis,cpu,"LDA",false);
          break;
     
     case 0xB7:
-         extended(dis,cpu,"STA",false);
+         mc6809dis_extended(dis,cpu,"STA",false);
          break;
     
     case 0xB8:
-         extended(dis,cpu,"EORA",false);
+         mc6809dis_extended(dis,cpu,"EORA",false);
          break;
     
     case 0xB9:
-         extended(dis,cpu,"ADCA",false);
+         mc6809dis_extended(dis,cpu,"ADCA",false);
          break;
     
     case 0xBA:
-         extended(dis,cpu,"ORA",false);
+         mc6809dis_extended(dis,cpu,"ORA",false);
          break;
     
     case 0xBB:
-         extended(dis,cpu,"ADDA",false);
+         mc6809dis_extended(dis,cpu,"ADDA",false);
          break;
     
     case 0xBC:
-         extended(dis,cpu,"CMPX",true);
+         mc6809dis_extended(dis,cpu,"CMPX",true);
          break;
     
     case 0xBD:
-         extended(dis,cpu,"JSR",false);
+         mc6809dis_extended(dis,cpu,"JSR",false);
          break;
     
     case 0xBE:
-         extended(dis,cpu,"LDX",true);
+         mc6809dis_extended(dis,cpu,"LDX",true);
          break;
     
     case 0xBF:
-         extended(dis,cpu,"STX",true);
+         mc6809dis_extended(dis,cpu,"STX",true);
          break;
 
     case 0xC0:
-         immediate(dis,"SUBB",false);
+         mc6809dis_immediate(dis,"SUBB",false);
          break;
     
     case 0xC1:
-         immediate(dis,"CMPB",false);
+         mc6809dis_immediate(dis,"CMPB",false);
          break;
     
     case 0xC2:
-         immediate(dis,"SBCB",false);
+         mc6809dis_immediate(dis,"SBCB",false);
          break;
     
     case 0xC3:
-         immediate(dis,"ADDD",true);
+         mc6809dis_immediate(dis,"ADDD",true);
          break;
     
     case 0xC4:
-         immediate(dis,"ANDB",false);
+         mc6809dis_immediate(dis,"ANDB",false);
          break;
     
     case 0xC5:
-         immediate(dis,"BITB",false);
+         mc6809dis_immediate(dis,"BITB",false);
          break;
     
     case 0xC6:
-         immediate(dis,"LDB",false);
+         mc6809dis_immediate(dis,"LDB",false);
          break;
     
     case 0xC7:
@@ -949,23 +943,23 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0xC8:
-         immediate(dis,"EORB",false);
+         mc6809dis_immediate(dis,"EORB",false);
          break;
     
     case 0xC9:
-         immediate(dis,"ADCB",false);
+         mc6809dis_immediate(dis,"ADCB",false);
          break;
     
     case 0xCA:
-         immediate(dis,"ORB",false);
+         mc6809dis_immediate(dis,"ORB",false);
          break;
     
     case 0xCB:
-         immediate(dis,"ADDB",false);
+         mc6809dis_immediate(dis,"ADDB",false);
          break;
     
     case 0xCC:
-         immediate(dis,"LDD",true);
+         mc6809dis_immediate(dis,"LDD",true);
          break;
     
     case 0xCD:
@@ -973,7 +967,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
     
     case 0xCE:
-         immediate(dis,"LDU",true);
+         mc6809dis_immediate(dis,"LDU",true);
          break;
     
     case 0xCF:
@@ -981,195 +975,195 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          break;
 
     case 0xD0:
-         direct(dis,cpu,"SUBB",false);
+         mc6809dis_direct(dis,cpu,"SUBB",false);
          break;
     
     case 0xD1:
-         direct(dis,cpu,"CMPB",false);
+         mc6809dis_direct(dis,cpu,"CMPB",false);
          break;
     
     case 0xD2:
-         direct(dis,cpu,"SBCB",false);
+         mc6809dis_direct(dis,cpu,"SBCB",false);
          break;
     
     case 0xD3:
-         direct(dis,cpu,"ADDD",true);
+         mc6809dis_direct(dis,cpu,"ADDD",true);
          break;
     
     case 0xD4:
-         direct(dis,cpu,"ANDB",false);
+         mc6809dis_direct(dis,cpu,"ANDB",false);
          break;
     
     case 0xD5:
-         direct(dis,cpu,"BITB",false);
+         mc6809dis_direct(dis,cpu,"BITB",false);
          break;
     
     case 0xD6:
-         direct(dis,cpu,"LDB",false);
+         mc6809dis_direct(dis,cpu,"LDB",false);
          break;
     
     case 0xD7:
-         direct(dis,cpu,"STB",false);
+         mc6809dis_direct(dis,cpu,"STB",false);
          break;
     
     case 0xD8:
-         direct(dis,cpu,"EORB",false);
+         mc6809dis_direct(dis,cpu,"EORB",false);
          break;
     
     case 0xD9:
-         direct(dis,cpu,"ADCB",false);
+         mc6809dis_direct(dis,cpu,"ADCB",false);
          break;
     
     case 0xDA:
-         direct(dis,cpu,"ORB",false);
+         mc6809dis_direct(dis,cpu,"ORB",false);
          break;
     
     case 0xDB:
-         direct(dis,cpu,"ADDB",false);
+         mc6809dis_direct(dis,cpu,"ADDB",false);
          break;
     
     case 0xDC:
-         direct(dis,cpu,"LDD",true);
+         mc6809dis_direct(dis,cpu,"LDD",true);
          break;
     
     case 0xDD:
-    	 direct(dis,cpu,"STD",true);
+    	 mc6809dis_direct(dis,cpu,"STD",true);
          break;
     
     case 0xDE:
-         direct(dis,cpu,"LDU",true);
+         mc6809dis_direct(dis,cpu,"LDU",true);
          break;
     
     case 0xDF:
-         direct(dis,cpu,"STU",true);
+         mc6809dis_direct(dis,cpu,"STU",true);
          break;
 
     case 0xE0:
-         indexed(dis,cpu,"SUBB",false);
+         mc6809dis_indexed(dis,cpu,"SUBB",false);
          break;
     
     case 0xE1:
-         indexed(dis,cpu,"CMPB",false);
+         mc6809dis_indexed(dis,cpu,"CMPB",false);
          break;
     
     case 0xE2:
-         indexed(dis,cpu,"SBCB",false);
+         mc6809dis_indexed(dis,cpu,"SBCB",false);
          break;
     
     case 0xE3:
-         indexed(dis,cpu,"ADDD",true);
+         mc6809dis_indexed(dis,cpu,"ADDD",true);
          break;
     
     case 0xE4:
-         indexed(dis,cpu,"ANDB",false);
+         mc6809dis_indexed(dis,cpu,"ANDB",false);
          break;
     
     case 0xE5:
-         indexed(dis,cpu,"BITB",false);
+         mc6809dis_indexed(dis,cpu,"BITB",false);
          break;
     
     case 0xE6:
-         indexed(dis,cpu,"LDB",false);
+         mc6809dis_indexed(dis,cpu,"LDB",false);
          break;
     
     case 0xE7:
-         indexed(dis,cpu,"STB",false);
+         mc6809dis_indexed(dis,cpu,"STB",false);
          break;
     
     case 0xE8:
-         indexed(dis,cpu,"EORB",false);
+         mc6809dis_indexed(dis,cpu,"EORB",false);
          break;
     
     case 0xE9:
-         indexed(dis,cpu,"ADCB",false);
+         mc6809dis_indexed(dis,cpu,"ADCB",false);
          break;
     
     case 0xEA:
-         indexed(dis,cpu,"ORB",false);
+         mc6809dis_indexed(dis,cpu,"ORB",false);
          break;
     
     case 0xEB:
-         indexed(dis,cpu,"ADDB",false);
+         mc6809dis_indexed(dis,cpu,"ADDB",false);
          break;
     
     case 0xEC:
-         indexed(dis,cpu,"LDD",true);
+         mc6809dis_indexed(dis,cpu,"LDD",true);
          break;
     
     case 0xED:
-         indexed(dis,cpu,"STD",true);
+         mc6809dis_indexed(dis,cpu,"STD",true);
          break;
     
     case 0xEE:
-         indexed(dis,cpu,"LDU",true);
+         mc6809dis_indexed(dis,cpu,"LDU",true);
          break;
     
     case 0xEF:
-         indexed(dis,cpu,"STU",true);
+         mc6809dis_indexed(dis,cpu,"STU",true);
          break;
 
     case 0xF0:
-         extended(dis,cpu,"SUBB",false);
+         mc6809dis_extended(dis,cpu,"SUBB",false);
          break;
     
     case 0xF1:
-         extended(dis,cpu,"CMPB",false);
+         mc6809dis_extended(dis,cpu,"CMPB",false);
          break;
     
     case 0xF2:
-         extended(dis,cpu,"SBCB",false);
+         mc6809dis_extended(dis,cpu,"SBCB",false);
          break;
     
     case 0xF3:
-         extended(dis,cpu,"ADDD",true);
+         mc6809dis_extended(dis,cpu,"ADDD",true);
          break;
     
     case 0xF4:
-         extended(dis,cpu,"ANDB",false);
+         mc6809dis_extended(dis,cpu,"ANDB",false);
          break;
     
     case 0xF5:
-         extended(dis,cpu,"BITB",false);
+         mc6809dis_extended(dis,cpu,"BITB",false);
          break;
     
     case 0xF6:
-         extended(dis,cpu,"LDB",false);
+         mc6809dis_extended(dis,cpu,"LDB",false);
          break;
     
     case 0xF7:
-         extended(dis,cpu,"STB",false);
+         mc6809dis_extended(dis,cpu,"STB",false);
          break;
     
     case 0xF8:
-         extended(dis,cpu,"EORB",false);
+         mc6809dis_extended(dis,cpu,"EORB",false);
          break;
     
     case 0xF9:
-         extended(dis,cpu,"ADCB",false);
+         mc6809dis_extended(dis,cpu,"ADCB",false);
          break;
     
     case 0xFA:
-         extended(dis,cpu,"ORB",false);
+         mc6809dis_extended(dis,cpu,"ORB",false);
          break;
     
     case 0xFB:
-         extended(dis,cpu,"ADDB",false);
+         mc6809dis_extended(dis,cpu,"ADDB",false);
          break;
     
     case 0xFC:
-         extended(dis,cpu,"LDD",true);
+         mc6809dis_extended(dis,cpu,"LDD",true);
          break;
     
     case 0xFD:
-         extended(dis,cpu,"STD",true);
+         mc6809dis_extended(dis,cpu,"STD",true);
          break;
     
     case 0xFE:
-         extended(dis,cpu,"LDU",true);
+         mc6809dis_extended(dis,cpu,"LDU",true);
          break;
     
     case 0xFF:
-         extended(dis,cpu,"STU",true);
+         mc6809dis_extended(dis,cpu,"STU",true);
          break;
 
     default:
@@ -1195,62 +1189,62 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
   switch(byte)
   {
     case 0x21:
-         lrelative(dis,"LBRN","");
+         mc6809dis_lrelative(dis,"LBRN","");
          break;
     
     case 0x22:
-         lrelative(dis,"LBHI","unsigned");
+         mc6809dis_lrelative(dis,"LBHI","unsigned");
          break;
     
     case 0x23:
-         lrelative(dis,"LBLS","unsigned");
+         mc6809dis_lrelative(dis,"LBLS","unsigned");
          break;
          
     case 0x24:
-         lrelative(dis,"LBHS","unsigned");
+         mc6809dis_lrelative(dis,"LBHS","unsigned");
          break;
          
     case 0x25:
-         lrelative(dis,"LBLO","unsigned");
+         mc6809dis_lrelative(dis,"LBLO","unsigned");
          break;
            
     case 0x26:
-         lrelative(dis,"LBNE","");
+         mc6809dis_lrelative(dis,"LBNE","");
          break;
          
     case 0x27:
-         lrelative(dis,"LBEQ","");
+         mc6809dis_lrelative(dis,"LBEQ","");
          break;
          
     case 0x28:
-         lrelative(dis,"LBVC","");
+         mc6809dis_lrelative(dis,"LBVC","");
          break;
          
     case 0x29:
-         lrelative(dis,"LBVS","");
+         mc6809dis_lrelative(dis,"LBVS","");
          break;
          
     case 0x2A:
-         lrelative(dis,"LBPL","");
+         mc6809dis_lrelative(dis,"LBPL","");
          break;
          
     case 0x2B:
-         lrelative(dis,"LBMI","");
+         mc6809dis_lrelative(dis,"LBMI","");
          break;
          
     case 0x2C:
-         lrelative(dis,"LBGE","signed");
+         mc6809dis_lrelative(dis,"LBGE","signed");
          
     case 0x2D:
-         lrelative(dis,"LBLT","signed");
+         mc6809dis_lrelative(dis,"LBLT","signed");
          break;
          
     case 0x2E:
-         lrelative(dis,"LBGT","signed");
+         mc6809dis_lrelative(dis,"LBGT","signed");
          break;
          
     case 0x2F:
-         lrelative(dis,"LBLE","signed");
+         mc6809dis_lrelative(dis,"LBLE","signed");
          break;
  
     case 0x3F:
@@ -1258,91 +1252,91 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
          break;
          
     case 0x83:
-         immediate(dis,"CMPD",true);
+         mc6809dis_immediate(dis,"CMPD",true);
          break;
          
     case 0x8C:
-         immediate(dis,"CMPY",true);
+         mc6809dis_immediate(dis,"CMPY",true);
          break;
          
     case 0x8E:
-         immediate(dis,"LDY",true);
+         mc6809dis_immediate(dis,"LDY",true);
          break;
     
     case 0x93:
-         direct(dis,cpu,"CMPD",true);
+         mc6809dis_direct(dis,cpu,"CMPD",true);
          break;
          
     case 0x9C:
-         direct(dis,cpu,"CMPY",true);
+         mc6809dis_direct(dis,cpu,"CMPY",true);
          break;
          
     case 0x9E:
-         direct(dis,cpu,"LDY",true);
+         mc6809dis_direct(dis,cpu,"LDY",true);
          break;
          
     case 0x9F:
-         direct(dis,cpu,"STY",true);
+         mc6809dis_direct(dis,cpu,"STY",true);
          break;
     
     case 0xA3:
-         indexed(dis,cpu,"CMPD",true);
+         mc6809dis_indexed(dis,cpu,"CMPD",true);
          break;
     
     case 0xAC:
-         indexed(dis,cpu,"CMPY",true);
+         mc6809dis_indexed(dis,cpu,"CMPY",true);
          break;
     
     case 0xAE:
-         indexed(dis,cpu,"LDY",true);
+         mc6809dis_indexed(dis,cpu,"LDY",true);
          break;
     
     case 0xAF:
-         indexed(dis,cpu,"STY",true);
+         mc6809dis_indexed(dis,cpu,"STY",true);
          break;
     
     case 0xB3:
-         extended(dis,cpu,"CMPD",true);
+         mc6809dis_extended(dis,cpu,"CMPD",true);
          break;
     
     case 0xBC:
-         extended(dis,cpu,"CMPY",true);
+         mc6809dis_extended(dis,cpu,"CMPY",true);
          break;
     
     case 0xBE:
-         extended(dis,cpu,"LDY",true);
+         mc6809dis_extended(dis,cpu,"LDY",true);
          break;
          
     case 0xBF:
-         extended(dis,cpu,"STY",true);
+         mc6809dis_extended(dis,cpu,"STY",true);
          break;
          
     case 0xCE:
-         immediate(dis,"LDS",true);
+         mc6809dis_immediate(dis,"LDS",true);
          break;
     
     case 0xDE:
-         direct(dis,cpu,"LDS",true);
+         mc6809dis_direct(dis,cpu,"LDS",true);
          break;
          
     case 0xDF:
-         direct(dis,cpu,"STS",true);
+         mc6809dis_direct(dis,cpu,"STS",true);
          break;
     
     case 0xEE:
-         indexed(dis,cpu,"LDS",true);
+         mc6809dis_indexed(dis,cpu,"LDS",true);
          break;
     
     case 0xEF:
-         indexed(dis,cpu,"STS",true);
+         mc6809dis_indexed(dis,cpu,"STS",true);
          break;
     
     case 0xFE:
-         extended(dis,cpu,"LDS",true);
+         mc6809dis_extended(dis,cpu,"LDS",true);
          break;
     
     case 0xFF:
-         extended(dis,cpu,"STS",true);
+         mc6809dis_extended(dis,cpu,"STS",true);
          break;
     
     default:
@@ -1371,35 +1365,35 @@ static int page3(mc6809dis__t *const dis,mc6809__t *const cpu)
          break;
     
     case 0x83:
-         immediate(dis,"CMPU",true);
+         mc6809dis_immediate(dis,"CMPU",true);
          break;
     
     case 0x8C:
-         immediate(dis,"CMPS",true);
+         mc6809dis_immediate(dis,"CMPS",true);
          break;
     
     case 0x93:
-         direct(dis,cpu,"CMPU",true);
+         mc6809dis_direct(dis,cpu,"CMPU",true);
          break;
     
     case 0x9C:
-         direct(dis,cpu,"CMPS",true);
+         mc6809dis_direct(dis,cpu,"CMPS",true);
          break;
     
     case 0xA3:
-         indexed(dis,cpu,"CMPU",true);
+         mc6809dis_indexed(dis,cpu,"CMPU",true);
          break;
     
     case 0xAC:
-         indexed(dis,cpu,"CMPS",true);
+         mc6809dis_indexed(dis,cpu,"CMPS",true);
          break;
     
     case 0xB3:
-         extended(dis,cpu,"CMPU",true);
+         mc6809dis_extended(dis,cpu,"CMPU",true);
          break;
     
     case 0xBC:
-         extended(dis,cpu,"CMPS",true);
+         mc6809dis_extended(dis,cpu,"CMPS",true);
          break;
          
     default:
@@ -1412,7 +1406,7 @@ static int page3(mc6809dis__t *const dis,mc6809__t *const cpu)
 
 /***********************************************************************/
 
-static void indexed(
+void mc6809dis_indexed(
 	mc6809dis__t  *const dis,
 	mc6809__t     *const cpu,
 	const char    *const op,
@@ -1769,7 +1763,7 @@ static void indexed(
 
 /*************************************************************************/
 
-static void immediate(
+void mc6809dis_immediate(
 	mc6809dis__t *const dis,
 	const char   *const op,
 	const bool          b16
@@ -1800,7 +1794,7 @@ static void immediate(
 
 /*************************************************************************/
 
-static void direct(
+void mc6809dis_direct(
 	mc6809dis__t *const dis,
 	mc6809__t    *const cpu,
 	const char   *const op,
@@ -1839,7 +1833,7 @@ static void direct(
   
 /*************************************************************************/  
 
-static void extended(
+void mc6809dis_extended(
 	mc6809dis__t *const dis,
 	mc6809__t    *const cpu,
 	const char   *const op,
@@ -1878,7 +1872,7 @@ static void extended(
 
 /*************************************************************************/
 
-static void relative(
+void mc6809dis_relative(
 	mc6809dis__t *const dis,
 	const char   *const op,
 	const char   *const data
@@ -1901,7 +1895,7 @@ static void relative(
 
 /*************************************************************************/
 
-static void lrelative(
+void mc6809dis_lrelative(
 	mc6809dis__t *const dis,
 	const char   *const op,
 	const char   *const data
