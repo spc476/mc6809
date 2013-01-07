@@ -115,15 +115,18 @@ typedef struct mc6809
 
 /**********************************************************************/
 
-void	mc6809_reset	(mc6809__t *const) __attribute__((nonnull));
-int	mc6809_run	(mc6809__t *const) __attribute__((nonnull));
-int	mc6809_step	(mc6809__t *const) __attribute__((nonnull));
+void		mc6809_reset	(mc6809__t *const) __attribute__((nonnull));
+int		mc6809_run	(mc6809__t *const) __attribute__((nonnull));
+int		mc6809_step	(mc6809__t *const) __attribute__((nonnull));
 
-void	mc6809_direct	(mc6809__t *const) __attribute__((nonnull));
-void	mc6809_relative	(mc6809__t *const) __attribute__((nonnull));
-void	mc6809_lrelative(mc6809__t *const) __attribute__((nonnull));
-void	mc6809_extended (mc6809__t *const) __attribute__((nonnull));
-void	mc6809_indexed	(mc6809__t *const) __attribute__((nonnull));
+mc6809byte__t	mc6809_cctobyte	(mc6809__t *const)               __attribute__((nonnull));
+void		mc6809_bytetocc	(mc6809__t *const,mc6809byte__t) __attribute__((nonnull));
+
+void		mc6809_direct	(mc6809__t *const) __attribute__((nonnull));
+void		mc6809_relative	(mc6809__t *const) __attribute__((nonnull));
+void		mc6809_lrelative(mc6809__t *const) __attribute__((nonnull));
+void		mc6809_extended (mc6809__t *const) __attribute__((nonnull));
+void		mc6809_indexed	(mc6809__t *const) __attribute__((nonnull));
 
 /**********************************************************************/
 

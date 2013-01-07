@@ -29,9 +29,6 @@
 static int		page2		(mc6809__t *const) __attribute__((nonnull));
 static int		page3		(mc6809__t *const) __attribute__((nonnull));
 
-static mc6809byte__t	cctobyte	(mc6809__t *const)               __attribute__((nonnull));
-static void		bytetocc	(mc6809__t *const,mc6809byte__t) __attribute__((nonnull));
-
 static mc6809byte__t	op_neg		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
 static mc6809byte__t	op_com		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
 static mc6809byte__t	op_lsr		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
@@ -169,7 +166,7 @@ void mc6809_reset(mc6809__t *const cpu)
   cpu->cc.i        = true;
   cpu->instpc      = cpu->pc.w;
   cpu->ea.w        = 0;
-  bytetocc(cpu,0);
+  mc6809_bytetocc(cpu,0);
 }
 
 /***************************************************************************/
@@ -218,7 +215,7 @@ int mc6809_step(mc6809__t *const cpu)
       (*cpu->write)(cpu,--cpu->S.w,cpu->dp);
       (*cpu->write)(cpu,--cpu->S.w,cpu->B);
       (*cpu->write)(cpu,--cpu->S.w,cpu->A);
-      (*cpu->write)(cpu,--cpu->S.w,cctobyte(cpu));
+      (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
       cpu->cc.f    = true;
       cpu->cc.i    = true;
     }
@@ -236,7 +233,7 @@ int mc6809_step(mc6809__t *const cpu)
       cpu->cc.e    = false;
       (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
       (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
-      (*cpu->write)(cpu,--cpu->S.w,cctobyte(cpu));
+      (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
       cpu->cc.f    = true;
       cpu->cc.i    = true;
     }
@@ -263,7 +260,7 @@ int mc6809_step(mc6809__t *const cpu)
       (*cpu->write)(cpu,--cpu->S.w,cpu->dp);
       (*cpu->write)(cpu,--cpu->S.w,cpu->B);
       (*cpu->write)(cpu,--cpu->S.w,cpu->A);
-      (*cpu->write)(cpu,--cpu->S.w,cctobyte(cpu));
+      (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
       cpu->cc.i    = true;
     }
     cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_IRQ,false);
@@ -441,8 +438,8 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x1A:
          cpu->cycles += 2;
          data    = (*cpu->read)(cpu,cpu->pc.w++,true);
-         data   |= cctobyte(cpu);
-         bytetocc(cpu,data);
+         data   |= mc6809_cctobyte(cpu);
+         mc6809_bytetocc(cpu,data);
          break;
     
     case 0x1B:
@@ -452,8 +449,8 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x1C:
          cpu->cycles += 2;
          data    = (*cpu->read)(cpu,cpu->pc.w++,true);
-         data   &= cctobyte(cpu);
-         bytetocc(cpu,data);
+         data   &= mc6809_cctobyte(cpu);
+         mc6809_bytetocc(cpu,data);
          break;
     
     case 0x1D:
@@ -516,7 +513,7 @@ int mc6809_step(mc6809__t *const cpu)
            {
              case 0x80: src = &cpu->A; break;
              case 0x90: src = &cpu->B; break;
-             case 0xA0: src = &ccs; ccs = cctobyte(cpu); break;
+             case 0xA0: src = &ccs; ccs = mc6809_cctobyte(cpu); break;
              case 0xB0: src = &cpu->dp; break;
              default:
                   (*cpu->fault)(cpu,MC6809_FAULT_EXG);
@@ -527,7 +524,7 @@ int mc6809_step(mc6809__t *const cpu)
            {
              case 0x08: dest = &cpu->A; break;
              case 0x09: dest = &cpu->B; break;
-             case 0x0A: dest = &ccd; ccd = cctobyte(cpu); break;
+             case 0x0A: dest = &ccd; ccd = mc6809_cctobyte(cpu); break;
              case 0x0B: dest = &cpu->dp; break;
              default:
                   (*cpu->fault)(cpu,MC6809_FAULT_EXG);
@@ -538,8 +535,8 @@ int mc6809_step(mc6809__t *const cpu)
            *src  = *dest;
            *dest = tmp;
            
-           if (src  == &ccs) bytetocc(cpu,ccs);
-           if (dest == &ccd) bytetocc(cpu,ccd);
+           if (src  == &ccs) mc6809_bytetocc(cpu,ccs);
+           if (dest == &ccd) mc6809_bytetocc(cpu,ccd);
          }
          else
            (*cpu->fault)(cpu,MC6809_FAULT_EXG);
@@ -583,7 +580,7 @@ int mc6809_step(mc6809__t *const cpu)
            {
              case 0x80: data = cpu->A; break;
              case 0x90: data = cpu->B; break;
-             case 0xA0: data = cctobyte(cpu); break;
+             case 0xA0: data = mc6809_cctobyte(cpu); break;
              case 0xB0: data = cpu->dp; break;
              default:
                   (*cpu->fault)(cpu,MC6809_FAULT_TFR);
@@ -594,7 +591,7 @@ int mc6809_step(mc6809__t *const cpu)
            {
              case 0x08: cpu->A = data; break;
              case 0x09: cpu->B = data; break;
-             case 0x0A: bytetocc(cpu,data); break;
+             case 0x0A: mc6809_bytetocc(cpu,data); break;
              case 0x0B: cpu->dp = data; break;
              default:
                   (*cpu->fault)(cpu,MC6809_FAULT_TFR);
@@ -786,7 +783,7 @@ int mc6809_step(mc6809__t *const cpu)
          if (data & 0x01)
          {
            cpu->cycles++;
-           (*cpu->write)(cpu,--cpu->S.w,cctobyte(cpu));
+           (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
          }
          break;
     
@@ -796,7 +793,7 @@ int mc6809_step(mc6809__t *const cpu)
          if (data & 0x01)
          {
            cpu->cycles++;
-           bytetocc(cpu,(*cpu->read)(cpu,cpu->S.w++,false));
+           mc6809_bytetocc(cpu,(*cpu->read)(cpu,cpu->S.w++,false));
          }
          if (data & 0x02)
          {
@@ -884,7 +881,7 @@ int mc6809_step(mc6809__t *const cpu)
          if (data & 0x01)
          {
            cpu->cycles++;
-           (*cpu->write)(cpu,--cpu->U.w,cctobyte(cpu));
+           (*cpu->write)(cpu,--cpu->U.w,mc6809_cctobyte(cpu));
          }
          break;
          
@@ -894,7 +891,7 @@ int mc6809_step(mc6809__t *const cpu)
          if (data & 0x01)
          {
            cpu->cycles++;
-           bytetocc(cpu,(*cpu->read)(cpu,cpu->U.w++,false));
+           mc6809_bytetocc(cpu,(*cpu->read)(cpu,cpu->U.w++,false));
          }
          if (data & 0x02)
          {
@@ -957,7 +954,7 @@ int mc6809_step(mc6809__t *const cpu)
          
     case 0x3B:
          cpu->cycles += 5;
-         bytetocc(cpu,(*cpu->read)(cpu,cpu->S.w++,false));
+         mc6809_bytetocc(cpu,(*cpu->read)(cpu,cpu->S.w++,false));
          if (cpu->cc.e)
          {
            cpu->cycles  += 9;
@@ -978,7 +975,7 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x3C:
          cpu->cycles += 20;
          data = (*cpu->read)(cpu,cpu->pc.w++,true);
-         bytetocc(cpu,cctobyte(cpu) & data);
+         mc6809_bytetocc(cpu,mc6809_cctobyte(cpu) & data);
          cpu->cc.e    = true;
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
@@ -991,7 +988,7 @@ int mc6809_step(mc6809__t *const cpu)
          (*cpu->write)(cpu,--cpu->S.w,cpu->dp);
          (*cpu->write)(cpu,--cpu->S.w,cpu->B);
          (*cpu->write)(cpu,--cpu->S.w,cpu->A);
-         (*cpu->write)(cpu,--cpu->S.w,cctobyte(cpu));
+         (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
          cpu->cwai = true;
          break;
          
@@ -1020,7 +1017,7 @@ int mc6809_step(mc6809__t *const cpu)
          (*cpu->write)(cpu,--cpu->S.w,cpu->dp);
          (*cpu->write)(cpu,--cpu->S.w,cpu->B);
          (*cpu->write)(cpu,--cpu->S.w,cpu->A);
-         (*cpu->write)(cpu,--cpu->S.w,cctobyte(cpu));
+         (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
          cpu->cc.f      = true;
          cpu->cc.i      = true;
          cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_SWI,false);
@@ -2362,7 +2359,7 @@ static int page2(mc6809__t *const cpu)
          (*cpu->write)(cpu,--cpu->S.w,cpu->dp);
          (*cpu->write)(cpu,--cpu->S.w,cpu->B);
          (*cpu->write)(cpu,--cpu->S.w,cpu->A);
-         (*cpu->write)(cpu,--cpu->S.w,cctobyte(cpu));
+         (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
          cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_SWI2,false);
          cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_SWI2 + 1,false);
          break;
@@ -2584,7 +2581,7 @@ static int page3(mc6809__t *const cpu)
          (*cpu->write)(cpu,--cpu->S.w,cpu->dp);
          (*cpu->write)(cpu,--cpu->S.w,cpu->B);
          (*cpu->write)(cpu,--cpu->S.w,cpu->A);
-         (*cpu->write)(cpu,--cpu->S.w,cctobyte(cpu));
+         (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
          cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_SWI3,false);
          cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_SWI3 + 1,false);
          break;
@@ -2950,7 +2947,7 @@ void mc6809_indexed(mc6809__t *const cpu)
 
 /*************************************************************************/
 
-static mc6809byte__t cctobyte(mc6809__t *const cpu)
+mc6809byte__t mc6809_cctobyte(mc6809__t *const cpu)
 {
   mc6809byte__t r = 0;
   
@@ -2970,7 +2967,7 @@ static mc6809byte__t cctobyte(mc6809__t *const cpu)
 
 /************************************************************************/
 
-static void bytetocc(mc6809__t *const cpu,mc6809byte__t r)
+void mc6809_bytetocc(mc6809__t *const cpu,mc6809byte__t r)
 {
   assert(cpu != NULL);
   
