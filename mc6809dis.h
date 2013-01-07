@@ -63,4 +63,8 @@ void mc6809dis_extended	(mc6809dis__t *const,mc6809__t  *const,const char *const
 void mc6809dis_relative	(mc6809dis__t *const,const char *const,const char *const)            __attribute__((nonnull));
 void mc6809dis_lrelative(mc6809dis__t *const,const char *const,const char *const)            __attribute__((nonnull));
 
+void mc6809dis_pshregs	(char *,size_t,mc6809byte__t,bool);
+void mc6809dis_pulregs	(char *,size_t,mc6809byte__t,bool);
+void mc6809dis_cc	(char *,size_t,mc6809byte__t);
+
 #endif

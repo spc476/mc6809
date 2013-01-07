@@ -31,13 +31,10 @@
 
 static int		page2		(mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
 static int		page3		(mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
-
 static void		psh		(mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
 static void		pul		(mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
 static void		exgtfr		(mc6809dis__t *const,const char *const)            __attribute__((nonnull));
 static void		ccimmediate	(mc6809dis__t *const,const char *const)            __attribute__((nonnull));
-
-static void		cc		(char *dest,size_t size,mc6809byte__t)             __attribute__((nonnull));
 static mc6809byte__t	cctobyte	(mc6809__t *const)                                 __attribute__((nonnull));
 
 /***************************************************************************/
@@ -75,7 +72,7 @@ int mc6809dis_registers(mc6809__t *const cpu,char *dest,size_t size)
   assert(dest != NULL);
   assert(size >= 64);
 
-  cc(flags,sizeof(flags),cctobyte(cpu));    
+  mc6809dis_cc(flags,sizeof(flags),cctobyte(cpu));    
   snprintf(
   	dest,
   	size,
@@ -1930,35 +1927,57 @@ static const char *const m_pshureg[] =
 
 /*************************************************************************/
 
+void mc6809dis_pshregs(char *dest,size_t size,mc6809byte__t post,bool s)
+{
+  const char *const *regs = s ? m_pshsreg : m_pshureg;
+  const char        *sep  = "";
+  
+  for (int i = 7 ; i > -1 ; i--)
+  {
+    int mask = 1 << i;
+    
+    if ((post & mask) != 0)
+    {   
+      size_t bytes  = snprintf(dest,size,"%s%s",sep,regs[i]);
+      size         -= bytes;
+      dest         += bytes;
+      sep           = ",";
+    }
+  }
+}
+
+/************************************************************************/
+
+void mc6809dis_pulregs(char *dest,size_t size,mc6809byte__t post,bool s)
+{
+  const char *const *regs = s ? m_pshsreg : m_pshureg;
+  const char        *sep  = "";
+
+  for (int i = 0 ; i < 8 ; i++)
+  {
+    int mask = 1 << i;
+    
+    if ((post & mask) != 0)
+    {
+      size_t bytes = snprintf(dest,size,"%s%s",sep,regs[i]);
+      size         -= bytes;
+      dest         += bytes;
+      sep           = ",";
+    }
+  }
+}
+
+/************************************************************************/
+
 static void psh(mc6809dis__t *const dis,const char *const op,const bool s)
 {
   mc6809byte__t      post;
-  size_t             len;
-  size_t             bytes;
-  char              *p;
-  char              *sep;
-  const char *const *regs;
-  
-  regs = s ? m_pshsreg : m_pshureg;
-  len  = sizeof(dis->toperand);
-  p    = dis->toperand;
-  sep  = "";
+
   post = (*dis->read)(dis,dis->next++);
   snprintf(dis->operand,sizeof(dis->operand),"%02X",post);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
 
-  for (int i = 7 ; i > -1 ; i--)
-  {
-    int mask = 1 << i;
-
-    if ((post & mask) != 0)
-    {
-      bytes = snprintf(p,len,"%s%s",sep,regs[i]);
-      len  -= bytes;
-      p    += bytes;
-      sep   = ",";
-    }
-  }
+  mc6809dis_pshregs(dis->toperand,sizeof(dis->toperand),post,s);
 }
 
 /*************************************************************************/
@@ -1966,32 +1985,12 @@ static void psh(mc6809dis__t *const dis,const char *const op,const bool s)
 static void pul(mc6809dis__t *const dis,const char *const op,const bool s)
 {
   mc6809byte__t      post;
-  size_t             len;
-  size_t             bytes;
-  char              *p;
-  char              *sep;
-  const char *const *regs;
   
-  regs = s ? m_pshsreg : m_pshureg;
-  len  = sizeof(dis->toperand);
-  p    = dis->toperand;
-  sep  = "";
   post = (*dis->read)(dis,dis->next++);
   snprintf(dis->operand,sizeof(dis->operand),"%02X",post);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
   
-  for (int i = 0 ; i < 8 ; i++)
-  {
-    int mask = 1 << i;
-    
-    if ((post & mask) != 0)
-    {
-      bytes = snprintf(p,len,"%s%s",sep,regs[i]);
-      len  -= bytes;
-      p    += bytes;
-      sep   = ",";
-    }
-  }
+  mc6809dis_pulregs(dis->toperand,sizeof(dis->toperand),post,s);
 }
 
 /*************************************************************************/
@@ -2042,12 +2041,12 @@ static void ccimmediate(mc6809dis__t *const dis,const char *const op)
   snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
   snprintf(dis->toperand,sizeof(dis->toperand),"#%02X",byte);
-  cc(dis->data,sizeof(dis->data),byte);
+  mc6809dis_cc(dis->data,sizeof(dis->data),byte);
 }
 
 /*************************************************************************/
 
-static void cc(char *dest,size_t size __attribute__((unused)),mc6809byte__t c)
+void mc6809dis_cc(char *dest,size_t size __attribute__((unused)),mc6809byte__t c)
 {
   assert(dest != NULL);
   assert(size >= 9);
