@@ -34,7 +34,7 @@
 #  define MSB 1
 #  define LSB 0
 #else
-#  warning You need to define the byte order
+#  error You need to define the byte order
 #endif
 
 /************************************************************************/
