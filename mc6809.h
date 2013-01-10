@@ -33,6 +33,9 @@
 #if defined(__i386)
 #  define MSB 1
 #  define LSB 0
+#elif defined(__x86_64)
+#  define MSB 1
+#  define LSB 0
 #else
 #  error You need to define the byte order
 #endif
