@@ -162,11 +162,16 @@ void mc6809_reset(mc6809__t *const cpu)
   cpu->pc.b[MSB]   = (*cpu->read)(cpu,MC6809_VECTOR_RESET,false);
   cpu->pc.b[LSB]   = (*cpu->read)(cpu,MC6809_VECTOR_RESET + 1,false);
   cpu->dp          = 0;
+  cpu->cc.e        = false;
   cpu->cc.f        = true;
+  cpu->cc.h        = false;
   cpu->cc.i        = true;
+  cpu->cc.n        = false;
+  cpu->cc.z        = false;
+  cpu->cc.v        = false;
+  cpu->cc.c        = false;
   cpu->instpc      = cpu->pc.w;
   cpu->ea.w        = 0;
-  mc6809_bytetocc(cpu,0);
 }
 
 /***************************************************************************/
