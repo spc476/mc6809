@@ -318,6 +318,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          
     case 0x2C:
          mc6809dis_relative(dis,"BGE","signed");
+         break;
          
     case 0x2D:
          mc6809dis_relative(dis,"BLT","signed");
