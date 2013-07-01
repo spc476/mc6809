@@ -187,8 +187,10 @@ static bool dumpcore(struct userdata *ud)
   if (fp != NULL)
   {
     fwrite(ud->memory,1,65536uL,fp);
-    fwrite(&ud->cpu.pc.b[MSB],1,1,fp);
-    fwrite(&ud->cpu.pc.b[LSB],1,1,fp);
+    fputc(mc6809_cctobyte(&ud->cpu),fp);
+    fwrite(&ud->cpu.A,1,1,fp);
+    fwrite(&ud->cpu.B,1,1,fp);
+    fwrite(&ud->cpu.dp,1,1,fp);
     fwrite(&ud->cpu.X.b[MSB],1,1,fp);
     fwrite(&ud->cpu.X.b[LSB],1,1,fp);
     fwrite(&ud->cpu.Y.b[MSB],1,1,fp);
@@ -196,11 +198,9 @@ static bool dumpcore(struct userdata *ud)
     fwrite(&ud->cpu.U.b[MSB],1,1,fp);
     fwrite(&ud->cpu.U.b[LSB],1,1,fp);
     fwrite(&ud->cpu.S.b[MSB],1,1,fp);
-    fwrite(&ud->cpu.S.b[LSB],1,1,fp);
-    fwrite(&ud->cpu.dp,1,1,fp);
-    fwrite(&ud->cpu.A,1,1,fp);
-    fwrite(&ud->cpu.B,1,1,fp);
-    fputc(mc6809_cctobyte(&ud->cpu),fp);
+    fwrite(&ud->cpu.S.b[LSB],1,1,fp);    
+    fwrite(&ud->cpu.pc.b[MSB],1,1,fp);
+    fwrite(&ud->cpu.pc.b[LSB],1,1,fp);
     fclose(fp);
     return true;
   }
