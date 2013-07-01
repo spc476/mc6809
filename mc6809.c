@@ -460,7 +460,7 @@ int mc6809_step(mc6809__t *const cpu)
     
     case 0x1D:
          cpu->cycles++;
-         cpu->B = (cpu->A > 0x7F) ? 0xFF: 0x00;
+         cpu->A = (cpu->B > 0x7F) ? 0xFF: 0x00;
          cpu->cc.n = (cpu->d.w >  0x7FFF);
          cpu->cc.z = (cpu->d.w == 0x0000);
          cpu->cc.v = false;
