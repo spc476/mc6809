@@ -2885,7 +2885,7 @@ void mc6809_indexed(mc6809__t *const cpu)
          break;
 
     case 0x19:
-         cpu->cycles    += 4;
+         cpu->cycles    += 7;
          cpu->ea.b[MSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
          cpu->ea.b[LSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
          cpu->ea.w      += cpu->index[reg].w;
