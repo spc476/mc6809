@@ -1232,6 +1232,7 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
          
     case 0x2C:
          mc6809dis_lrelative(dis,"LBGE","signed");
+         break;
          
     case 0x2D:
          mc6809dis_lrelative(dis,"LBLT","signed");
