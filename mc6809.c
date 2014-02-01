@@ -222,9 +222,9 @@ int mc6809_step(mc6809__t *const cpu)
       (*cpu->write)(cpu,--cpu->S.w,cpu->A);
       (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
       cpu->cc.e    = true;
-      cpu->cc.f    = true;
-      cpu->cc.i    = true;
-    }
+    }    
+    cpu->cc.f    = true;
+    cpu->cc.i    = true;
     cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_NMI,false);
     cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_NMI + 1,false);
     cpu->cwai    = false;
@@ -240,9 +240,9 @@ int mc6809_step(mc6809__t *const cpu)
       (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
       (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
       cpu->cc.e    = false;
-      cpu->cc.f    = true;
-      cpu->cc.i    = true;
     }
+    cpu->cc.f      = true;
+    cpu->cc.i      = true;
     cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_FIRQ,false);
     cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_FIRQ + 1,false);
     cpu->cwai    = false;
@@ -267,8 +267,8 @@ int mc6809_step(mc6809__t *const cpu)
       (*cpu->write)(cpu,--cpu->S.w,cpu->A);
       (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
       cpu->cc.e    = true;
-      cpu->cc.i    = true;
     }
+    cpu->cc.i      = true;
     cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_IRQ,false);
     cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_IRQ + 1,false);
     cpu->cwai    = false;
