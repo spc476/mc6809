@@ -37,10 +37,11 @@ typedef struct mc6809dis
   char toperand[19];
   char data    [32];
 
-  mc6809addr__t pc;
-  mc6809byte__t inst;
-  mc6809addr__t next;
-  jmp_buf       err;
+  mc6809addr__t           pc;
+  mc6809byte__t           inst;
+  mc6809addr__t           next;
+  jmp_buf                 err;
+  volatile mc6809fault__t rc;
 
   void           *user;
   mc6809byte__t (*read) (struct mc6809dis *,mc6809addr__t);

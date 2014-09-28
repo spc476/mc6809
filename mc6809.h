@@ -89,19 +89,20 @@ typedef struct mc6809
     bool c;
   } cc;
   
-  unsigned long cycles;
-  mc6809addr__t instpc;
-  mc6809word__t ea;
-  mc6809byte__t inst;
-  bool          nmi_armed;
-  bool          nmi;
-  bool          firq;
-  bool          irq;
-  bool          cwai;
-  bool          sync;
-  bool          page2;
-  bool          page3;
-  jmp_buf       err;
+  unsigned long           cycles;
+  mc6809addr__t           instpc;
+  mc6809word__t           ea;
+  mc6809byte__t           inst;
+  bool                    nmi_armed;
+  bool                    nmi;
+  bool                    firq;
+  bool                    irq;
+  bool                    cwai;
+  bool                    sync;
+  bool                    page2;
+  bool                    page3;
+  jmp_buf                 err;
+  volatile mc6809fault__t rc;
   
   void           *user;
   mc6809byte__t (*read) (struct mc6809 *,mc6809addr__t,bool);

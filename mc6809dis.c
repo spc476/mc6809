@@ -122,13 +122,12 @@ int mc6809dis_run(mc6809dis__t *const dis,mc6809__t *const cpu)
 
 int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
 {
-  int rc;
-  
   assert(dis != NULL);
 
-  rc = setjmp(dis->err);
-  if (rc != 0) return rc;
-  
+  dis->rc = 0;
+  if (setjmp(dis->err) != 0)
+    return dis->rc;
+    
   dis->next   = dis->pc;
   dis->inst   = (*dis->read)(dis,dis->next++);
   

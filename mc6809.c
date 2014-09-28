@@ -196,13 +196,13 @@ int mc6809_step(mc6809__t *const cpu)
   mc6809word__t d16;
   mc6809byte__t data;
   bool          e;
-  int           rc;
   
   assert(cpu != NULL);
   
-  rc = setjmp(cpu->err);
-  if (rc != 0) return rc;
-
+  cpu->rc = 0;
+  if (setjmp(cpu->err) != 0)
+    return cpu->rc;
+    
   if (cpu->nmi && cpu->nmi_armed)
   {
     cpu->nmi = false;    
