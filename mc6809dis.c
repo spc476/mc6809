@@ -124,9 +124,9 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
 {
   assert(dis != NULL);
 
-  dis->rc = 0;
+  dis->reason = MC6809_FAULT_REASON_NOT_SET;
   if (setjmp(dis->err) != 0)
-    return dis->rc;
+    return dis->reason;
     
   dis->next   = dis->pc;
   dis->inst   = (*dis->read)(dis,dis->next++);

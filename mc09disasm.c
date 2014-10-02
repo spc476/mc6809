@@ -39,7 +39,7 @@ static mc6809byte__t dis_read(
   
   c = fgetc((FILE *)dis->user);
   if (c == EOF)
-    longjmp(dis->err,dis->rc = MC6809_DIS_DONE);
+    longjmp(dis->err,dis->reason = MC6809_DIS_DONE);
   return c;
 }
 

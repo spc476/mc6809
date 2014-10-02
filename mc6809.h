@@ -56,6 +56,7 @@
 typedef enum
 {
   MC6809_FAULT_INTERNAL_ERROR = 1,
+  MC6809_FAULT_REASON_NOT_SET,
   MC6809_FAULT_INSTRUCTION,
   MC6809_FAULT_ADDRESS_MODE,
   MC6809_FAULT_EXG,
@@ -102,7 +103,7 @@ typedef struct mc6809
   bool                    page2;
   bool                    page3;
   jmp_buf                 err;
-  volatile mc6809fault__t rc;
+  volatile mc6809fault__t reason;
   
   void           *user;
   mc6809byte__t (*read) (struct mc6809 *,mc6809addr__t,bool);

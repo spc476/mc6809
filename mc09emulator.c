@@ -267,7 +267,7 @@ static void cpu_fault(
 )
 {
   assert(cpu != NULL);  
-  longjmp(cpu->err,cpu->rc = fault);
+  longjmp(cpu->err,cpu->reason = fault);
 }
 
 /***********************************************************************/
@@ -327,7 +327,7 @@ static void dis_fault(
          break;
   }
   
-  longjmp(dis->err,dis->rc = fault);
+  longjmp(dis->err,dis->reason = fault);
 }
 
 /***********************************************************************/

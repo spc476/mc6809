@@ -172,6 +172,7 @@ void mc6809_reset(mc6809__t *const cpu)
   cpu->cc.c        = false;
   cpu->instpc      = cpu->pc.w;
   cpu->ea.w        = 0;
+  cpu->reason      = MC6809_FAULT_REASON_NOT_SET;
 }
 
 /***************************************************************************/
@@ -199,9 +200,8 @@ int mc6809_step(mc6809__t *const cpu)
   
   assert(cpu != NULL);
   
-  cpu->rc = 0;
   if (setjmp(cpu->err) != 0)
-    return cpu->rc;
+    return cpu->reason;
     
   if (cpu->nmi && cpu->nmi_armed)
   {
