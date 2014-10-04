@@ -26,8 +26,8 @@
 
 /**************************************************************************/
 
-static int		page2		(mc6809__t *const) __attribute__((nonnull));
-static int		page3		(mc6809__t *const) __attribute__((nonnull));
+static mc6809fault__t	page2		(mc6809__t *const) __attribute__((nonnull));
+static mc6809fault__t	page3		(mc6809__t *const) __attribute__((nonnull));
 
 static mc6809byte__t	op_neg		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
 static mc6809byte__t	op_com		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
@@ -177,9 +177,9 @@ void mc6809_reset(mc6809__t *const cpu)
 
 /***************************************************************************/
 
-int mc6809_run(mc6809__t *const cpu)
+mc6809fault__t mc6809_run(mc6809__t *const cpu)
 {
-  int rc;
+  mc6809fault__t rc;
   
   assert(cpu != NULL);
   
@@ -192,7 +192,7 @@ int mc6809_run(mc6809__t *const cpu)
 
 /**************************************************************************/
 
-int mc6809_step(mc6809__t *const cpu)
+mc6809fault__t mc6809_step(mc6809__t *const cpu)
 {
   mc6809word__t d16;
   mc6809byte__t data;
@@ -202,7 +202,7 @@ int mc6809_step(mc6809__t *const cpu)
   
   if (setjmp(cpu->err) != 0)
     return cpu->reason;
-    
+  
   if (cpu->nmi && cpu->nmi_armed)
   {
     cpu->nmi = false;    
@@ -2190,7 +2190,7 @@ int mc6809_step(mc6809__t *const cpu)
 
 /************************************************************************/
 
-static int page2(mc6809__t *const cpu)
+static mc6809fault__t page2(mc6809__t *const cpu)
 {
   mc6809word__t d16;
   
@@ -2559,7 +2559,7 @@ static int page2(mc6809__t *const cpu)
 
 /************************************************************************/
 
-static int page3(mc6809__t *const cpu)
+static mc6809fault__t page3(mc6809__t *const cpu)
 {
   mc6809word__t d16;
   

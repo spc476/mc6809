@@ -29,8 +29,8 @@
 
 /**************************************************************************/
 
-static int		page2		(mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
-static int		page3		(mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
+static mc6809fault__t	page2		(mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
+static mc6809fault__t	page3		(mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
 static void		psh		(mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
 static void		pul		(mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
 static void		exgtfr		(mc6809dis__t *const,const char *const)            __attribute__((nonnull));
@@ -93,11 +93,11 @@ int mc6809dis_registers(mc6809__t *const cpu,char *dest,size_t size)
 
 /*************************************************************************/  	
 
-int mc6809dis_run(mc6809dis__t *const dis,mc6809__t *const cpu)
+mc6809fault__t mc6809dis_run(mc6809dis__t *const dis,mc6809__t *const cpu)
 {
-  char inst[128];
-  char regs[128];
-  int  rc;
+  mc6809fault__t rc;
+  char           inst[128];
+  char           regs[128];
   
   assert(dis != NULL);
   
@@ -120,7 +120,7 @@ int mc6809dis_run(mc6809dis__t *const dis,mc6809__t *const cpu)
 
 /*************************************************************************/
 
-int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
+mc6809fault__t mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
 {
   assert(dis != NULL);
 
@@ -1174,7 +1174,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
 
 /************************************************************************/
 
-static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
+static mc6809fault__t page2(mc6809dis__t *const dis,mc6809__t *const cpu)
 {
   mc6809byte__t byte;
   
@@ -1347,7 +1347,7 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
 
 /************************************************************************/
 
-static int page3(mc6809dis__t *const dis,mc6809__t *const cpu)
+static mc6809fault__t page3(mc6809dis__t *const dis,mc6809__t *const cpu)
 {
   mc6809byte__t byte;
   
