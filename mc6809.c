@@ -3162,18 +3162,18 @@ static mc6809byte__t op_sub(
 	const mc6809byte__t src
 )
 {
-  mc6809word__t res;
+  mc6809byte__t res;
   mc6809byte__t ci;
   
   assert(cpu != NULL);
      
-  res.w     = dest - src;
-  ci        = res.b[LSB] ^ dest ^ src;
-  cpu->cc.n = (res.b[LSB] >  0x7F);
-  cpu->cc.z = (res.b[LSB] == 0x00);
-  cpu->cc.c = res.w > 255;
+  res       = dest - src;
+  ci        = res ^ dest ^ src;
+  cpu->cc.n = (res >  0x7F);
+  cpu->cc.z = (res == 0x00);
+  cpu->cc.c = src > dest;
   cpu->cc.v = ((ci & 0x80) != 0) ^ cpu->cc.c;
-  return res.b[LSB];
+  return res;
 }
 
 /************************************************************************/
@@ -3184,16 +3184,16 @@ static void op_cmp(
 	const mc6809byte__t src
 )
 {
-  mc6809word__t res;
+  mc6809byte__t res;
   mc6809byte__t ci;
   
   assert(cpu != NULL);
      
-  res.w     = dest - src;
-  ci        = res.b[LSB] ^ dest ^ src;
-  cpu->cc.n = (res.b[LSB] >  0x7F);
-  cpu->cc.z = (res.b[LSB] == 0x00);
-  cpu->cc.c = res.w > 255;
+  res       = dest - src;
+  ci        = res ^ dest ^ src;
+  cpu->cc.n = (res >  0x7F);
+  cpu->cc.z = (res == 0x00);
+  cpu->cc.c = src > dest;
   cpu->cc.v = ((ci & 0x80) != 0) ^ cpu->cc.c;
 }
 
@@ -3205,19 +3205,19 @@ static mc6809byte__t op_sbc(
 	const mc6809byte__t src
 )
 {
-  mc6809word__t res;
+  mc6809byte__t res;
   mc6809byte__t ci;
  
   assert(cpu       != NULL);
   assert(cpu->cc.c <= 1);
 
-  res.w     = dest - src - cpu->cc.c;
-  ci        = res.b[LSB] ^ dest ^ src;
-  cpu->cc.n = (res.b[LSB] >  0x7F);
-  cpu->cc.z = (res.b[LSB] == 0x00);
-  cpu->cc.c = res.w > 255;
+  res       = dest - src - cpu->cc.c;
+  ci        = res ^ dest ^ src;
+  cpu->cc.n = (res >  0x7F);
+  cpu->cc.z = (res == 0x00);
+  cpu->cc.c = src >= dest;
   cpu->cc.v  = ((ci & 0x80) != 0) ^ cpu->cc.c;
-  return res.b[LSB];
+  return res;
 }
 
 /************************************************************************/
@@ -3298,20 +3298,20 @@ static mc6809byte__t op_adc(
 	const mc6809byte__t src
 )
 {
-  mc6809word__t res;
+  mc6809byte__t res;
   mc6809byte__t ci;
  
   assert(cpu       != NULL);
   assert(cpu->cc.c <= 1);
 
-  res.w     = dest + src + cpu->cc.c;
-  ci        = res.b[LSB] ^ dest ^ src;
+  res       = dest + src + cpu->cc.c;
+  ci        = res ^ dest ^ src;
   cpu->cc.h = (ci  &  0x10); 
-  cpu->cc.n = (res.b[LSB] >  0x7F);
-  cpu->cc.z = (res.b[LSB] == 0x00);
-  cpu->cc.c = res.w > 255;
+  cpu->cc.n = (res >  0x7F);
+  cpu->cc.z = (res == 0x00);
+  cpu->cc.c = (res <= dest) || (res <= src);
   cpu->cc.v  = ((ci & 0x80) != 0) ^ cpu->cc.c;
-  return res.b[LSB];
+  return res;
 }
 
 /************************************************************************/
@@ -3341,19 +3341,19 @@ static mc6809byte__t op_add(
         const mc6809byte__t src
 )
 {
-  mc6809word__t res;
+  mc6809byte__t res;
   mc6809byte__t ci;
   
   assert(cpu != NULL);
      
-  res.w     = dest + src;
-  ci        = res.b[LSB] ^ dest ^ src;
+  res       = dest + src;
+  ci        = res ^ dest ^ src;
   cpu->cc.h = (ci  &  0x10);
-  cpu->cc.n = (res.b[LSB] >  0x7F);
-  cpu->cc.z = (res.b[LSB] == 0x00);
-  cpu->cc.c = res.w > 255;
+  cpu->cc.n = (res >  0x7F);
+  cpu->cc.z = (res == 0x00);
+  cpu->cc.c = (res < dest) || (res < src);
   cpu->cc.v  = ((ci & 0x80) != 0) ^ cpu->cc.c;
-  return res.b[LSB];   
+  return res;
 }
 
 /************************************************************************/
@@ -3364,22 +3364,18 @@ static mc6809addr__t op_sub16(
 	const mc6809addr__t src
 )
 {
-  union
-  {
-    mc6809addr__t w[2];
-    uint32_t      l;
-  } res;
+  mc6809addr__t res;
   mc6809addr__t ci;
   
   assert(cpu != NULL);
   
-  res.l     = dest - src;
-  ci        = res.w[LSB] ^ dest ^ src;
-  cpu->cc.n = (res.w[LSB] >  0x7FFF);
-  cpu->cc.z = (res.w[LSB] == 0x0000);
-  cpu->cc.c = res.l > 65535u;
+  res       = dest - src;
+  ci        = res ^ dest ^ src;
+  cpu->cc.n = (res >  0x7FFF);
+  cpu->cc.z = (res == 0x0000);
+  cpu->cc.c = src > dest;
   cpu->cc.v = ((ci & 0x8000) != 0) ^ cpu->cc.c;
-  return res.w[LSB];
+  return res;
 }
 
 /************************************************************************/
@@ -3390,20 +3386,16 @@ static void op_cmp16(
 	const mc6809addr__t src
 )
 {
-  union
-  {
-    mc6809addr__t w[2];
-    uint32_t      l;
-  } res;
+  mc6809addr__t res;
   mc6809addr__t ci;
   
   assert(cpu != NULL);
   
-  res.l     = dest - src;
-  ci        = res.w[LSB] ^ dest ^ src;
-  cpu->cc.n = (res.w[LSB] >  0x7FFF);
-  cpu->cc.z = (res.w[LSB] == 0x0000);
-  cpu->cc.c = res.l > 65535u;
+  res       = dest - src;
+  ci        = res ^ dest ^ src;
+  cpu->cc.n = (res >  0x7FFF);
+  cpu->cc.z = (res == 0x0000);
+  cpu->cc.c = src > dest;
   cpu->cc.v = ((ci & 0x8000) != 0) ^ cpu->cc.c;
 }
 
@@ -3428,22 +3420,18 @@ static mc6809addr__t op_add16(
 	const mc6809addr__t src
 )
 {
-  union
-  {
-    mc6809addr__t w[2];
-    uint32_t      l;
-  } res;
+  mc6809addr__t res;
   mc6809addr__t ci;
   
   assert(cpu != NULL);
   
-  res.l     = dest + src;
-  ci        = res.w[LSB] ^ dest ^ src;
-  cpu->cc.n = (res.w[LSB] >  0x7FFF);
-  cpu->cc.z = (res.w[LSB] == 0x0000);
-  cpu->cc.c = res.l > 65535u;
+  res       = dest + src;
+  ci        = res ^ dest ^ src;
+  cpu->cc.n = (res >  0x7FFF);
+  cpu->cc.z = (res == 0x0000);
+  cpu->cc.c = (res < dest) || (res < src);
   cpu->cc.v = ((ci & 0x8000) != 0) ^ cpu->cc.c;
-  return res.w[LSB];
+  return res;
 }
 
 /************************************************************************/
