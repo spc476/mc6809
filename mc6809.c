@@ -196,7 +196,7 @@ int mc6809_step(mc6809__t *const cpu)
   mc6809word__t d16;
   mc6809byte__t data;
   bool          e;
-  int           rc;
+  volatile int  rc;
   
   assert(cpu != NULL);
   

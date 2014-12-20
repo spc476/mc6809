@@ -122,7 +122,7 @@ int mc6809dis_run(mc6809dis__t *const dis,mc6809__t *const cpu)
 
 int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
 {
-  int rc;
+  volatile int rc;
   
   assert(dis != NULL);
 
