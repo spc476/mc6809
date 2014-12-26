@@ -98,26 +98,25 @@ static inline bool beq(mc6809__t *const cpu)
 static inline bool bge(mc6809__t *const cpu)
 {
   assert(cpu != NULL);
-  return (cpu->cc.n && cpu->cc.v) || (!cpu->cc.n && !cpu->cc.v);
+  return cpu->cc.n == cpu->cc.v;
 }
 
 static inline bool blt(mc6809__t *const cpu)
 {
   assert(cpu != NULL);
-  return (cpu->cc.n && !cpu->cc.v) || (!cpu->cc.n && cpu->cc.v);
+  return cpu->cc.n != cpu->cc.v;
 }
 
 static inline bool bgt(mc6809__t *const cpu)
 {
   assert(cpu != NULL);
-  return ( cpu->cc.n &&  cpu->cc.v && !cpu->cc.z)
-      || (!cpu->cc.n && !cpu->cc.v && !cpu->cc.z);
+  return (cpu->cc.n == cpu->cc.v) && !cpu->cc.z;
 }
 
 static inline bool ble(mc6809__t *const cpu)
 {
   assert(cpu != NULL);
-  return cpu->cc.z || (cpu->cc.n && !cpu->cc.v) || (!cpu->cc.n && cpu->cc.v);
+  return cpu->cc.z || (cpu->cc.n != cpu->cc.v);
 }
 
 static inline bool bpl(mc6809__t *const cpu)
