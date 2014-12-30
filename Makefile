@@ -19,7 +19,14 @@
 #
 ########################################################################
 
-.PHONY = all clean
+INSTALL         = /usr/bin/install
+INSTALL_PROGRAM = $(INSTALL)
+INSTALL_DATA    = $(INSTALL) -m 644
+
+prefix      = /usr/local
+includedir  = $(prefix)/include
+exec_prefix = $(prefix)
+libdir      = $(exec_prefix)/lib
 
 CC      = gcc -std=c99
 CFLAGS  = -g -Wall -Wextra -pedantic
@@ -31,6 +38,8 @@ LDLIBS  =
 
 %.a :
 	$(AR) rscu $@ $?
+
+.PHONY = all clean install uninstall
 
 all : mc09emulator mc09disasm libmc6809.a
 
@@ -45,3 +54,15 @@ mc6809dis.o    : mc6809dis.c    mc6809.h mc6809dis.h
 
 clean:
 	/bin/rm -rf *.o mc09emulator mc09disasm *~ libmc6809.a
+
+install: libmc6809.a
+	$(INSTALL) -d $(DESTDIR)$(libdir)
+	$(INSTALL) -d $(DESTDIR)$(includedir)
+	$(INSTALL_PROGRAM) libmc6809.a $(DESTDIR)$(libdir)
+	$(INSTALL_DATA) mc6809.h       $(DESTDIR)$(includedir)
+	$(INSTALL_DATA) mc6809dis.h    $(DESTDIR)$(includedir)
+
+uninstall:
+	$(RM) $(DESTDIR)$(libdir)/libmc6809.a
+	$(RM) $(DESTDIR)$(includedir)/mc6809.h 
+	$(RM) $(DESTDIR)$(includedir)/mc6809dis.h
