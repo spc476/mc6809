@@ -1807,7 +1807,7 @@ void mc6809dis_direct(
   assert(dis != NULL);
   assert(op  != NULL);
   
-  addr.b[MSB] = 0;
+  addr.b[MSB] = cpu->dp;
   addr.b[LSB] = (*dis->read)(dis,dis->next++);
   
   snprintf(dis->operand,sizeof(dis->operand),"%02X",addr.b[LSB]);
