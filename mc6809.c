@@ -1000,11 +1000,11 @@ int mc6809_step(mc6809__t *const cpu)
          
     case 0x3D:
          cpu->cycles += 10;
-         cpu->cc.c = (cpu->B & 0x80) == 0x80;
          cpu->d.w  = (mc6809addr__t)cpu->A * (mc6809addr__t)cpu->B;
+         cpu->cc.c = (cpu->B & 0x80) == 0x80;
          cpu->cc.z = (cpu->d.w == 0x0000);
          break;
-       
+         
     case 0x3E:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
