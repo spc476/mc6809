@@ -58,9 +58,9 @@ clean:
 install: libmc6809.a
 	$(INSTALL) -d $(DESTDIR)$(libdir)
 	$(INSTALL) -d $(DESTDIR)$(includedir)
-	$(INSTALL_PROGRAM) libmc6809.a $(DESTDIR)$(libdir)
-	$(INSTALL_DATA) mc6809.h       $(DESTDIR)$(includedir)
-	$(INSTALL_DATA) mc6809dis.h    $(DESTDIR)$(includedir)
+	$(INSTALL_DATA) libmc6809.a $(DESTDIR)$(libdir)
+	$(INSTALL_DATA) mc6809.h    $(DESTDIR)$(includedir)
+	$(INSTALL_DATA) mc6809dis.h $(DESTDIR)$(includedir)
 
 uninstall:
 	$(RM) $(DESTDIR)$(libdir)/libmc6809.a
