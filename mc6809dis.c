@@ -125,15 +125,16 @@ int mc6809dis_run(mc6809dis__t *const dis,mc6809__t *const cpu)
 
 int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
 {
-  volatile int rc;
+  volatile int  rc;
+  mc6809byte__t inst;
   
   assert(dis != NULL);
   
   rc = setjmp(dis->err);
   if (rc != 0) return rc;
   
-  dis->next   = dis->pc;
-  dis->inst   = (*dis->read)(dis,dis->next++);
+  dis->next = dis->pc;
+  inst      = (*dis->read)(dis,dis->next++);
   
   dis->operand[0]  = '\0';
   dis->topcode[0]  = '\0';
@@ -141,9 +142,9 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
   dis->data[0]     = '\0';
   
   snprintf(dis->addr,  sizeof(dis->addr),  "%04X",dis->pc);
-  snprintf(dis->opcode,sizeof(dis->opcode),"%02X",dis->inst);
+  snprintf(dis->opcode,sizeof(dis->opcode),"%02X",inst);
   
-  switch(dis->inst)
+  switch(inst)
   {
     case 0x00:
          mc6809dis_direct(dis,cpu,"NEG",false);

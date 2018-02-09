@@ -38,7 +38,6 @@ typedef struct mc6809dis
   char data    [32];
   
   mc6809addr__t pc;
-  mc6809byte__t inst;
   mc6809addr__t next;
   jmp_buf       err;
   
