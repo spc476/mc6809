@@ -37,7 +37,7 @@ LDLIBS  =
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
 %.a :
-	$(AR) rscu $@ $?
+	$(AR) $(ARFLAGS) $@ $?
 
 .PHONY = all clean install uninstall
 
