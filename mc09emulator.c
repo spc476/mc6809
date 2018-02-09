@@ -38,13 +38,13 @@ struct userdata
 
 /************************************************************************/
 
-static bool		loadimage	(struct userdata *,const char *,const char *);
-static bool		dumpcore	(struct userdata *);
-static mc6809byte__t	cpu_read	(mc6809__t *,mc6809addr__t,bool);
-static void		cpu_write	(mc6809__t *,mc6809addr__t,mc6809byte__t);
-static void		cpu_fault	(mc6809__t *,mc6809fault__t);
-static mc6809byte__t	dis_read	(mc6809dis__t *,mc6809addr__t);
-static void		dis_fault	(mc6809dis__t *,mc6809fault__t);
+static bool             loadimage       (struct userdata *,const char *,const char *);
+static bool             dumpcore        (struct userdata *);
+static mc6809byte__t    cpu_read        (mc6809__t *,mc6809addr__t,bool);
+static void             cpu_write       (mc6809__t *,mc6809addr__t,mc6809byte__t);
+static void             cpu_fault       (mc6809__t *,mc6809fault__t);
+static mc6809byte__t    dis_read        (mc6809dis__t *,mc6809addr__t);
+static void             dis_fault       (mc6809dis__t *,mc6809fault__t);
 
 /************************************************************************/
 
@@ -84,7 +84,7 @@ int main(int argc,char *argv[])
   ud.dis.user  = &ud;
   ud.dis.read  = dis_read;
   ud.dis.fault = dis_fault;
-
+  
   for ( int i = 1 ; i < argc ; i += 2 )
   {
     if (!loadimage(&ud,argv[i],argv[i + 1]))
@@ -125,9 +125,9 @@ int main(int argc,char *argv[])
            
       case MC6809_FAULT_user:
            fprintf(stderr,
-           		"This can be used to signal other errors, but you should\n"
-           		"only see this if you check the source code.\n"
-           	);
+                        "This can be used to signal other errors, but you should\n"
+                        "only see this if you check the source code.\n"
+                );
            break;
     }
     
@@ -143,9 +143,9 @@ int main(int argc,char *argv[])
 /*********************************************************************/
 
 static bool loadimage(
-	struct userdata *ud,
-	const char      *filename,
-	const char      *taddr
+        struct userdata *ud,
+        const char      *filename,
+        const char      *taddr
 )
 {
   mc6809addr__t  addr;
@@ -160,11 +160,11 @@ static bool loadimage(
   addr = strtoul(taddr,&ro,16);
   if (*ro != 'r')
     ro = NULL;
-
+    
   fp = fopen(filename,"rb");
   if (fp == NULL)
     return false;
-  
+    
   while((c = fgetc(fp)) != EOF)
   {
     ud->memory[addr] = c;
@@ -198,7 +198,7 @@ static bool dumpcore(struct userdata *ud)
     fwrite(&ud->cpu.U.b[MSB],1,1,fp);
     fwrite(&ud->cpu.U.b[LSB],1,1,fp);
     fwrite(&ud->cpu.S.b[MSB],1,1,fp);
-    fwrite(&ud->cpu.S.b[LSB],1,1,fp);    
+    fwrite(&ud->cpu.S.b[LSB],1,1,fp);
     fwrite(&ud->cpu.pc.b[MSB],1,1,fp);
     fwrite(&ud->cpu.pc.b[LSB],1,1,fp);
     fclose(fp);
@@ -210,9 +210,9 @@ static bool dumpcore(struct userdata *ud)
 
 /***********************************************************************/
 static mc6809byte__t cpu_read(
-	mc6809__t     *cpu,
-	mc6809addr__t  addr,
-	bool           ifetch __attribute__((unused))
+        mc6809__t     *cpu,
+        mc6809addr__t  addr,
+        bool           ifetch __attribute__((unused))
 )
 {
   struct userdata *ud;
@@ -225,7 +225,7 @@ static mc6809byte__t cpu_read(
   ud = cpu->user;
   assert(ud->memory != NULL);
   
-  if (cpu->instpc == addr)	/* start of an instruction */
+  if (cpu->instpc == addr)      /* start of an instruction */
   {
     ud->dis.pc = addr;
     mc6809dis_step(&ud->dis,cpu);
@@ -240,9 +240,9 @@ static mc6809byte__t cpu_read(
 /************************************************************************/
 
 static void cpu_write(
-	mc6809__t     *cpu,
-	mc6809addr__t  addr,
-	mc6809byte__t  b
+        mc6809__t     *cpu,
+        mc6809addr__t  addr,
+        mc6809byte__t  b
 )
 {
   struct userdata *ud;
@@ -262,19 +262,19 @@ static void cpu_write(
 /************************************************************************/
 
 static void cpu_fault(
-	mc6809__t      *cpu __attribute__((unused)),
-	mc6809fault__t  fault
+        mc6809__t      *cpu __attribute__((unused)),
+        mc6809fault__t  fault
 )
 {
-  assert(cpu != NULL);  
+  assert(cpu != NULL);
   longjmp(cpu->err,fault);
 }
 
 /***********************************************************************/
 
 static mc6809byte__t dis_read(
-	mc6809dis__t  *dis,
-	mc6809addr__t  addr
+        mc6809dis__t  *dis,
+        mc6809addr__t  addr
 )
 {
   struct userdata *ud;
@@ -283,15 +283,15 @@ static mc6809byte__t dis_read(
   assert(dis->user != NULL);
   
   ud = dis->user;
-  assert(ud->memory != NULL);  
+  assert(ud->memory != NULL);
   return ud->memory[addr];
 }
 
 /***********************************************************************/
 
 static void dis_fault(
-	mc6809dis__t *dis,
-	mc6809fault__t fault
+        mc6809dis__t *dis,
+        mc6809fault__t fault
 )
 {
   assert(dis != NULL);
@@ -302,7 +302,7 @@ static void dis_fault(
     case MC6809_FAULT_INTERNAL_ERROR:
          fprintf(stderr,"An internal error occured during disassembly that should not happen.\n");
          break;
-           
+         
     case MC6809_FAULT_INSTRUCTION:
          fprintf(stderr,"Illegal instruction decoded @ %04X\n",dis->next - 1);
          break;
@@ -310,20 +310,20 @@ static void dis_fault(
     case MC6809_FAULT_ADDRESS_MODE:
          fprintf(stderr,"Illegal addressing mode decoded @ %04X\n",dis->pc);
          break;
-           
+         
     case MC6809_FAULT_EXG:
          fprintf(stderr,"Undefined EXG behavior decoded @ %04X\n",dis->pc);
          break;
-           
+         
     case MC6809_FAULT_TFR:
          fprintf(stderr,"Undefined TFR behavior decoded @ %04X\n",dis->pc);
          break;
-           
+         
     case MC6809_FAULT_user:
          fprintf(stderr,
-           		"This can be used to signal other errors, but you should\n"
-         		"only see this if you check the source code.\n"
-           	);
+                        "This can be used to signal other errors, but you should\n"
+                        "only see this if you check the source code.\n"
+                );
          break;
   }
   

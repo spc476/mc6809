@@ -28,8 +28,8 @@
 /*************************************************************************/
 
 static mc6809byte__t dis_read(
-	mc6809dis__t  *dis,
-	mc6809addr__t  addr __attribute__((unused))
+        mc6809dis__t  *dis,
+        mc6809addr__t  addr __attribute__((unused))
 )
 {
   int c;
@@ -46,8 +46,8 @@ static mc6809byte__t dis_read(
 /*************************************************************************/
 
 static void dis_fault(
-	mc6809dis__t   *dis,
-	mc6809fault__t  fault
+        mc6809dis__t   *dis,
+        mc6809fault__t  fault
 )
 {
   assert(dis       != NULL);
@@ -79,14 +79,14 @@ int main(int argc,char *argv[])
          fprintf(stderr,"usage: %s bin [load = 0 [start = 0]]\n",argv[0]);
          return EXIT_FAILURE;
   }
-    
+  
   fp = fopen(fname,"rb");
   if (fp == NULL)
   {
     perror(fname);
     return EXIT_FAILURE;
   }
-
+  
   if (start != 0)
   {
     if (start < dis.pc)

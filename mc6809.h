@@ -42,14 +42,14 @@
 
 /************************************************************************/
 
-#define MC6809_VECTOR_RSVP	0xFFF0
-#define MC6809_VECTOR_SWI3	0xFFF2
-#define MC6809_VECTOR_SWI2	0xFFF4
-#define MC6809_VECTOR_FIRQ	0xFFF6
-#define MC6809_VECTOR_IRQ	0xFFF8
-#define MC6809_VECTOR_SWI	0xFFFA
-#define MC6809_VECTOR_NMI	0xFFFC
-#define MC6809_VECTOR_RESET	0xFFFE
+#define MC6809_VECTOR_RSVP      0xFFF0
+#define MC6809_VECTOR_SWI3      0xFFF2
+#define MC6809_VECTOR_SWI2      0xFFF4
+#define MC6809_VECTOR_FIRQ      0xFFF6
+#define MC6809_VECTOR_IRQ       0xFFF8
+#define MC6809_VECTOR_SWI       0xFFFA
+#define MC6809_VECTOR_NMI       0xFFFC
+#define MC6809_VECTOR_RESET     0xFFFE
 
 /************************************************************************/
 
@@ -107,27 +107,27 @@ typedef struct mc6809
   void          (*fault)(struct mc6809 *,mc6809fault__t);
 } mc6809__t;
 
-#define X	index[0]
-#define Y	index[1]
-#define U	index[2]
-#define S	index[3]
-#define A	d.b[MSB]
-#define B	d.b[LSB]
+#define X       index[0]
+#define Y       index[1]
+#define U       index[2]
+#define S       index[3]
+#define A       d.b[MSB]
+#define B       d.b[LSB]
 
 /**********************************************************************/
 
-void		mc6809_reset	(mc6809__t *const) __attribute__((nonnull));
-int		mc6809_run	(mc6809__t *const) __attribute__((nonnull));
-int		mc6809_step	(mc6809__t *const) __attribute__((nonnull));
+void            mc6809_reset    (mc6809__t *const) __attribute__((nonnull));
+int             mc6809_run      (mc6809__t *const) __attribute__((nonnull));
+int             mc6809_step     (mc6809__t *const) __attribute__((nonnull));
 
-mc6809byte__t	mc6809_cctobyte	(mc6809__t *const)               __attribute__((nonnull));
-void		mc6809_bytetocc	(mc6809__t *const,mc6809byte__t) __attribute__((nonnull));
+mc6809byte__t   mc6809_cctobyte (mc6809__t *const)               __attribute__((nonnull));
+void            mc6809_bytetocc (mc6809__t *const,mc6809byte__t) __attribute__((nonnull));
 
-mc6809addr__t	mc6809_direct	(mc6809__t *const) __attribute__((nonnull));
-mc6809addr__t	mc6809_relative	(mc6809__t *const) __attribute__((nonnull));
-mc6809addr__t	mc6809_lrelative(mc6809__t *const) __attribute__((nonnull));
-mc6809addr__t	mc6809_extended (mc6809__t *const) __attribute__((nonnull));
-mc6809addr__t	mc6809_indexed	(mc6809__t *const) __attribute__((nonnull));
+mc6809addr__t   mc6809_direct   (mc6809__t *const) __attribute__((nonnull));
+mc6809addr__t   mc6809_relative (mc6809__t *const) __attribute__((nonnull));
+mc6809addr__t   mc6809_lrelative(mc6809__t *const) __attribute__((nonnull));
+mc6809addr__t   mc6809_extended (mc6809__t *const) __attribute__((nonnull));
+mc6809addr__t   mc6809_indexed  (mc6809__t *const) __attribute__((nonnull));
 
 /**********************************************************************/
 

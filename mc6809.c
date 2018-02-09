@@ -26,36 +26,36 @@
 
 /**************************************************************************/
 
-static int		page2		(mc6809__t *const) __attribute__((nonnull));
-static int		page3		(mc6809__t *const) __attribute__((nonnull));
+static int              page2           (mc6809__t *const) __attribute__((nonnull));
+static int              page3           (mc6809__t *const) __attribute__((nonnull));
 
-static mc6809byte__t	op_neg		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_com		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_lsr		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_ror		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_asr		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_lsl		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_rol		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_dec		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_inc		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static void		op_tst		(mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_clr		(mc6809__t *const)                     __attribute__((nonnull));
+static mc6809byte__t    op_neg          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_com          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_lsr          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_ror          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_asr          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_lsl          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_rol          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_dec          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_inc          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
+static void             op_tst          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_clr          (mc6809__t *const)                     __attribute__((nonnull));
 
-static mc6809byte__t	op_sub		(mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static void		op_cmp		(mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_sbc		(mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_and		(mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static void		op_bit		(mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static void		op_ldst		(mc6809__t *const,const mc6809byte__t)                     __attribute__((nonnull));
-static mc6809byte__t	op_eor		(mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_adc		(mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_or		(mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t	op_add		(mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_sub          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
+static void             op_cmp          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_sbc          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_and          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
+static void             op_bit          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
+static void             op_ldst         (mc6809__t *const,const mc6809byte__t)                     __attribute__((nonnull));
+static mc6809byte__t    op_eor          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_adc          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_or           (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_add          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
 
-static mc6809addr__t	op_sub16	(mc6809__t *const,const mc6809addr__t,const mc6809addr__t) __attribute__((nonnull));
-static void		op_cmp16	(mc6809__t *const,const mc6809addr__t,const mc6809addr__t) __attribute__((nonnull));
-static void		op_ldst16	(mc6809__t *const,const mc6809addr__t)                     __attribute__((nonnull));
-static mc6809addr__t	op_add16	(mc6809__t *const,const mc6809addr__t,const mc6809addr__t) __attribute__((nonnull));
+static mc6809addr__t    op_sub16        (mc6809__t *const,const mc6809addr__t,const mc6809addr__t) __attribute__((nonnull));
+static void             op_cmp16        (mc6809__t *const,const mc6809addr__t,const mc6809addr__t) __attribute__((nonnull));
+static void             op_ldst16       (mc6809__t *const,const mc6809addr__t)                     __attribute__((nonnull));
+static mc6809addr__t    op_add16        (mc6809__t *const,const mc6809addr__t,const mc6809addr__t) __attribute__((nonnull));
 
 /***************************************************************************/
 
@@ -201,10 +201,10 @@ int mc6809_step(mc6809__t *const cpu)
   
   rc = setjmp(cpu->err);
   if (rc != 0) return rc;
-
+  
   if (cpu->nmi && cpu->nmi_armed)
   {
-    cpu->nmi = false;    
+    cpu->nmi = false;
     if (!cpu->cwai)
     {
       cpu->cycles += 19;
@@ -221,13 +221,13 @@ int mc6809_step(mc6809__t *const cpu)
       (*cpu->write)(cpu,--cpu->S.w,cpu->A);
       (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
       cpu->cc.e    = true;
-    }    
+    }
     cpu->cc.f      = true;
     cpu->cc.i      = true;
     cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_NMI,false);
     cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_NMI + 1,false);
     cpu->cwai      = false;
-    return 0;    
+    return 0;
   }
   else if (cpu->firq && !cpu->cc.f)
   {
@@ -277,7 +277,7 @@ int mc6809_step(mc6809__t *const cpu)
   cpu->cycles++;
   if (cpu->cwai)
     return 0;
-  
+    
   cpu->sync   = false;
   cpu->instpc = cpu->pc.w;
   inst        = (*cpu->read)(cpu,cpu->pc.w++,true);
@@ -294,15 +294,15 @@ int mc6809_step(mc6809__t *const cpu)
          ea = mc6809_direct(cpu);
          (*cpu->write)(cpu,ea,op_neg(cpu,(*cpu->read)(cpu,ea,false)));
          break;
-    
+         
     case 0x01:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x02:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x03:
          cpu->cycles += 5;
          ea = mc6809_direct(cpu);
@@ -336,7 +336,7 @@ int mc6809_step(mc6809__t *const cpu)
          ea = mc6809_direct(cpu);
          (*cpu->write)(cpu,ea,op_lsl(cpu,(*cpu->read)(cpu,ea,false)));
          break;
-    
+         
     case 0x09:
          cpu->cycles += 5;
          ea = mc6809_direct(cpu);
@@ -380,23 +380,23 @@ int mc6809_step(mc6809__t *const cpu)
          
     case 0x10:
          return page2(cpu);
-    
+         
     case 0x11:
          return page3(cpu);
-    
+         
     case 0x12:
          cpu->cycles++;
          break;
-    
+         
     case 0x13:
          cpu->cycles++;
          cpu->sync = true;
          break;
-    
+         
     case 0x14:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x15:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
@@ -413,12 +413,12 @@ int mc6809_step(mc6809__t *const cpu)
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
          cpu->pc.w = ea;
          break;
-    
+         
     case 0x18:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
-    
-    case 0x19:	/* DAA */
+         
+    case 0x19:  /* DAA */
          cpu->cycles++;
          {
            mc6809byte__t msn = cpu->A >> 4;
@@ -426,16 +426,16 @@ int mc6809_step(mc6809__t *const cpu)
            mc6809byte__t cf  = 0;
            bool          h   = cpu->cc.h;
            bool          c   = cpu->cc.c;
-
+           
            if (cpu->cc.c || (msn > 9) || ((msn > 8) && (lsn > 9)))
-             cf |= 0x60;      
+             cf |= 0x60;
            if (cpu->cc.h || (lsn > 9))
              cf |= 0x06;
              
            cpu->A    = op_add(cpu,cpu->A,cf);
            cpu->cc.h = h;
            cpu->cc.c = cpu->cc.c | c;
-	   cpu->cc.v = false;
+           cpu->cc.v = false;
          }
          break;
          
@@ -445,7 +445,7 @@ int mc6809_step(mc6809__t *const cpu)
          data   |= mc6809_cctobyte(cpu);
          mc6809_bytetocc(cpu,data);
          break;
-    
+         
     case 0x1B:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
@@ -456,7 +456,7 @@ int mc6809_step(mc6809__t *const cpu)
          data   &= mc6809_cctobyte(cpu);
          mc6809_bytetocc(cpu,data);
          break;
-    
+         
     case 0x1D:
          cpu->cycles++;
          cpu->A = (cpu->B > 0x7F) ? 0xFF: 0x00;
@@ -464,7 +464,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->cc.z = (cpu->d.w == 0x0000);
          cpu->cc.v = false;
          break;
-    
+         
     case 0x1E:
          cpu->cycles += 7;
          d16.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
@@ -545,7 +545,7 @@ int mc6809_step(mc6809__t *const cpu)
          else
            (*cpu->fault)(cpu,MC6809_FAULT_EXG);
          break;
-
+         
     case 0x1F:
          cpu->cycles += 6;
          d16.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
@@ -605,24 +605,24 @@ int mc6809_step(mc6809__t *const cpu)
          else
            (*cpu->fault)(cpu,MC6809_FAULT_TFR);
          break;
-             
+         
     case 0x20:
          cpu->cycles += 2;
          cpu->pc.w = mc6809_relative(cpu);
          break;
-    
+         
     case 0x21:
          cpu->cycles += 2;
          mc6809_relative(cpu);
          break;
-    
+         
     case 0x22:
          cpu->cycles += 2;
          ea = mc6809_relative(cpu);
          if (bhi(cpu))
            cpu->pc.w = ea;
          break;
-    
+         
     case 0x23:
          cpu->cycles += 2;
          ea = mc6809_relative(cpu);
@@ -643,7 +643,7 @@ int mc6809_step(mc6809__t *const cpu)
          if (blo(cpu))
            cpu->pc.w = ea;
          break;
-           
+         
     case 0x26:
          cpu->cycles += 2;
          ea = mc6809_relative(cpu);
@@ -713,14 +713,14 @@ int mc6809_step(mc6809__t *const cpu)
          if (ble(cpu))
            cpu->pc.w = ea;
          break;
-    
+         
     case 0x30:
          cpu->cycles += 3;
          ea = mc6809_indexed(cpu);
          cpu->X.w = ea;
          cpu->cc.z = (cpu->X.w == 0x0000);
          break;
-    
+         
     case 0x31:
          cpu->cycles += 3;
          ea = mc6809_indexed(cpu);
@@ -734,7 +734,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->S.w = ea;
          cpu->nmi_armed = true;
          break;
-    
+         
     case 0x33:
          cpu->cycles += 3;
          ea = mc6809_indexed(cpu);
@@ -789,7 +789,7 @@ int mc6809_step(mc6809__t *const cpu)
            (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
          }
          break;
-    
+         
     case 0x35:
          cpu->cycles += 4;
          data = (*cpu->read)(cpu,cpu->pc.w++,true);
@@ -975,7 +975,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->pc.b[MSB] = (*cpu->read)(cpu,cpu->S.w++,false);
          cpu->pc.b[LSB] = (*cpu->read)(cpu,cpu->S.w++,false);
          break;
-    
+         
     case 0x3C:
          cpu->cycles += 20;
          data = (*cpu->read)(cpu,cpu->pc.w++,true);
@@ -1040,12 +1040,12 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x42:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x43:
          cpu->cycles++;
          cpu->A = op_com(cpu,cpu->A);
          break;
-    
+         
     case 0x44:
          cpu->cycles++;
          cpu->A = op_lsr(cpu,cpu->A);
@@ -1054,7 +1054,7 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x45:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x46:
          cpu->cycles++;
          cpu->A = op_ror(cpu,cpu->A);
@@ -1102,7 +1102,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->cycles++;
          cpu->A = op_clr(cpu);
          break;
-    
+         
     case 0x50:
          cpu->cycles++;
          cpu->B = op_neg(cpu,cpu->B);
@@ -1154,7 +1154,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->cycles++;
          cpu->B = op_dec(cpu,cpu->B);
          break;
-    
+         
     case 0x5B:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
@@ -1272,15 +1272,15 @@ int mc6809_step(mc6809__t *const cpu)
          ea = mc6809_extended(cpu);
          (*cpu->write)(cpu,ea,op_neg(cpu,(*cpu->read)(cpu,ea,false)));
          break;
-    
+         
     case 0x71:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x72:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x73:
          cpu->cycles += 6;
          ea = mc6809_extended(cpu);
@@ -1314,7 +1314,7 @@ int mc6809_step(mc6809__t *const cpu)
          ea = mc6809_extended(cpu);
          (*cpu->write)(cpu,ea,op_lsl(cpu,(*cpu->read)(cpu,ea,false)));
          break;
-    
+         
     case 0x79:
          cpu->cycles += 6;
          ea = mc6809_extended(cpu);
@@ -1355,7 +1355,7 @@ int mc6809_step(mc6809__t *const cpu)
          (*cpu->read) (cpu,ea,false);
          (*cpu->write)(cpu,ea,op_clr(cpu));
          break;
-    
+         
     case 0x80:
          cpu->cycles++;
          cpu->A = op_sub(cpu,cpu->A,(*cpu->read)(cpu,cpu->pc.w++,true));
@@ -1393,7 +1393,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->A = (*cpu->read)(cpu,cpu->pc.w++,true);
          op_ldst(cpu,cpu->A);
          break;
-    
+         
     case 0x87:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
@@ -1443,7 +1443,7 @@ int mc6809_step(mc6809__t *const cpu)
     case 0x8F:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x90:
          cpu->cycles += 3;
          ea = mc6809_direct(cpu);
@@ -1488,7 +1488,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->A = (*cpu->read)(cpu,ea,false);
          op_ldst(cpu,cpu->A);
          break;
-    
+         
     case 0x97:
          cpu->cycles += 3;
          ea = mc6809_direct(cpu);
@@ -1551,7 +1551,7 @@ int mc6809_step(mc6809__t *const cpu)
          (*cpu->write)(cpu,ea,cpu->X.b[LSB]);
          op_ldst16(cpu,cpu->X.w);
          break;
-
+         
     case 0xA0:
          cpu->cycles += 3;
          ea = mc6809_indexed(cpu);
@@ -1596,7 +1596,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->A = (*cpu->read)(cpu,ea,false);
          op_ldst(cpu,cpu->A);
          break;
-    
+         
     case 0xA7:
          cpu->cycles += 3;
          ea = mc6809_indexed(cpu);
@@ -1659,7 +1659,7 @@ int mc6809_step(mc6809__t *const cpu)
          (*cpu->write)(cpu,ea,cpu->X.b[LSB]);
          op_ldst16(cpu,cpu->X.w);
          break;
-
+         
     case 0xB0:
          cpu->cycles += 4;
          ea = mc6809_extended(cpu);
@@ -1704,7 +1704,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->A = (*cpu->read)(cpu,ea,false);
          op_ldst(cpu,cpu->A);
          break;
-    
+         
     case 0xB7:
          cpu->cycles += 4;
          ea = mc6809_extended(cpu);
@@ -1767,7 +1767,7 @@ int mc6809_step(mc6809__t *const cpu)
          (*cpu->write)(cpu,ea,cpu->X.b[LSB]);
          op_ldst16(cpu,cpu->X.w);
          break;
-
+         
     case 0xC0:
          cpu->cycles++;
          cpu->B = op_sub(cpu,cpu->B,(*cpu->read)(cpu,cpu->pc.w++,true));
@@ -1805,7 +1805,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->B = (*cpu->read)(cpu,cpu->pc.w++,true);
          op_ldst(cpu,cpu->B);
          break;
-    
+         
     case 0xC7:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
@@ -1851,7 +1851,7 @@ int mc6809_step(mc6809__t *const cpu)
     case 0xCF:
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0xD0:
          cpu->cycles += 3;
          ea = mc6809_direct(cpu);
@@ -1896,7 +1896,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->B = (*cpu->read)(cpu,ea,false);
          op_ldst(cpu,cpu->B);
          break;
-    
+         
     case 0xD7:
          cpu->cycles += 3;
          ea = mc6809_direct(cpu);
@@ -1959,7 +1959,7 @@ int mc6809_step(mc6809__t *const cpu)
          (*cpu->write)(cpu,ea,cpu->U.b[LSB]);
          op_ldst16(cpu,cpu->d.w);
          break;
-
+         
     case 0xE0:
          cpu->cycles += 3;
          ea = mc6809_indexed(cpu);
@@ -2004,7 +2004,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->B = (*cpu->read)(cpu,ea,false);
          op_ldst(cpu,cpu->B);
          break;
-    
+         
     case 0xE7:
          cpu->cycles += 3;
          ea = mc6809_indexed(cpu);
@@ -2067,7 +2067,7 @@ int mc6809_step(mc6809__t *const cpu)
          (*cpu->write)(cpu,ea,cpu->U.b[LSB]);
          op_ldst16(cpu,cpu->U.w);
          break;
-
+         
     case 0xF0:
          cpu->cycles += 4;
          ea = mc6809_extended(cpu);
@@ -2112,7 +2112,7 @@ int mc6809_step(mc6809__t *const cpu)
          cpu->B = (*cpu->read)(cpu,ea,false);
          op_ldst(cpu,cpu->B);
          break;
-    
+         
     case 0xF7:
          cpu->cycles += 4;
          ea = mc6809_extended(cpu);
@@ -2175,7 +2175,7 @@ int mc6809_step(mc6809__t *const cpu)
          (*cpu->write)(cpu,ea,cpu->U.b[LSB]);
          op_ldst16(cpu,cpu->U.w);
          break;
-        
+         
     default:
          assert(0);
          (*cpu->fault)(cpu,MC6809_FAULT_INTERNAL_ERROR);
@@ -2210,7 +2210,7 @@ static int page2(mc6809__t *const cpu)
          cpu->cycles += 4;
          mc6809_lrelative(cpu);
          break;
-    
+         
     case 0x22:
          cpu->cycles += 4;
          ea = mc6809_lrelative(cpu);
@@ -2300,7 +2300,7 @@ static int page2(mc6809__t *const cpu)
            cpu->pc.w = ea;
          }
          break;
-           
+         
     case 0x2B:
          cpu->cycles += 4;
          ea = mc6809_lrelative(cpu);
@@ -2350,7 +2350,7 @@ static int page2(mc6809__t *const cpu)
            cpu->pc.w = ea;
          }
          break;
- 
+         
     case 0x3F:
          cpu->cycles += 19;
          (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
@@ -2369,7 +2369,7 @@ static int page2(mc6809__t *const cpu)
          cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_SWI2,false);
          cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_SWI2 + 1,false);
          break;
-    
+         
     case 0x83:
          cpu->cycles += 4;
          d16.b[MSB]   = (*cpu->read)(cpu,cpu->pc.w++,true);
@@ -2454,7 +2454,7 @@ static int page2(mc6809__t *const cpu)
          (*cpu->write)(cpu,ea,cpu->Y.b[LSB]);
          op_ldst16(cpu,cpu->Y.w);
          break;
-
+         
     case 0xB3:
          cpu->cycles += 6;
          ea = mc6809_extended(cpu);
@@ -2486,7 +2486,7 @@ static int page2(mc6809__t *const cpu)
          (*cpu->write)(cpu,ea,cpu->Y.b[LSB]);
          op_ldst16(cpu,cpu->Y.w);
          break;
-
+         
     case 0xCE:
          cpu->cycles   += 3;
          cpu->S.b[MSB]  = (*cpu->read)(cpu,cpu->pc.w++,true);
@@ -2503,7 +2503,7 @@ static int page2(mc6809__t *const cpu)
          op_ldst16(cpu,cpu->S.w);
          cpu->nmi_armed = true;
          break;
-    
+         
     case 0xDF:
          cpu->cycles += 5;
          ea = mc6809_direct(cpu);
@@ -2520,7 +2520,7 @@ static int page2(mc6809__t *const cpu)
          op_ldst16(cpu,cpu->S.w);
          cpu->nmi_armed = true;
          break;
-    
+         
     case 0xEF:
          cpu->cycles += 5;
          ea = mc6809_indexed(cpu);
@@ -2537,7 +2537,7 @@ static int page2(mc6809__t *const cpu)
          op_ldst16(cpu,cpu->S.w);
          cpu->nmi_armed = true;
          break;
-    
+         
     case 0xFF:
          cpu->cycles += 6;
          ea = mc6809_extended(cpu);
@@ -2545,7 +2545,7 @@ static int page2(mc6809__t *const cpu)
          (*cpu->write)(cpu,ea,cpu->S.b[LSB]);
          op_ldst16(cpu,cpu->S.w);
          break;
- 
+         
     default:
          cpu->cycles++;
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
@@ -2593,7 +2593,7 @@ static int page3(mc6809__t *const cpu)
          cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_SWI3,false);
          cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_SWI3 + 1,false);
          break;
-    
+         
     case 0x83:
          cpu->cycles += 4;
          d16.b[MSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
@@ -2607,7 +2607,7 @@ static int page3(mc6809__t *const cpu)
          d16.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
          op_cmp16(cpu,cpu->S.w,d16.w);
          break;
-    
+         
     case 0x93:
          cpu->cycles += 6;
          ea = mc6809_direct(cpu);
@@ -2615,7 +2615,7 @@ static int page3(mc6809__t *const cpu)
          d16.b[LSB] = (*cpu->read)(cpu,ea,false);
          op_cmp16(cpu,cpu->U.w,d16.w);
          break;
-    
+         
     case 0x9C:
          cpu->cycles += 6;
          ea = mc6809_direct(cpu);
@@ -2623,7 +2623,7 @@ static int page3(mc6809__t *const cpu)
          d16.b[LSB] = (*cpu->read)(cpu,ea,false);
          op_cmp16(cpu,cpu->S.w,d16.w);
          break;
-    
+         
     case 0xA3:
          cpu->cycles += 6;
          ea = mc6809_indexed(cpu);
@@ -2655,7 +2655,7 @@ static int page3(mc6809__t *const cpu)
          d16.b[LSB] = (*cpu->read)(cpu,ea,false);
          op_cmp16(cpu,cpu->S.w,d16.w);
          break;
-    
+         
     default:
          cpu->cycles++;
          (*cpu->fault)(cpu,MC6809_FAULT_INSTRUCTION);
@@ -2714,7 +2714,7 @@ mc6809addr__t mc6809_extended(mc6809__t *const cpu)
   mc6809word__t ea;
   
   assert(cpu != NULL);
-
+  
   ea.b[MSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
   ea.b[LSB] = (*cpu->read)(cpu,cpu->pc.w++,true);
   return ea.w;
@@ -2744,7 +2744,7 @@ mc6809addr__t mc6809_indexed(mc6809__t *const cpu)
     ea.w += cpu->index[reg].w;
     return ea.w;
   }
-
+  
   switch(off)
   {
     case 0x00:
@@ -2899,7 +2899,7 @@ mc6809addr__t mc6809_indexed(mc6809__t *const cpu)
          d16.b[LSB]   = (*cpu->read)(cpu,ea.w,false);
          ea.w         = d16.w;
          break;
-
+         
     case 0x19:
          cpu->cycles += 7;
          ea.b[MSB]    = (*cpu->read)(cpu,cpu->pc.w++,true);
@@ -2977,7 +2977,7 @@ mc6809byte__t mc6809_cctobyte(mc6809__t *const cpu)
   mc6809byte__t r = 0;
   
   assert(cpu != NULL);
-
+  
   if (cpu->cc.c) r |= 0x01;
   if (cpu->cc.v) r |= 0x02;
   if (cpu->cc.z) r |= 0x04;
@@ -2986,7 +2986,7 @@ mc6809byte__t mc6809_cctobyte(mc6809__t *const cpu)
   if (cpu->cc.h) r |= 0x20;
   if (cpu->cc.f) r |= 0x40;
   if (cpu->cc.e) r |= 0x80;
-
+  
   return r;
 }
 
@@ -3123,7 +3123,7 @@ static mc6809byte__t op_rol(mc6809__t *const cpu,const mc6809byte__t src)
 static mc6809byte__t op_dec(mc6809__t *const cpu,const mc6809byte__t src)
 {
   mc6809byte__t res;
-
+  
   assert(cpu != NULL);
   
   res       = src - 1;
@@ -3175,16 +3175,16 @@ static mc6809byte__t op_clr(mc6809__t *const cpu)
 /************************************************************************/
 
 static mc6809byte__t op_sub(
-	mc6809__t *const    cpu,
-	const mc6809byte__t dest,
-	const mc6809byte__t src
+        mc6809__t *const    cpu,
+        const mc6809byte__t dest,
+        const mc6809byte__t src
 )
 {
   mc6809byte__t res;
   mc6809byte__t ci;
   
   assert(cpu != NULL);
-     
+  
   res       = dest - src;
   ci        = res ^ dest ^ src;
   cpu->cc.n = (res >  0x7F);
@@ -3197,16 +3197,16 @@ static mc6809byte__t op_sub(
 /************************************************************************/
 
 static void op_cmp(
-	mc6809__t *const    cpu,
-	const mc6809byte__t dest,
-	const mc6809byte__t src
+        mc6809__t *const    cpu,
+        const mc6809byte__t dest,
+        const mc6809byte__t src
 )
 {
   mc6809byte__t res;
   mc6809byte__t ci;
   
   assert(cpu != NULL);
-     
+  
   res       = dest - src;
   ci        = res ^ dest ^ src;
   cpu->cc.n = (res >  0x7F);
@@ -3218,17 +3218,17 @@ static void op_cmp(
 /************************************************************************/
 
 static mc6809byte__t op_sbc(
-	mc6809__t *const    cpu,
-	const mc6809byte__t dest,
-	const mc6809byte__t src
+        mc6809__t *const    cpu,
+        const mc6809byte__t dest,
+        const mc6809byte__t src
 )
 {
   mc6809byte__t res;
   mc6809byte__t ci;
- 
+  
   assert(cpu       != NULL);
   assert(cpu->cc.c <= 1);
-
+  
   res       = dest - src - cpu->cc.c;
   ci        = res ^ dest ^ src;
   cpu->cc.n = (res >  0x7F);
@@ -3241,15 +3241,15 @@ static mc6809byte__t op_sbc(
 /************************************************************************/
 
 static mc6809byte__t op_and(
-	mc6809__t *const    cpu,
-	const mc6809byte__t dest,
-	const mc6809byte__t src
+        mc6809__t *const    cpu,
+        const mc6809byte__t dest,
+        const mc6809byte__t src
 )
 {
   mc6809byte__t res;
-
+  
   assert(cpu != NULL);
-
+  
   res       = dest & src;
   cpu->cc.n = (res >  0x7F);
   cpu->cc.z = (res == 0x00);
@@ -3260,15 +3260,15 @@ static mc6809byte__t op_and(
 /************************************************************************/
 
 static void op_bit(
-	mc6809__t *const    cpu,
-	const mc6809byte__t dest,
-	const mc6809byte__t src
+        mc6809__t *const    cpu,
+        const mc6809byte__t dest,
+        const mc6809byte__t src
 )
 {
   mc6809byte__t res;
-
+  
   assert(cpu != NULL);
-
+  
   res       = dest & src;
   cpu->cc.n = (res >  0x7F);
   cpu->cc.z = (res == 0x00);
@@ -3278,8 +3278,8 @@ static void op_bit(
 /************************************************************************/
 
 static void op_ldst(
-	mc6809__t *const    cpu,
-	const mc6809byte__t dest
+        mc6809__t *const    cpu,
+        const mc6809byte__t dest
 )
 {
   assert(cpu != NULL);
@@ -3292,9 +3292,9 @@ static void op_ldst(
 /************************************************************************/
 
 static mc6809byte__t op_eor(
-	mc6809__t *const    cpu,
-	const mc6809byte__t dest,
-	const mc6809byte__t src
+        mc6809__t *const    cpu,
+        const mc6809byte__t dest,
+        const mc6809byte__t src
 )
 {
   mc6809byte__t res;
@@ -3311,20 +3311,20 @@ static mc6809byte__t op_eor(
 /************************************************************************/
 
 static mc6809byte__t op_adc(
-	mc6809__t *const    cpu,
-	const mc6809byte__t dest,
-	const mc6809byte__t src
+        mc6809__t *const    cpu,
+        const mc6809byte__t dest,
+        const mc6809byte__t src
 )
 {
   mc6809byte__t res;
   mc6809byte__t ci;
- 
+  
   assert(cpu       != NULL);
   assert(cpu->cc.c <= 1);
-
+  
   res       = dest + src + cpu->cc.c;
   ci        = res ^ dest ^ src;
-  cpu->cc.h = (ci  &  0x10); 
+  cpu->cc.h = (ci  &  0x10);
   cpu->cc.n = (res >  0x7F);
   cpu->cc.z = (res == 0x00);
   cpu->cc.c = (res < dest) || (res < src);
@@ -3335,15 +3335,15 @@ static mc6809byte__t op_adc(
 /************************************************************************/
 
 static mc6809byte__t op_or(
-	mc6809__t *const    cpu,
-	const mc6809byte__t dest,
-	const mc6809byte__t src
+        mc6809__t *const    cpu,
+        const mc6809byte__t dest,
+        const mc6809byte__t src
 )
 {
   mc6809byte__t res;
-
+  
   assert(cpu != NULL);
-
+  
   res       = dest | src;
   cpu->cc.n = (res >  0x7f);
   cpu->cc.z = (res == 0x00);
@@ -3363,7 +3363,7 @@ static mc6809byte__t op_add(
   mc6809byte__t ci;
   
   assert(cpu != NULL);
-     
+  
   res       = dest + src;
   ci        = res ^ dest ^ src;
   cpu->cc.h = (ci  &  0x10);
@@ -3377,9 +3377,9 @@ static mc6809byte__t op_add(
 /************************************************************************/
 
 static mc6809addr__t op_sub16(
-	mc6809__t *const    cpu,
-	const mc6809addr__t dest,
-	const mc6809addr__t src
+        mc6809__t *const    cpu,
+        const mc6809addr__t dest,
+        const mc6809addr__t src
 )
 {
   mc6809addr__t res;
@@ -3399,9 +3399,9 @@ static mc6809addr__t op_sub16(
 /************************************************************************/
 
 static void op_cmp16(
-	mc6809__t *const    cpu,
-	const mc6809addr__t dest,
-	const mc6809addr__t src
+        mc6809__t *const    cpu,
+        const mc6809addr__t dest,
+        const mc6809addr__t src
 )
 {
   mc6809addr__t res;
@@ -3420,8 +3420,8 @@ static void op_cmp16(
 /************************************************************************/
 
 static void op_ldst16(
-	mc6809__t *const    cpu,
-	const mc6809addr__t data
+        mc6809__t *const    cpu,
+        const mc6809addr__t data
 )
 {
   assert(cpu != NULL);
@@ -3433,9 +3433,9 @@ static void op_ldst16(
 /************************************************************************/
 
 static mc6809addr__t op_add16(
-	mc6809__t *const    cpu,
-	const mc6809addr__t dest,
-	const mc6809addr__t src
+        mc6809__t *const    cpu,
+        const mc6809addr__t dest,
+        const mc6809addr__t src
 )
 {
   mc6809addr__t res;

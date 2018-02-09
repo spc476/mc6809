@@ -29,13 +29,13 @@
 
 /**************************************************************************/
 
-static int		page2		(mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
-static int		page3		(mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
-static void		psh		(mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
-static void		pul		(mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
-static void		exgtfr		(mc6809dis__t *const,const char *const)            __attribute__((nonnull));
-static void		ccimmediate	(mc6809dis__t *const,const char *const)            __attribute__((nonnull));
-static mc6809byte__t	cctobyte	(mc6809__t *const)                                 __attribute__((nonnull));
+static int              page2           (mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
+static int              page3           (mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
+static void             psh             (mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
+static void             pul             (mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
+static void             exgtfr          (mc6809dis__t *const,const char *const)            __attribute__((nonnull));
+static void             ccimmediate     (mc6809dis__t *const,const char *const)            __attribute__((nonnull));
+static mc6809byte__t    cctobyte        (mc6809__t *const)                                 __attribute__((nonnull));
 
 /***************************************************************************/
 
@@ -44,22 +44,22 @@ int mc6809dis_format(mc6809dis__t *const dis,char *dest,size_t size)
   assert(dis  != NULL);
   assert(dest != NULL);
   assert(size >= (sizeof(dis->addr) + sizeof(dis->opcode) + sizeof(dis->operand) + sizeof(dis->topcode) + sizeof(dis->toperand) + sizeof(dis->data)));
-
+  
   snprintf(
-	dest,
-	size,
-	"%-4.4s %-4.4s %-6.6s - %-5.5s %-18.18s ; %s",
-	dis->addr,
-	dis->opcode,
-	dis->operand,
-	dis->topcode,
-	dis->toperand,
-	dis->data
+        dest,
+        size,
+        "%-4.4s %-4.4s %-6.6s - %-5.5s %-18.18s ; %s",
+        dis->addr,
+        dis->opcode,
+        dis->operand,
+        dis->topcode,
+        dis->toperand,
+        dis->data
   );
   if (size < (sizeof(dis->addr) + sizeof(dis->opcode) + sizeof(dis->operand) + sizeof(dis->topcode) + sizeof(dis->toperand) + sizeof(dis->data)))
     return EINVAL;
-
-  return 0;    
+    
+  return 0;
 }
 
 /**************************************************************************/
@@ -71,27 +71,27 @@ int mc6809dis_registers(mc6809__t *const cpu,char *dest,size_t size)
   assert(cpu  != NULL);
   assert(dest != NULL);
   assert(size >= 64);
-
-  mc6809dis_cc(flags,sizeof(flags),cctobyte(cpu));    
+  
+  mc6809dis_cc(flags,sizeof(flags),cctobyte(cpu));
   snprintf(
-  	dest,
-  	size,
-  	"PC=%04X X=%04X Y=%04X U=%04X S=%04X DP=%02X A=%02X B=%02X CC=%s",
-  	cpu->pc.w,
-  	cpu->X.w,
-  	cpu->Y.w,
-  	cpu->U.w,
-  	cpu->S.w,
-  	cpu->dp,
-  	cpu->A,
-  	cpu->B,
-  	flags
+        dest,
+        size,
+        "PC=%04X X=%04X Y=%04X U=%04X S=%04X DP=%02X A=%02X B=%02X CC=%s",
+        cpu->pc.w,
+        cpu->X.w,
+        cpu->Y.w,
+        cpu->U.w,
+        cpu->S.w,
+        cpu->dp,
+        cpu->A,
+        cpu->B,
+        flags
   );
   
   return (size >= 64) ? 0 : EINVAL;
 }
 
-/*************************************************************************/  	
+/*************************************************************************/
 
 int mc6809dis_run(mc6809dis__t *const dis,mc6809__t *const cpu)
 {
@@ -125,7 +125,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
   volatile int rc;
   
   assert(dis != NULL);
-
+  
   rc = setjmp(dis->err);
   if (rc != 0) return rc;
   
@@ -145,15 +145,15 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x00:
          mc6809dis_direct(dis,cpu,"NEG",false);
          break;
-    
+         
     case 0x01:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x02:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x03:
          mc6809dis_direct(dis,cpu,"COM",false);
          break;
@@ -177,7 +177,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x08:
          mc6809dis_direct(dis,cpu,"LSL",false);
          break;
-    
+         
     case 0x09:
          mc6809dis_direct(dis,cpu,"ROL",false);
          break;
@@ -208,22 +208,22 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
          
     case 0x10:
          return page2(dis,cpu);
-    
+         
     case 0x11:
          return page3(dis,cpu);
-    
+         
     case 0x12:
          snprintf(dis->topcode,sizeof(dis->topcode),"NOP");
          break;
-    
+         
     case 0x13:
          snprintf(dis->topcode,sizeof(dis->topcode),"SYNC");
          break;
-    
+         
     case 0x14:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x15:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
@@ -235,11 +235,11 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x17:
          mc6809dis_lrelative(dis,"LBSR","");
          break;
-    
+         
     case 0x18:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x19:
          snprintf(dis->topcode,sizeof(dis->topcode),"DAA");
          break;
@@ -255,15 +255,15 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x1C:
          ccimmediate(dis,"ANDCC");
          break;
-    
+         
     case 0x1D:
          snprintf(dis->topcode,sizeof(dis->topcode),"SEX");
          break;
-    
+         
     case 0x1E:
          exgtfr(dis,"EXG");
          break;
-    
+         
     case 0x1F:
          exgtfr(dis,"TFR");
          break;
@@ -271,15 +271,15 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x20:
          mc6809dis_relative(dis,"BRA","");
          break;
-    
+         
     case 0x21:
          mc6809dis_relative(dis,"BRN","");
          break;
-    
+         
     case 0x22:
          mc6809dis_relative(dis,"BHI","unsigned");
          break;
-    
+         
     case 0x23:
          mc6809dis_relative(dis,"BLS","unsigned");
          break;
@@ -291,7 +291,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x25:
          mc6809dis_relative(dis,"BLO","unsigned");
          break;
-           
+         
     case 0x26:
          mc6809dis_relative(dis,"BNE","");
          break;
@@ -331,11 +331,11 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x2F:
          mc6809dis_relative(dis,"BLE","signed");
          break;
-    
+         
     case 0x30:
          mc6809dis_indexed(dis,cpu,"LEAX",false);
          break;
-    
+         
     case 0x31:
          mc6809dis_indexed(dis,cpu,"LEAY",false);
          break;
@@ -343,7 +343,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x32:
          mc6809dis_indexed(dis,cpu,"LEAS",false);
          break;
-    
+         
     case 0x33:
          mc6809dis_indexed(dis,cpu,"LEAU",false);
          break;
@@ -351,7 +351,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x34:
          psh(dis,"PSHS",true);
          break;
-    
+         
     case 0x35:
          pul(dis,"PULS",true);
          break;
@@ -379,7 +379,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x3B:
          snprintf(dis->topcode,sizeof(dis->topcode),"RTI");
          break;
-    
+         
     case 0x3C:
          ccimmediate(dis,"CWAI");
          break;
@@ -407,7 +407,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x42:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x43:
          snprintf(dis->topcode,sizeof(dis->topcode),"COMA");
          break;
@@ -419,7 +419,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x45:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x46:
          snprintf(dis->topcode,sizeof(dis->topcode),"RORA");
          break;
@@ -459,7 +459,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x4F:
          snprintf(dis->topcode,sizeof(dis->topcode),"CLRA");
          break;
-
+         
     case 0x50:
          snprintf(dis->topcode,sizeof(dis->topcode),"NEGB");
          break;
@@ -471,7 +471,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x52:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x53:
          snprintf(dis->topcode,sizeof(dis->topcode),"COMB");
          break;
@@ -483,7 +483,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x55:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x56:
          snprintf(dis->topcode,sizeof(dis->topcode),"RORB");
          break;
@@ -523,19 +523,19 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x5F:
          snprintf(dis->topcode,sizeof(dis->topcode),"CLRB");
          break;
-
+         
     case 0x60:
          mc6809dis_indexed(dis,cpu,"NEG",false);
          break;
-    
+         
     case 0x61:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x62:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x63:
          mc6809dis_indexed(dis,cpu,"COM",false);
          break;
@@ -559,7 +559,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x68:
          mc6809dis_indexed(dis,cpu,"LSL",false);
          break;
-    
+         
     case 0x69:
          mc6809dis_indexed(dis,cpu,"ROL",false);
          break;
@@ -587,19 +587,19 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x6F:
          mc6809dis_indexed(dis,cpu,"CLR",false);
          break;
-
+         
     case 0x70:
          mc6809dis_extended(dis,cpu,"NEG",false);
          break;
-    
+         
     case 0x71:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x72:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x73:
          mc6809dis_extended(dis,cpu,"COM",false);
          break;
@@ -623,7 +623,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x78:
          mc6809dis_extended(dis,cpu,"LSL",false);
          break;
-    
+         
     case 0x79:
          mc6809dis_extended(dis,cpu,"ROL",false);
          break;
@@ -651,67 +651,67 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x7F:
          mc6809dis_extended(dis,cpu,"CLR",false);
          break;
-
+         
     case 0x80:
          mc6809dis_immediate(dis,"SUBA",false);
          break;
-    
+         
     case 0x81:
          mc6809dis_immediate(dis,"CMPA",false);
          break;
-    
+         
     case 0x82:
          mc6809dis_immediate(dis,"SBCA",false);
          break;
-    
+         
     case 0x83:
          mc6809dis_immediate(dis,"SUBD",true);
          break;
-    
+         
     case 0x84:
          mc6809dis_immediate(dis,"ANDA",false);
          break;
-    
+         
     case 0x85:
          mc6809dis_immediate(dis,"BITA",false);
          break;
-    
+         
     case 0x86:
          mc6809dis_immediate(dis,"LDA",false);
          break;
-    
+         
     case 0x87:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0x88:
          mc6809dis_immediate(dis,"EORA",false);
          break;
-    
+         
     case 0x89:
          mc6809dis_immediate(dis,"ADCA",false);
          break;
-    
+         
     case 0x8A:
          mc6809dis_immediate(dis,"ORA",false);
          break;
-    
+         
     case 0x8B:
          mc6809dis_immediate(dis,"ADDA",false);
          break;
-    
+         
     case 0x8C:
          mc6809dis_immediate(dis,"CMPX",true);
          break;
-    
+         
     case 0x8D:
          mc6809dis_relative(dis,"BSR","");
          break;
-    
+         
     case 0x8E:
          mc6809dis_immediate(dis,"LDX",true);
          break;
-    
+         
     case 0x8F:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
@@ -719,451 +719,451 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
     case 0x90:
          mc6809dis_direct(dis,cpu,"SUBA",false);
          break;
-    
+         
     case 0x91:
          mc6809dis_direct(dis,cpu,"CMPA",false);
          break;
-    
+         
     case 0x92:
          mc6809dis_direct(dis,cpu,"SBCA",false);
          break;
-    
+         
     case 0x93:
          mc6809dis_direct(dis,cpu,"SUBD",true);
          break;
-    
+         
     case 0x94:
          mc6809dis_direct(dis,cpu,"ANDA",false);
          break;
-    
+         
     case 0x95:
          mc6809dis_direct(dis,cpu,"BITA",false);
          break;
-    
+         
     case 0x96:
          mc6809dis_direct(dis,cpu,"LDA",false);
          break;
-    
+         
     case 0x97:
          mc6809dis_direct(dis,cpu,"STA",false);
          break;
-    
+         
     case 0x98:
          mc6809dis_direct(dis,cpu,"EORA",false);
          break;
-    
+         
     case 0x99:
          mc6809dis_direct(dis,cpu,"ADCA",false);
          break;
-    
+         
     case 0x9A:
          mc6809dis_direct(dis,cpu,"ORA",false);
          break;
-    
+         
     case 0x9B:
          mc6809dis_direct(dis,cpu,"ADDA",false);
          break;
-    
+         
     case 0x9C:
          mc6809dis_direct(dis,cpu,"CMPX",true);
          break;
-    
+         
     case 0x9D:
          mc6809dis_direct(dis,cpu,"JSR",false);
          break;
-    
+         
     case 0x9E:
          mc6809dis_direct(dis,cpu,"LDX",true);
          break;
-    
+         
     case 0x9F:
          mc6809dis_direct(dis,cpu,"STX",true);
          break;
-
+         
     case 0xA0:
          mc6809dis_indexed(dis,cpu,"SUBA",false);
          break;
-    
+         
     case 0xA1:
          mc6809dis_indexed(dis,cpu,"CMPA",false);
          break;
-    
+         
     case 0xA2:
          mc6809dis_indexed(dis,cpu,"SBCA",false);
          break;
-    
+         
     case 0xA3:
          mc6809dis_indexed(dis,cpu,"SUBD",true);
          break;
-    
+         
     case 0xA4:
          mc6809dis_indexed(dis,cpu,"ANDA",false);
          break;
-    
+         
     case 0xA5:
          mc6809dis_indexed(dis,cpu,"BITA",false);
          break;
-    
+         
     case 0xA6:
          mc6809dis_indexed(dis,cpu,"LDA",false);
          break;
-    
+         
     case 0xA7:
          mc6809dis_indexed(dis,cpu,"STA",false);
          break;
-    
+         
     case 0xA8:
          mc6809dis_indexed(dis,cpu,"EORA",false);
          break;
-    
+         
     case 0xA9:
          mc6809dis_indexed(dis,cpu,"ADCA",false);
          break;
-    
+         
     case 0xAA:
          mc6809dis_indexed(dis,cpu,"ORA",false);
          break;
-    
+         
     case 0xAB:
          mc6809dis_indexed(dis,cpu,"ADDA",false);
          break;
-    
+         
     case 0xAC:
          mc6809dis_indexed(dis,cpu,"CMPX",true);
          break;
-    
+         
     case 0xAD:
          mc6809dis_indexed(dis,cpu,"JSR",false);
          break;
-    
+         
     case 0xAE:
          mc6809dis_indexed(dis,cpu,"LDX",true);
          break;
-    
+         
     case 0xAF:
          mc6809dis_indexed(dis,cpu,"STX",true);
          break;
-
+         
     case 0xB0:
          mc6809dis_extended(dis,cpu,"SUBA",false);
          break;
-    
+         
     case 0xB1:
          mc6809dis_extended(dis,cpu,"CMPA",false);
          break;
-    
+         
     case 0xB2:
          mc6809dis_extended(dis,cpu,"SBCA",false);
          break;
-    
+         
     case 0xB3:
          mc6809dis_extended(dis,cpu,"SUBD",true);
          break;
-    
+         
     case 0xB4:
          mc6809dis_extended(dis,cpu,"ANDA",false);
          break;
-    
+         
     case 0xB5:
          mc6809dis_extended(dis,cpu,"BITA",false);
          break;
-    
+         
     case 0xB6:
          mc6809dis_extended(dis,cpu,"LDA",false);
          break;
-    
+         
     case 0xB7:
          mc6809dis_extended(dis,cpu,"STA",false);
          break;
-    
+         
     case 0xB8:
          mc6809dis_extended(dis,cpu,"EORA",false);
          break;
-    
+         
     case 0xB9:
          mc6809dis_extended(dis,cpu,"ADCA",false);
          break;
-    
+         
     case 0xBA:
          mc6809dis_extended(dis,cpu,"ORA",false);
          break;
-    
+         
     case 0xBB:
          mc6809dis_extended(dis,cpu,"ADDA",false);
          break;
-    
+         
     case 0xBC:
          mc6809dis_extended(dis,cpu,"CMPX",true);
          break;
-    
+         
     case 0xBD:
          mc6809dis_extended(dis,cpu,"JSR",false);
          break;
-    
+         
     case 0xBE:
          mc6809dis_extended(dis,cpu,"LDX",true);
          break;
-    
+         
     case 0xBF:
          mc6809dis_extended(dis,cpu,"STX",true);
          break;
-
+         
     case 0xC0:
          mc6809dis_immediate(dis,"SUBB",false);
          break;
-    
+         
     case 0xC1:
          mc6809dis_immediate(dis,"CMPB",false);
          break;
-    
+         
     case 0xC2:
          mc6809dis_immediate(dis,"SBCB",false);
          break;
-    
+         
     case 0xC3:
          mc6809dis_immediate(dis,"ADDD",true);
          break;
-    
+         
     case 0xC4:
          mc6809dis_immediate(dis,"ANDB",false);
          break;
-    
+         
     case 0xC5:
          mc6809dis_immediate(dis,"BITB",false);
          break;
-    
+         
     case 0xC6:
          mc6809dis_immediate(dis,"LDB",false);
          break;
-    
+         
     case 0xC7:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0xC8:
          mc6809dis_immediate(dis,"EORB",false);
          break;
-    
+         
     case 0xC9:
          mc6809dis_immediate(dis,"ADCB",false);
          break;
-    
+         
     case 0xCA:
          mc6809dis_immediate(dis,"ORB",false);
          break;
-    
+         
     case 0xCB:
          mc6809dis_immediate(dis,"ADDB",false);
          break;
-    
+         
     case 0xCC:
          mc6809dis_immediate(dis,"LDD",true);
          break;
-    
+         
     case 0xCD:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-    
+         
     case 0xCE:
          mc6809dis_immediate(dis,"LDU",true);
          break;
-    
+         
     case 0xCF:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
-
+         
     case 0xD0:
          mc6809dis_direct(dis,cpu,"SUBB",false);
          break;
-    
+         
     case 0xD1:
          mc6809dis_direct(dis,cpu,"CMPB",false);
          break;
-    
+         
     case 0xD2:
          mc6809dis_direct(dis,cpu,"SBCB",false);
          break;
-    
+         
     case 0xD3:
          mc6809dis_direct(dis,cpu,"ADDD",true);
          break;
-    
+         
     case 0xD4:
          mc6809dis_direct(dis,cpu,"ANDB",false);
          break;
-    
+         
     case 0xD5:
          mc6809dis_direct(dis,cpu,"BITB",false);
          break;
-    
+         
     case 0xD6:
          mc6809dis_direct(dis,cpu,"LDB",false);
          break;
-    
+         
     case 0xD7:
          mc6809dis_direct(dis,cpu,"STB",false);
          break;
-    
+         
     case 0xD8:
          mc6809dis_direct(dis,cpu,"EORB",false);
          break;
-    
+         
     case 0xD9:
          mc6809dis_direct(dis,cpu,"ADCB",false);
          break;
-    
+         
     case 0xDA:
          mc6809dis_direct(dis,cpu,"ORB",false);
          break;
-    
+         
     case 0xDB:
          mc6809dis_direct(dis,cpu,"ADDB",false);
          break;
-    
+         
     case 0xDC:
          mc6809dis_direct(dis,cpu,"LDD",true);
          break;
-    
+         
     case 0xDD:
-    	 mc6809dis_direct(dis,cpu,"STD",true);
+         mc6809dis_direct(dis,cpu,"STD",true);
          break;
-    
+         
     case 0xDE:
          mc6809dis_direct(dis,cpu,"LDU",true);
          break;
-    
+         
     case 0xDF:
          mc6809dis_direct(dis,cpu,"STU",true);
          break;
-
+         
     case 0xE0:
          mc6809dis_indexed(dis,cpu,"SUBB",false);
          break;
-    
+         
     case 0xE1:
          mc6809dis_indexed(dis,cpu,"CMPB",false);
          break;
-    
+         
     case 0xE2:
          mc6809dis_indexed(dis,cpu,"SBCB",false);
          break;
-    
+         
     case 0xE3:
          mc6809dis_indexed(dis,cpu,"ADDD",true);
          break;
-    
+         
     case 0xE4:
          mc6809dis_indexed(dis,cpu,"ANDB",false);
          break;
-    
+         
     case 0xE5:
          mc6809dis_indexed(dis,cpu,"BITB",false);
          break;
-    
+         
     case 0xE6:
          mc6809dis_indexed(dis,cpu,"LDB",false);
          break;
-    
+         
     case 0xE7:
          mc6809dis_indexed(dis,cpu,"STB",false);
          break;
-    
+         
     case 0xE8:
          mc6809dis_indexed(dis,cpu,"EORB",false);
          break;
-    
+         
     case 0xE9:
          mc6809dis_indexed(dis,cpu,"ADCB",false);
          break;
-    
+         
     case 0xEA:
          mc6809dis_indexed(dis,cpu,"ORB",false);
          break;
-    
+         
     case 0xEB:
          mc6809dis_indexed(dis,cpu,"ADDB",false);
          break;
-    
+         
     case 0xEC:
          mc6809dis_indexed(dis,cpu,"LDD",true);
          break;
-    
+         
     case 0xED:
          mc6809dis_indexed(dis,cpu,"STD",true);
          break;
-    
+         
     case 0xEE:
          mc6809dis_indexed(dis,cpu,"LDU",true);
          break;
-    
+         
     case 0xEF:
          mc6809dis_indexed(dis,cpu,"STU",true);
          break;
-
+         
     case 0xF0:
          mc6809dis_extended(dis,cpu,"SUBB",false);
          break;
-    
+         
     case 0xF1:
          mc6809dis_extended(dis,cpu,"CMPB",false);
          break;
-    
+         
     case 0xF2:
          mc6809dis_extended(dis,cpu,"SBCB",false);
          break;
-    
+         
     case 0xF3:
          mc6809dis_extended(dis,cpu,"ADDD",true);
          break;
-    
+         
     case 0xF4:
          mc6809dis_extended(dis,cpu,"ANDB",false);
          break;
-    
+         
     case 0xF5:
          mc6809dis_extended(dis,cpu,"BITB",false);
          break;
-    
+         
     case 0xF6:
          mc6809dis_extended(dis,cpu,"LDB",false);
          break;
-    
+         
     case 0xF7:
          mc6809dis_extended(dis,cpu,"STB",false);
          break;
-    
+         
     case 0xF8:
          mc6809dis_extended(dis,cpu,"EORB",false);
          break;
-    
+         
     case 0xF9:
          mc6809dis_extended(dis,cpu,"ADCB",false);
          break;
-    
+         
     case 0xFA:
          mc6809dis_extended(dis,cpu,"ORB",false);
          break;
-    
+         
     case 0xFB:
          mc6809dis_extended(dis,cpu,"ADDB",false);
          break;
-    
+         
     case 0xFC:
          mc6809dis_extended(dis,cpu,"LDD",true);
          break;
-    
+         
     case 0xFD:
          mc6809dis_extended(dis,cpu,"STD",true);
          break;
-    
+         
     case 0xFE:
          mc6809dis_extended(dis,cpu,"LDU",true);
          break;
-    
+         
     case 0xFF:
          mc6809dis_extended(dis,cpu,"STU",true);
          break;
-
+         
     default:
          assert(0);
          (*cpu->fault)(cpu,MC6809_FAULT_INTERNAL_ERROR);
@@ -1189,11 +1189,11 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
     case 0x21:
          mc6809dis_lrelative(dis,"LBRN","");
          break;
-    
+         
     case 0x22:
          mc6809dis_lrelative(dis,"LBHI","unsigned");
          break;
-    
+         
     case 0x23:
          mc6809dis_lrelative(dis,"LBLS","unsigned");
          break;
@@ -1205,7 +1205,7 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
     case 0x25:
          mc6809dis_lrelative(dis,"LBLO","unsigned");
          break;
-           
+         
     case 0x26:
          mc6809dis_lrelative(dis,"LBNE","");
          break;
@@ -1245,7 +1245,7 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
     case 0x2F:
          mc6809dis_lrelative(dis,"LBLE","signed");
          break;
- 
+         
     case 0x3F:
          snprintf(dis->topcode,sizeof(dis->topcode),"SWI2");
          break;
@@ -1261,7 +1261,7 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
     case 0x8E:
          mc6809dis_immediate(dis,"LDY",true);
          break;
-    
+         
     case 0x93:
          mc6809dis_direct(dis,cpu,"CMPD",true);
          break;
@@ -1277,31 +1277,31 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
     case 0x9F:
          mc6809dis_direct(dis,cpu,"STY",true);
          break;
-    
+         
     case 0xA3:
          mc6809dis_indexed(dis,cpu,"CMPD",true);
          break;
-    
+         
     case 0xAC:
          mc6809dis_indexed(dis,cpu,"CMPY",true);
          break;
-    
+         
     case 0xAE:
          mc6809dis_indexed(dis,cpu,"LDY",true);
          break;
-    
+         
     case 0xAF:
          mc6809dis_indexed(dis,cpu,"STY",true);
          break;
-    
+         
     case 0xB3:
          mc6809dis_extended(dis,cpu,"CMPD",true);
          break;
-    
+         
     case 0xBC:
          mc6809dis_extended(dis,cpu,"CMPY",true);
          break;
-    
+         
     case 0xBE:
          mc6809dis_extended(dis,cpu,"LDY",true);
          break;
@@ -1313,7 +1313,7 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
     case 0xCE:
          mc6809dis_immediate(dis,"LDS",true);
          break;
-    
+         
     case 0xDE:
          mc6809dis_direct(dis,cpu,"LDS",true);
          break;
@@ -1321,23 +1321,23 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
     case 0xDF:
          mc6809dis_direct(dis,cpu,"STS",true);
          break;
-    
+         
     case 0xEE:
          mc6809dis_indexed(dis,cpu,"LDS",true);
          break;
-    
+         
     case 0xEF:
          mc6809dis_indexed(dis,cpu,"STS",true);
          break;
-    
+         
     case 0xFE:
          mc6809dis_extended(dis,cpu,"LDS",true);
          break;
-    
+         
     case 0xFF:
          mc6809dis_extended(dis,cpu,"STS",true);
          break;
-    
+         
     default:
          (*dis->fault)(dis,MC6809_FAULT_INSTRUCTION);
          break;
@@ -1362,35 +1362,35 @@ static int page3(mc6809dis__t *const dis,mc6809__t *const cpu)
     case 0x3F:
          snprintf(dis->topcode,sizeof(dis->topcode),"SWI3");
          break;
-    
+         
     case 0x83:
          mc6809dis_immediate(dis,"CMPU",true);
          break;
-    
+         
     case 0x8C:
          mc6809dis_immediate(dis,"CMPS",true);
          break;
-    
+         
     case 0x93:
          mc6809dis_direct(dis,cpu,"CMPU",true);
          break;
-    
+         
     case 0x9C:
          mc6809dis_direct(dis,cpu,"CMPS",true);
          break;
-    
+         
     case 0xA3:
          mc6809dis_indexed(dis,cpu,"CMPU",true);
          break;
-    
+         
     case 0xAC:
          mc6809dis_indexed(dis,cpu,"CMPS",true);
          break;
-    
+         
     case 0xB3:
          mc6809dis_extended(dis,cpu,"CMPU",true);
          break;
-    
+         
     case 0xBC:
          mc6809dis_extended(dis,cpu,"CMPS",true);
          break;
@@ -1406,10 +1406,10 @@ static int page3(mc6809dis__t *const dis,mc6809__t *const cpu)
 /***********************************************************************/
 
 void mc6809dis_indexed(
-	mc6809dis__t  *const dis,
-	mc6809__t     *const cpu,
-	const char    *const op,
-	const bool           b16
+        mc6809dis__t  *const dis,
+        mc6809__t     *const cpu,
+        const char    *const op,
+        const bool           b16
 )
 {
   static const char regs[4] = "XYUS";
@@ -1437,8 +1437,8 @@ void mc6809dis_indexed(
   if (mode < 0x80)
   {
     if (off > 15) off -= 32;
-
-    snprintf(dis->toperand,sizeof(dis->toperand),"%d,%c",off,regs[reg]);    
+    
+    snprintf(dis->toperand,sizeof(dis->toperand),"%d,%c",off,regs[reg]);
     if (cpu != NULL)
     {
       addr.w = cpu->index[reg].w + (mc6809addr__t)off;
@@ -1456,23 +1456,23 @@ void mc6809dis_indexed(
     }
     return;
   }
-
+  
   switch(off)
   {
     case 0x00:
-         snprintf(dis->toperand,sizeof(dis->toperand),",%c+",regs[reg]);         
+         snprintf(dis->toperand,sizeof(dis->toperand),",%c+",regs[reg]);
          if (cpu != NULL)
            addr.w = cpu->index[reg].w;
          break;
          
     case 0x01:
-         snprintf(dis->toperand,sizeof(dis->toperand),",%c++",regs[reg]);         
+         snprintf(dis->toperand,sizeof(dis->toperand),",%c++",regs[reg]);
          if (cpu != NULL)
            addr.w = cpu->index[reg].w;
          break;
          
     case 0x02:
-         snprintf(dis->toperand,sizeof(dis->toperand),",-%c",regs[reg]);         
+         snprintf(dis->toperand,sizeof(dis->toperand),",-%c",regs[reg]);
          if (cpu != NULL)
            addr.w = cpu->index[reg].w - 1;
          break;
@@ -1534,7 +1534,7 @@ void mc6809dis_indexed(
          if (cpu != NULL)
            addr.w += cpu->index[reg].w;
          break;
-                  
+         
     case 0x0A:
          (*dis->fault)(dis,MC6809_FAULT_ADDRESS_MODE);
          break;
@@ -1648,7 +1648,7 @@ void mc6809dis_indexed(
            ind        = true;
          }
          break;
-
+         
     case 0x19:
          addr.b[MSB] = (*dis->read)(dis,dis->next++);
          addr.b[LSB] = (*dis->read)(dis,dis->next++);
@@ -1723,7 +1723,7 @@ void mc6809dis_indexed(
          (*dis->fault)(dis,MC6809_FAULT_INTERNAL_ERROR);
          break;
   }
-
+  
   if (cpu != NULL)
   {
     if (ind)
@@ -1739,7 +1739,7 @@ void mc6809dis_indexed(
       }
       else
       {
-        byte = (*dis->read)(dis,iaddr.w);      
+        byte = (*dis->read)(dis,iaddr.w);
         snprintf(dis->data,sizeof(dis->data),"[%04X] = %04X = %02X",addr.w,iaddr.w,byte);
       }
     }
@@ -1757,15 +1757,15 @@ void mc6809dis_indexed(
         snprintf(dis->data,sizeof(dis->data),"%04X = %02X",addr.w,byte);
       }
     }
-  }  
+  }
 }
 
 /*************************************************************************/
 
 void mc6809dis_immediate(
-	mc6809dis__t *const dis,
-	const char   *const op,
-	const bool          b16
+        mc6809dis__t *const dis,
+        const char   *const op,
+        const bool          b16
 )
 {
   mc6809word__t d16;
@@ -1794,10 +1794,10 @@ void mc6809dis_immediate(
 /*************************************************************************/
 
 void mc6809dis_direct(
-	mc6809dis__t *const dis,
-	mc6809__t    *const cpu,
-	const char   *const op,
-	const bool          b16
+        mc6809dis__t *const dis,
+        mc6809__t    *const cpu,
+        const char   *const op,
+        const bool          b16
 )
 {
   mc6809word__t addr;
@@ -1829,14 +1829,14 @@ void mc6809dis_direct(
     }
   }
 }
-  
-/*************************************************************************/  
+
+/*************************************************************************/
 
 void mc6809dis_extended(
-	mc6809dis__t *const dis,
-	mc6809__t    *const cpu,
-	const char   *const op,
-	const bool          b16
+        mc6809dis__t *const dis,
+        mc6809__t    *const cpu,
+        const char   *const op,
+        const bool          b16
 )
 {
   mc6809word__t addr;
@@ -1872,9 +1872,9 @@ void mc6809dis_extended(
 /*************************************************************************/
 
 void mc6809dis_relative(
-	mc6809dis__t *const dis,
-	const char   *const op,
-	const char   *const data
+        mc6809dis__t *const dis,
+        const char   *const op,
+        const char   *const data
 )
 {
   mc6809word__t addr;
@@ -1895,9 +1895,9 @@ void mc6809dis_relative(
 /*************************************************************************/
 
 void mc6809dis_lrelative(
-	mc6809dis__t *const dis,
-	const char   *const op,
-	const char   *const data
+        mc6809dis__t *const dis,
+        const char   *const op,
+        const char   *const data
 )
 {
   mc6809word__t addr;
@@ -1939,7 +1939,7 @@ void mc6809dis_pshregs(char *dest,size_t size,mc6809byte__t post,bool s)
     int mask = 1 << i;
     
     if ((post & mask) != 0)
-    {   
+    {
       size_t bytes  = snprintf(dest,size,"%s%s",sep,regs[i]);
       size         -= bytes;
       dest         += bytes;
@@ -1954,7 +1954,7 @@ void mc6809dis_pulregs(char *dest,size_t size,mc6809byte__t post,bool s)
 {
   const char *const *regs = s ? m_pshsreg : m_pshureg;
   const char        *sep  = "";
-
+  
   for (int i = 0 ; i < 8 ; i++)
   {
     int mask = 1 << i;
@@ -1974,11 +1974,11 @@ void mc6809dis_pulregs(char *dest,size_t size,mc6809byte__t post,bool s)
 static void psh(mc6809dis__t *const dis,const char *const op,const bool s)
 {
   mc6809byte__t      post;
-
+  
   post = (*dis->read)(dis,dis->next++);
   snprintf(dis->operand,sizeof(dis->operand),"%02X",post);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
-
+  
   mc6809dis_pshregs(dis->toperand,sizeof(dis->toperand),post,s);
 }
 
@@ -2004,7 +2004,7 @@ static void exgtfr(mc6809dis__t *const dis,const char *const op)
     "D" , "X" , "Y"  , "U"  , "S"  , "PC" , NULL , NULL ,
     "A" , "B" , "CC" , "DP" , NULL , NULL , NULL , NULL
   };
-
+  
   mc6809byte__t  byte;
   const char    *s;
   const char    *d;
@@ -2015,19 +2015,19 @@ static void exgtfr(mc6809dis__t *const dis,const char *const op)
   byte = (*dis->read)(dis,dis->next++);
   snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
-         
+  
   if (((byte & 0x88) == 0x00) || ((byte & 0x88) == 0x88))
   {
     s = etregs[byte >> 4];
     d = etregs[byte &  0x0F];
-           
+    
     if ((s != NULL) && (d != NULL))
       snprintf(dis->toperand,sizeof(dis->toperand),"%s,%s",s,d);
     else
       (*dis->fault)(dis,MC6809_FAULT_EXG);
   }
   else
-    (*dis->fault)(dis,MC6809_FAULT_EXG);  
+    (*dis->fault)(dis,MC6809_FAULT_EXG);
 }
 
 /*************************************************************************/
@@ -2038,7 +2038,7 @@ static void ccimmediate(mc6809dis__t *const dis,const char *const op)
   
   assert(dis != NULL);
   assert(op  != NULL);
-
+  
   byte = (*dis->read)(dis,dis->next++);
   snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
