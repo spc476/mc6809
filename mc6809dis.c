@@ -22,7 +22,6 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <errno.h>
 #include <assert.h>
 
 #include "mc6809dis.h"
@@ -57,7 +56,7 @@ int mc6809dis_format(mc6809dis__t *const dis,char *dest,size_t size)
         dis->data
   );
   if (size < (sizeof(dis->addr) + sizeof(dis->opcode) + sizeof(dis->operand) + sizeof(dis->topcode) + sizeof(dis->toperand) + sizeof(dis->data)))
-    return EINVAL;
+    return MC6809_FAULT_INTERNAL_ERROR;
     
   return 0;
 }
@@ -88,7 +87,7 @@ int mc6809dis_registers(mc6809__t *const cpu,char *dest,size_t size)
         flags
   );
   
-  return (size >= 64) ? 0 : EINVAL;
+  return (size >= 64) ? 0 : MC6809_FAULT_INTERNAL_ERROR;
 }
 
 /*************************************************************************/
@@ -105,12 +104,16 @@ int mc6809dis_run(mc6809dis__t *const dis,mc6809__t *const cpu)
   {
     rc = mc6809dis_step(dis,cpu);
     if (rc != 0) break;
-    mc6809dis_format(dis,inst,sizeof(inst));
+    rc = mc6809dis_format(dis,inst,sizeof(inst));
+    if (rc != 0) break;
+    
     if (cpu != NULL)
     {
-      mc6809dis_registers(cpu,regs,sizeof(regs));
+      rc = mc6809dis_registers(cpu,regs,sizeof(regs));
+      if (rc != 0) break;
       printf("%s | ",regs);
     }
+    
     printf("%s\n",inst);
     dis->pc = dis->next;
   }
