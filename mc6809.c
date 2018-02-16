@@ -26,118 +26,118 @@
 
 /**************************************************************************/
 
-static int              page2           (mc6809__t *const) __attribute__((nonnull));
-static int              page3           (mc6809__t *const) __attribute__((nonnull));
+static int              page2           (mc6809__t *) __attribute__((nonnull));
+static int              page3           (mc6809__t *) __attribute__((nonnull));
 
-static mc6809byte__t    op_neg          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_com          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_lsr          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_ror          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_asr          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_lsl          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_rol          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_dec          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_inc          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static void             op_tst          (mc6809__t *const,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_clr          (mc6809__t *const)                     __attribute__((nonnull));
+static mc6809byte__t    op_neg          (mc6809__t *,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_com          (mc6809__t *,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_lsr          (mc6809__t *,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_ror          (mc6809__t *,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_asr          (mc6809__t *,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_lsl          (mc6809__t *,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_rol          (mc6809__t *,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_dec          (mc6809__t *,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_inc          (mc6809__t *,mc6809byte__t const) __attribute__((nonnull));
+static void             op_tst          (mc6809__t *,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_clr          (mc6809__t *)                     __attribute__((nonnull));
 
-static mc6809byte__t    op_sub          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static void             op_cmp          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_sbc          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_and          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static void             op_bit          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static void             op_ldst         (mc6809__t *const,const mc6809byte__t)                     __attribute__((nonnull));
-static mc6809byte__t    op_eor          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_adc          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_or           (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
-static mc6809byte__t    op_add          (mc6809__t *const,const mc6809byte__t,const mc6809byte__t) __attribute__((nonnull));
+static mc6809byte__t    op_sub          (mc6809__t *,mc6809byte__t const,mc6809byte__t const) __attribute__((nonnull));
+static void             op_cmp          (mc6809__t *,mc6809byte__t const,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_sbc          (mc6809__t *,mc6809byte__t const,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_and          (mc6809__t *,mc6809byte__t const,mc6809byte__t const) __attribute__((nonnull));
+static void             op_bit          (mc6809__t *,mc6809byte__t const,mc6809byte__t const) __attribute__((nonnull));
+static void             op_ldst         (mc6809__t *,mc6809byte__t const)                     __attribute__((nonnull));
+static mc6809byte__t    op_eor          (mc6809__t *,mc6809byte__t const,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_adc          (mc6809__t *,mc6809byte__t const,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_or           (mc6809__t *,mc6809byte__t const,mc6809byte__t const) __attribute__((nonnull));
+static mc6809byte__t    op_add          (mc6809__t *,mc6809byte__t const,mc6809byte__t const) __attribute__((nonnull));
 
-static mc6809addr__t    op_sub16        (mc6809__t *const,const mc6809addr__t,const mc6809addr__t) __attribute__((nonnull));
-static void             op_cmp16        (mc6809__t *const,const mc6809addr__t,const mc6809addr__t) __attribute__((nonnull));
-static void             op_ldst16       (mc6809__t *const,const mc6809addr__t)                     __attribute__((nonnull));
-static mc6809addr__t    op_add16        (mc6809__t *const,const mc6809addr__t,const mc6809addr__t) __attribute__((nonnull));
+static mc6809addr__t    op_sub16        (mc6809__t *,mc6809addr__t const,mc6809addr__t const) __attribute__((nonnull));
+static void             op_cmp16        (mc6809__t *,mc6809addr__t const,mc6809addr__t const) __attribute__((nonnull));
+static void             op_ldst16       (mc6809__t *,mc6809addr__t const)                     __attribute__((nonnull));
+static mc6809addr__t    op_add16        (mc6809__t *,mc6809addr__t const,mc6809addr__t const) __attribute__((nonnull));
 
 /***************************************************************************/
 
-static inline bool bhs(mc6809__t *const cpu)
+static inline bool bhs(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return !cpu->cc.c;
 }
 
-static inline bool blo(mc6809__t *const cpu)
+static inline bool blo(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return cpu->cc.c;
 }
 
-static inline bool bhi(mc6809__t *const cpu)
+static inline bool bhi(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return !cpu->cc.c && !cpu->cc.z;
 }
 
-static inline bool bls(mc6809__t *const cpu)
+static inline bool bls(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return cpu->cc.c || cpu->cc.z;
 }
 
-static inline bool bne(mc6809__t *const cpu)
+static inline bool bne(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return !cpu->cc.z;
 }
 
-static inline bool beq(mc6809__t *const cpu)
+static inline bool beq(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return cpu->cc.z;
 }
 
-static inline bool bge(mc6809__t *const cpu)
+static inline bool bge(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return cpu->cc.n == cpu->cc.v;
 }
 
-static inline bool blt(mc6809__t *const cpu)
+static inline bool blt(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return cpu->cc.n != cpu->cc.v;
 }
 
-static inline bool bgt(mc6809__t *const cpu)
+static inline bool bgt(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return (cpu->cc.n == cpu->cc.v) && !cpu->cc.z;
 }
 
-static inline bool ble(mc6809__t *const cpu)
+static inline bool ble(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return cpu->cc.z || (cpu->cc.n != cpu->cc.v);
 }
 
-static inline bool bpl(mc6809__t *const cpu)
+static inline bool bpl(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return !cpu->cc.n;
 }
 
-static inline bool bmi(mc6809__t *const cpu)
+static inline bool bmi(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return cpu->cc.n;
 }
 
-static inline bool bvc(mc6809__t *const cpu)
+static inline bool bvc(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return !cpu->cc.v;
 }
 
-static inline bool bvs(mc6809__t *const cpu)
+static inline bool bvs(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   return cpu->cc.v;
@@ -145,7 +145,7 @@ static inline bool bvs(mc6809__t *const cpu)
 
 /**************************************************************************/
 
-void mc6809_reset(mc6809__t *const cpu)
+void mc6809_reset(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   
@@ -173,7 +173,7 @@ void mc6809_reset(mc6809__t *const cpu)
 
 /***************************************************************************/
 
-int mc6809_run(mc6809__t *const cpu)
+int mc6809_run(mc6809__t *cpu)
 {
   int rc;
   
@@ -188,7 +188,7 @@ int mc6809_run(mc6809__t *const cpu)
 
 /**************************************************************************/
 
-int mc6809_step(mc6809__t *const cpu)
+int mc6809_step(mc6809__t *cpu)
 {
   mc6809addr__t ea;
   mc6809word__t d16;
@@ -2187,7 +2187,7 @@ int mc6809_step(mc6809__t *const cpu)
 
 /************************************************************************/
 
-static int page2(mc6809__t *const cpu)
+static int page2(mc6809__t *cpu)
 {
   mc6809addr__t ea;
   mc6809word__t d16;
@@ -2558,7 +2558,7 @@ static int page2(mc6809__t *const cpu)
 
 /************************************************************************/
 
-static int page3(mc6809__t *const cpu)
+static int page3(mc6809__t *cpu)
 {
   mc6809addr__t ea;
   mc6809word__t d16;
@@ -2668,7 +2668,7 @@ static int page3(mc6809__t *const cpu)
 
 /***********************************************************************/
 
-mc6809addr__t mc6809_direct(mc6809__t *const cpu)
+mc6809addr__t mc6809_direct(mc6809__t *cpu)
 {
   mc6809word__t ea;
   
@@ -2681,7 +2681,7 @@ mc6809addr__t mc6809_direct(mc6809__t *const cpu)
 
 /***********************************************************************/
 
-mc6809addr__t mc6809_relative(mc6809__t *const cpu)
+mc6809addr__t mc6809_relative(mc6809__t *cpu)
 {
   mc6809word__t ea;
   
@@ -2695,7 +2695,7 @@ mc6809addr__t mc6809_relative(mc6809__t *const cpu)
 
 /***********************************************************************/
 
-mc6809addr__t mc6809_lrelative(mc6809__t *const cpu)
+mc6809addr__t mc6809_lrelative(mc6809__t *cpu)
 {
   mc6809word__t ea;
   
@@ -2709,7 +2709,7 @@ mc6809addr__t mc6809_lrelative(mc6809__t *const cpu)
 
 /*********************************************************************/
 
-mc6809addr__t mc6809_extended(mc6809__t *const cpu)
+mc6809addr__t mc6809_extended(mc6809__t *cpu)
 {
   mc6809word__t ea;
   
@@ -2722,7 +2722,7 @@ mc6809addr__t mc6809_extended(mc6809__t *const cpu)
 
 /***********************************************************************/
 
-mc6809addr__t mc6809_indexed(mc6809__t *const cpu)
+mc6809addr__t mc6809_indexed(mc6809__t *cpu)
 {
   mc6809word__t ea;
   mc6809word__t d16;
@@ -2972,7 +2972,7 @@ mc6809addr__t mc6809_indexed(mc6809__t *const cpu)
 
 /*************************************************************************/
 
-mc6809byte__t mc6809_cctobyte(mc6809__t *const cpu)
+mc6809byte__t mc6809_cctobyte(mc6809__t *cpu)
 {
   mc6809byte__t r = 0;
   
@@ -2992,7 +2992,7 @@ mc6809byte__t mc6809_cctobyte(mc6809__t *const cpu)
 
 /************************************************************************/
 
-void mc6809_bytetocc(mc6809__t *const cpu,mc6809byte__t r)
+void mc6809_bytetocc(mc6809__t *cpu,mc6809byte__t const r)
 {
   assert(cpu != NULL);
   
@@ -3008,7 +3008,7 @@ void mc6809_bytetocc(mc6809__t *const cpu,mc6809byte__t r)
 
 /*************************************************************************/
 
-static mc6809byte__t op_neg(mc6809__t *const cpu,const mc6809byte__t src)
+static mc6809byte__t op_neg(mc6809__t *cpu,mc6809byte__t const src)
 {
   mc6809byte__t res;
   
@@ -3024,7 +3024,7 @@ static mc6809byte__t op_neg(mc6809__t *const cpu,const mc6809byte__t src)
 
 /*************************************************************************/
 
-static mc6809byte__t op_com(mc6809__t *const cpu,const mc6809byte__t src)
+static mc6809byte__t op_com(mc6809__t *cpu,mc6809byte__t const src)
 {
   mc6809byte__t res;
   
@@ -3040,7 +3040,7 @@ static mc6809byte__t op_com(mc6809__t *const cpu,const mc6809byte__t src)
 
 /*************************************************************************/
 
-static mc6809byte__t op_lsr(mc6809__t *const cpu,const mc6809byte__t src)
+static mc6809byte__t op_lsr(mc6809__t *cpu,mc6809byte__t const src)
 {
   mc6809byte__t res;
   
@@ -3055,7 +3055,7 @@ static mc6809byte__t op_lsr(mc6809__t *const cpu,const mc6809byte__t src)
 
 /*************************************************************************/
 
-static mc6809byte__t op_ror(mc6809__t *const cpu,const mc6809byte__t src)
+static mc6809byte__t op_ror(mc6809__t *cpu,mc6809byte__t const src)
 {
   mc6809byte__t res;
   
@@ -3071,7 +3071,7 @@ static mc6809byte__t op_ror(mc6809__t *const cpu,const mc6809byte__t src)
 
 /*************************************************************************/
 
-static mc6809byte__t op_asr(mc6809__t *const cpu,const mc6809byte__t src)
+static mc6809byte__t op_asr(mc6809__t *cpu,mc6809byte__t const src)
 {
   mc6809byte__t res;
   
@@ -3087,7 +3087,7 @@ static mc6809byte__t op_asr(mc6809__t *const cpu,const mc6809byte__t src)
 
 /*************************************************************************/
 
-static mc6809byte__t op_lsl(mc6809__t *const cpu,const mc6809byte__t src)
+static mc6809byte__t op_lsl(mc6809__t *cpu,mc6809byte__t const src)
 {
   mc6809byte__t res;
   
@@ -3103,7 +3103,7 @@ static mc6809byte__t op_lsl(mc6809__t *const cpu,const mc6809byte__t src)
 
 /************************************************************************/
 
-static mc6809byte__t op_rol(mc6809__t *const cpu,const mc6809byte__t src)
+static mc6809byte__t op_rol(mc6809__t *cpu,mc6809byte__t const src)
 {
   mc6809byte__t res;
   
@@ -3120,7 +3120,7 @@ static mc6809byte__t op_rol(mc6809__t *const cpu,const mc6809byte__t src)
 
 /************************************************************************/
 
-static mc6809byte__t op_dec(mc6809__t *const cpu,const mc6809byte__t src)
+static mc6809byte__t op_dec(mc6809__t *cpu,mc6809byte__t const src)
 {
   mc6809byte__t res;
   
@@ -3135,7 +3135,7 @@ static mc6809byte__t op_dec(mc6809__t *const cpu,const mc6809byte__t src)
 
 /************************************************************************/
 
-static mc6809byte__t op_inc(mc6809__t *const cpu,const mc6809byte__t src)
+static mc6809byte__t op_inc(mc6809__t *cpu,mc6809byte__t const src)
 {
   mc6809byte__t res;
   
@@ -3150,7 +3150,7 @@ static mc6809byte__t op_inc(mc6809__t *const cpu,const mc6809byte__t src)
 
 /************************************************************************/
 
-static void op_tst(mc6809__t *const cpu,const mc6809byte__t src)
+static void op_tst(mc6809__t *cpu,mc6809byte__t const src)
 {
   assert(cpu != NULL);
   
@@ -3161,7 +3161,7 @@ static void op_tst(mc6809__t *const cpu,const mc6809byte__t src)
 
 /************************************************************************/
 
-static mc6809byte__t op_clr(mc6809__t *const cpu)
+static mc6809byte__t op_clr(mc6809__t *cpu)
 {
   assert(cpu != NULL);
   
@@ -3175,9 +3175,9 @@ static mc6809byte__t op_clr(mc6809__t *const cpu)
 /************************************************************************/
 
 static mc6809byte__t op_sub(
-        mc6809__t *const    cpu,
-        const mc6809byte__t dest,
-        const mc6809byte__t src
+        mc6809__t           *cpu,
+        mc6809byte__t const  dest,
+        mc6809byte__t const  src
 )
 {
   mc6809byte__t res;
@@ -3197,9 +3197,9 @@ static mc6809byte__t op_sub(
 /************************************************************************/
 
 static void op_cmp(
-        mc6809__t *const    cpu,
-        const mc6809byte__t dest,
-        const mc6809byte__t src
+        mc6809__t           *cpu,
+        mc6809byte__t const  dest,
+        mc6809byte__t const  src
 )
 {
   mc6809byte__t res;
@@ -3218,9 +3218,9 @@ static void op_cmp(
 /************************************************************************/
 
 static mc6809byte__t op_sbc(
-        mc6809__t *const    cpu,
-        const mc6809byte__t dest,
-        const mc6809byte__t src
+        mc6809__t           *cpu,
+        mc6809byte__t const  dest,
+        mc6809byte__t const  src
 )
 {
   mc6809byte__t res;
@@ -3241,9 +3241,9 @@ static mc6809byte__t op_sbc(
 /************************************************************************/
 
 static mc6809byte__t op_and(
-        mc6809__t *const    cpu,
-        const mc6809byte__t dest,
-        const mc6809byte__t src
+        mc6809__t           *cpu,
+        mc6809byte__t const  dest,
+        mc6809byte__t const  src
 )
 {
   mc6809byte__t res;
@@ -3260,9 +3260,9 @@ static mc6809byte__t op_and(
 /************************************************************************/
 
 static void op_bit(
-        mc6809__t *const    cpu,
-        const mc6809byte__t dest,
-        const mc6809byte__t src
+        mc6809__t           *cpu,
+        mc6809byte__t const  dest,
+        mc6809byte__t const  src
 )
 {
   mc6809byte__t res;
@@ -3278,8 +3278,8 @@ static void op_bit(
 /************************************************************************/
 
 static void op_ldst(
-        mc6809__t *const    cpu,
-        const mc6809byte__t dest
+        mc6809__t           *cpu,
+        mc6809byte__t const  dest
 )
 {
   assert(cpu != NULL);
@@ -3292,9 +3292,9 @@ static void op_ldst(
 /************************************************************************/
 
 static mc6809byte__t op_eor(
-        mc6809__t *const    cpu,
-        const mc6809byte__t dest,
-        const mc6809byte__t src
+        mc6809__t           *cpu,
+        mc6809byte__t const  dest,
+        mc6809byte__t const  src
 )
 {
   mc6809byte__t res;
@@ -3311,9 +3311,9 @@ static mc6809byte__t op_eor(
 /************************************************************************/
 
 static mc6809byte__t op_adc(
-        mc6809__t *const    cpu,
-        const mc6809byte__t dest,
-        const mc6809byte__t src
+        mc6809__t           *cpu,
+        mc6809byte__t const  dest,
+        mc6809byte__t const  src
 )
 {
   mc6809byte__t res;
@@ -3335,9 +3335,9 @@ static mc6809byte__t op_adc(
 /************************************************************************/
 
 static mc6809byte__t op_or(
-        mc6809__t *const    cpu,
-        const mc6809byte__t dest,
-        const mc6809byte__t src
+        mc6809__t           *cpu,
+        mc6809byte__t const  dest,
+        mc6809byte__t const  src
 )
 {
   mc6809byte__t res;
@@ -3354,9 +3354,9 @@ static mc6809byte__t op_or(
 /************************************************************************/
 
 static mc6809byte__t op_add(
-        mc6809__t *const    cpu,
-        const mc6809byte__t dest,
-        const mc6809byte__t src
+        mc6809__t           *cpu,
+        mc6809byte__t const  dest,
+        mc6809byte__t const  src
 )
 {
   mc6809byte__t res;
@@ -3377,9 +3377,9 @@ static mc6809byte__t op_add(
 /************************************************************************/
 
 static mc6809addr__t op_sub16(
-        mc6809__t *const    cpu,
-        const mc6809addr__t dest,
-        const mc6809addr__t src
+        mc6809__t           *cpu,
+        mc6809addr__t const  dest,
+        mc6809addr__t const  src
 )
 {
   mc6809addr__t res;
@@ -3399,9 +3399,9 @@ static mc6809addr__t op_sub16(
 /************************************************************************/
 
 static void op_cmp16(
-        mc6809__t *const    cpu,
-        const mc6809addr__t dest,
-        const mc6809addr__t src
+        mc6809__t           *cpu,
+        mc6809addr__t const  dest,
+        mc6809addr__t const  src
 )
 {
   mc6809addr__t res;
@@ -3420,8 +3420,8 @@ static void op_cmp16(
 /************************************************************************/
 
 static void op_ldst16(
-        mc6809__t *const    cpu,
-        const mc6809addr__t data
+        mc6809__t           *cpu,
+        mc6809addr__t const  data
 )
 {
   assert(cpu != NULL);
@@ -3433,9 +3433,9 @@ static void op_ldst16(
 /************************************************************************/
 
 static mc6809addr__t op_add16(
-        mc6809__t *const    cpu,
-        const mc6809addr__t dest,
-        const mc6809addr__t src
+        mc6809__t           *cpu,
+        mc6809addr__t const  dest,
+        mc6809addr__t const  src
 )
 {
   mc6809addr__t res;

@@ -28,17 +28,17 @@
 
 /**************************************************************************/
 
-static int              page2           (mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
-static int              page3           (mc6809dis__t *const,mc6809__t *const)             __attribute__((nonnull(1)));
-static void             psh             (mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
-static void             pul             (mc6809dis__t *const,const char *const,const bool) __attribute__((nonnull));
-static void             exgtfr          (mc6809dis__t *const,const char *const)            __attribute__((nonnull));
-static void             ccimmediate     (mc6809dis__t *const,const char *const)            __attribute__((nonnull));
-static mc6809byte__t    cctobyte        (mc6809__t *const)                                 __attribute__((nonnull));
+static int              page2           (mc6809dis__t *,mc6809__t *)       __attribute__((nonnull(1)));
+static int              page3           (mc6809dis__t *,mc6809__t *)       __attribute__((nonnull(1)));
+static void             psh             (mc6809dis__t *,char const *,bool) __attribute__((nonnull));
+static void             pul             (mc6809dis__t *,char const *,bool) __attribute__((nonnull));
+static void             exgtfr          (mc6809dis__t *,char const *)      __attribute__((nonnull));
+static void             ccimmediate     (mc6809dis__t *,char const *)      __attribute__((nonnull));
+static mc6809byte__t    cctobyte        (mc6809__t *)                      __attribute__((nonnull));
 
 /***************************************************************************/
 
-int mc6809dis_format(mc6809dis__t *const dis,char *dest,size_t size)
+int mc6809dis_format(mc6809dis__t *dis,char *dest,size_t size)
 {
   assert(dis  != NULL);
   assert(dest != NULL);
@@ -64,7 +64,7 @@ int mc6809dis_format(mc6809dis__t *const dis,char *dest,size_t size)
 
 /**************************************************************************/
 
-int mc6809dis_registers(mc6809__t *const cpu,char *dest,size_t size)
+int mc6809dis_registers(mc6809__t *cpu,char *dest,size_t size)
 {
   char flags[9];
   
@@ -93,7 +93,7 @@ int mc6809dis_registers(mc6809__t *const cpu,char *dest,size_t size)
 
 /*************************************************************************/
 
-int mc6809dis_run(mc6809dis__t *const dis,mc6809__t *const cpu)
+int mc6809dis_run(mc6809dis__t *dis,mc6809__t *cpu)
 {
   char inst[128];
   char regs[128];
@@ -124,7 +124,7 @@ int mc6809dis_run(mc6809dis__t *const dis,mc6809__t *const cpu)
 
 /*************************************************************************/
 
-int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
+int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
 {
   volatile int  rc;
   mc6809byte__t inst;
@@ -1213,7 +1213,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *const cpu)
 
 /************************************************************************/
 
-static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
+static int page2(mc6809dis__t *dis,mc6809__t *cpu)
 {
   mc6809byte__t byte;
   
@@ -1387,7 +1387,7 @@ static int page2(mc6809dis__t *const dis,mc6809__t *const cpu)
 
 /************************************************************************/
 
-static int page3(mc6809dis__t *const dis,mc6809__t *const cpu)
+static int page3(mc6809dis__t *dis,mc6809__t *cpu)
 {
   mc6809byte__t byte;
   
@@ -1446,14 +1446,14 @@ static int page3(mc6809dis__t *const dis,mc6809__t *const cpu)
 /***********************************************************************/
 
 void mc6809dis_indexed(
-        mc6809dis__t  *const dis,
-        mc6809__t     *const cpu,
-        const char    *const op,
-        char const    *const flags,
-        const bool           b16
+        mc6809dis__t  *dis,
+        mc6809__t     *cpu,
+        char const    *restrict op,
+        char const    *restrict flags,
+        bool           b16
 )
 {
-  static const char regs[4] = "XYUS";
+  static char const regs[4] = "XYUS";
   mc6809word__t addr;
   mc6809word__t iaddr;
   mc6809word__t d16;
@@ -1812,10 +1812,10 @@ void mc6809dis_indexed(
 /*************************************************************************/
 
 void mc6809dis_immediate(
-        mc6809dis__t *const dis,
-        const char   *const op,
-        char const   *const flags,
-        const bool          b16
+        mc6809dis__t *dis,
+        char const   *restrict op,
+        char const   *restrict flags,
+        bool          b16
 )
 {
   mc6809word__t d16;
@@ -1845,11 +1845,11 @@ void mc6809dis_immediate(
 /*************************************************************************/
 
 void mc6809dis_direct(
-        mc6809dis__t *const dis,
-        mc6809__t    *const cpu,
-        const char   *const op,
-        char const   *const flags,
-        const bool          b16
+        mc6809dis__t *dis,
+        mc6809__t    *cpu,
+        char const   *restrict op,
+        char const   *restrict flags,
+        bool          b16
 )
 {
   mc6809word__t addr;
@@ -1893,11 +1893,11 @@ void mc6809dis_direct(
 /*************************************************************************/
 
 void mc6809dis_extended(
-        mc6809dis__t *const dis,
-        mc6809__t    *const cpu,
-        const char   *const op,
-        char const   *const flags,
-        const bool          b16
+        mc6809dis__t *dis,
+        mc6809__t    *cpu,
+        char const   *restrict op,
+        char const   *restrict flags,
+        bool          b16
 )
 {
   mc6809word__t addr;
@@ -1941,9 +1941,9 @@ void mc6809dis_extended(
 /*************************************************************************/
 
 void mc6809dis_relative(
-        mc6809dis__t *const dis,
-        const char   *const op,
-        const char   *const data
+        mc6809dis__t *dis,
+        char const   *restrict op,
+        char const   *restrict data
 )
 {
   mc6809word__t addr;
@@ -1966,9 +1966,9 @@ void mc6809dis_relative(
 /*************************************************************************/
 
 void mc6809dis_lrelative(
-        mc6809dis__t *const dis,
-        const char   *const op,
-        const char   *const data
+        mc6809dis__t *dis,
+        char const   *restrict op,
+        char const   *restrict data
 )
 {
   mc6809word__t addr;
@@ -1990,12 +1990,12 @@ void mc6809dis_lrelative(
 
 /*************************************************************************/
 
-static const char *const m_pshsreg[] =
+static char const *const m_pshsreg[] =
 {
   "CC" , "A" , "B" , "DP" , "X" , "Y" , "U" , "PC"
 };
 
-static const char *const m_pshureg[] =
+static char const *const m_pshureg[] =
 {
   "CC" , "A" , "B" , "DP" , "X" , "Y" , "S" , "PC"
 };
@@ -2004,8 +2004,8 @@ static const char *const m_pshureg[] =
 
 void mc6809dis_pshregs(char *dest,size_t size,mc6809byte__t post,bool s)
 {
-  const char *const *regs = s ? m_pshsreg : m_pshureg;
-  const char        *sep  = "";
+  char const *const *regs = s ? m_pshsreg : m_pshureg;
+  char const        *sep  = "";
   
   for (int i = 7 ; i > -1 ; i--)
   {
@@ -2025,8 +2025,8 @@ void mc6809dis_pshregs(char *dest,size_t size,mc6809byte__t post,bool s)
 
 void mc6809dis_pulregs(char *dest,size_t size,mc6809byte__t post,bool s)
 {
-  const char *const *regs = s ? m_pshsreg : m_pshureg;
-  const char        *sep  = "";
+  char const *const *regs = s ? m_pshsreg : m_pshureg;
+  char const        *sep  = "";
   
   for (int i = 0 ; i < 8 ; i++)
   {
@@ -2044,7 +2044,7 @@ void mc6809dis_pulregs(char *dest,size_t size,mc6809byte__t post,bool s)
 
 /************************************************************************/
 
-static void psh(mc6809dis__t *const dis,const char *const op,const bool s)
+static void psh(mc6809dis__t *dis,char const *op,bool s)
 {
   mc6809byte__t      post;
   
@@ -2058,7 +2058,7 @@ static void psh(mc6809dis__t *const dis,const char *const op,const bool s)
 
 /*************************************************************************/
 
-static void pul(mc6809dis__t *const dis,const char *const op,const bool s)
+static void pul(mc6809dis__t *dis,char const *op,bool s)
 {
   mc6809byte__t      post;
   
@@ -2072,17 +2072,17 @@ static void pul(mc6809dis__t *const dis,const char *const op,const bool s)
 
 /*************************************************************************/
 
-static void exgtfr(mc6809dis__t *const dis,const char *const op)
+static void exgtfr(mc6809dis__t *dis,char const *op)
 {
-  static const char *const etregs[] =
+  static char const *const etregs[] =
   {
     "D" , "X" , "Y"  , "U"  , "S"  , "PC" , NULL , NULL ,
     "A" , "B" , "CC" , "DP" , NULL , NULL , NULL , NULL
   };
   
   mc6809byte__t  byte;
-  const char    *s;
-  const char    *d;
+  char const    *s;
+  char const    *d;
   
   assert(dis != NULL);
   assert(op  != NULL);
@@ -2108,7 +2108,7 @@ static void exgtfr(mc6809dis__t *const dis,const char *const op)
 
 /*************************************************************************/
 
-static void ccimmediate(mc6809dis__t *const dis,const char *const op)
+static void ccimmediate(mc6809dis__t *dis,char const *op)
 {
   mc6809byte__t byte;
   
@@ -2143,7 +2143,7 @@ void mc6809dis_cc(char *dest,size_t size __attribute__((unused)),mc6809byte__t c
 
 /*************************************************************************/
 
-static mc6809byte__t cctobyte(mc6809__t *const cpu)
+static mc6809byte__t cctobyte(mc6809__t *cpu)
 {
   mc6809byte__t res = 0;
   

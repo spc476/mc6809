@@ -38,7 +38,7 @@ struct userdata
 
 /************************************************************************/
 
-static bool             loadimage       (struct userdata *,const char *,const char *);
+static bool             loadimage       (struct userdata *,char const *restrict,char const *restrict);
 static bool             dumpcore        (struct userdata *);
 static mc6809byte__t    cpu_read        (mc6809__t *,mc6809addr__t,bool);
 static void             cpu_write       (mc6809__t *,mc6809addr__t,mc6809byte__t);
@@ -144,8 +144,8 @@ int main(int argc,char *argv[])
 
 static bool loadimage(
         struct userdata *ud,
-        const char      *filename,
-        const char      *taddr
+        char const      *restrict filename,
+        char const      *restrict taddr
 )
 {
   mc6809addr__t  addr;

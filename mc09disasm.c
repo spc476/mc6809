@@ -64,7 +64,7 @@ int main(int argc,char *argv[])
 {
   mc6809dis__t   dis;
   mc6809addr__t  start;
-  const char    *fname;
+  char const    *fname;
   FILE          *fp;
   int            rc;
   
