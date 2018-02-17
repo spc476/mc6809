@@ -64,11 +64,11 @@ extern int  mc6809dis_run      (mc6809dis__t *,mc6809__t *) __attribute__((nonnu
 extern int  mc6809dis_step     (mc6809dis__t *,mc6809__t *) __attribute__((nonnull(1)));
 
 extern void mc6809dis_indexed  (mc6809dis__t *,mc6809__t  *,char const *restrict,char const *restrict,bool) __attribute__((nonnull(1,3,4)));
-extern void mc6809dis_immediate(mc6809dis__t *,const char *,char const *,bool)                              __attribute__((nonnull));
+extern void mc6809dis_immediate(mc6809dis__t *,             char const *restrict,char const *restrict,bool) __attribute__((nonnull));
 extern void mc6809dis_direct   (mc6809dis__t *,mc6809__t  *,char const *restrict,char const *restrict,bool) __attribute__((nonnull(1,3,4)));
 extern void mc6809dis_extended (mc6809dis__t *,mc6809__t  *,char const *restrict,char const *restrict,bool) __attribute__((nonnull(1,3,4)));
-extern void mc6809dis_relative (mc6809dis__t *,char const *restrict,char const *restrict)                   __attribute__((nonnull));
-extern void mc6809dis_lrelative(mc6809dis__t *,char const *restrict,char const *restrict)                   __attribute__((nonnull));
+extern void mc6809dis_relative (mc6809dis__t *,             char const *restrict,char const *restrict)      __attribute__((nonnull));
+extern void mc6809dis_lrelative(mc6809dis__t *,             char const *restrict,char const *restrict)      __attribute__((nonnull));
 
 extern void mc6809dis_pshregs  (char *,size_t,mc6809byte__t,bool);
 extern void mc6809dis_pulregs  (char *,size_t,mc6809byte__t,bool);
