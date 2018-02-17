@@ -35,6 +35,7 @@ static void             pul             (mc6809dis__t *,char const *,bool) __att
 static void             exgtfr          (mc6809dis__t *,char const *)      __attribute__((nonnull));
 static void             ccimmediate     (mc6809dis__t *,char const *)      __attribute__((nonnull));
 static mc6809byte__t    cctobyte        (mc6809__t *)                      __attribute__((nonnull));
+static void             affected        (mc6809dis__t *,char const *)      __attribute__((nonnull));
 
 /***************************************************************************/
 
@@ -42,18 +43,22 @@ int mc6809dis_format(mc6809dis__t *dis,char *dest,size_t size)
 {
   assert(dis  != NULL);
   assert(dest != NULL);
-  assert(size >= (sizeof(dis->addr) + sizeof(dis->opcode) + sizeof(dis->operand) + sizeof(dis->topcode) + sizeof(dis->toperand) + sizeof(dis->data) + sizeof(dis->flags)));
+  assert(size >= (sizeof(dis->addr) + sizeof(dis->opcode) + sizeof(dis->operand) + sizeof(dis->topcode) + sizeof(dis->toperand) + sizeof(dis->data) + sizeof(dis->cc)));
   
   snprintf(
         dest,
         size,
-        "%-4.4s %-4.4s %-6.6s - %-5.5s %-18.18s ; %5s %s",
+        "%-4.4s %-4.4s %-6.6s - %-5.5s %-18.18s ; %c%c%c%c%c %s",
         dis->addr,
         dis->opcode,
         dis->operand,
         dis->topcode,
         dis->toperand,
-        dis->flags,
+        dis->cc.h,
+        dis->cc.n,
+        dis->cc.z,
+        dis->cc.v,
+        dis->cc.c,
         dis->data
   );
   if (size < (sizeof(dis->addr) + sizeof(dis->opcode) + sizeof(dis->operand) + sizeof(dis->topcode) + sizeof(dis->toperand) + sizeof(dis->data)))
@@ -141,7 +146,11 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
   dis->topcode[0]  = '\0';
   dis->toperand[0] = '\0';
   dis->data[0]     = '\0';
-  dis->flags[0]    = '\0';
+  dis->cc.h        = ' ';
+  dis->cc.n        = ' ';
+  dis->cc.z        = ' ';
+  dis->cc.v        = ' ';
+  dis->cc.c        = ' ';
   
   snprintf(dis->addr,  sizeof(dis->addr),  "%04X",dis->pc);
   snprintf(dis->opcode,sizeof(dis->opcode),"%02X",inst);
@@ -220,12 +229,12 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x12:
          snprintf(dis->topcode,sizeof(dis->topcode),"NOP");
-         snprintf(dis->flags,sizeof(dis->flags),"-----");
+         affected(dis,"-----");
          break;
          
     case 0x13:
          snprintf(dis->topcode,sizeof(dis->topcode),"SYNC");
-         snprintf(dis->flags,sizeof(dis->flags),"-----");
+         affected(dis,"-----");
          break;
          
     case 0x14:
@@ -250,7 +259,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x19:
          snprintf(dis->topcode,sizeof(dis->topcode),"DAA");
-         snprintf(dis->flags,sizeof(dis->flags),"-aa0a");
+         affected(dis,"-aa0a");
          break;
          
     case 0x1A:
@@ -267,7 +276,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x1D:
          snprintf(dis->topcode,sizeof(dis->topcode),"SEX");
-         snprintf(dis->flags,sizeof(dis->flags),"-aa0-");
+         affected(dis,"-aa0-");
          break;
          
     case 0x1E:
@@ -380,27 +389,27 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x39:
          snprintf(dis->topcode,sizeof(dis->topcode),"RTS");
-         snprintf(dis->flags,sizeof(dis->flags),"-----");
+         affected(dis,"-----");
          break;
          
     case 0x3A:
          snprintf(dis->topcode,sizeof(dis->topcode),"ABX");
-         snprintf(dis->flags,sizeof(dis->flags),"-----");
+         affected(dis,"-----");
          break;
          
     case 0x3B:
          snprintf(dis->topcode,sizeof(dis->topcode),"RTI");
-         snprintf(dis->flags,sizeof(dis->flags),"ccccc");
+         affected(dis,"ccccc");
          break;
          
     case 0x3C:
          ccimmediate(dis,"CWAI");
-         snprintf(dis->flags,sizeof(dis->flags),"ddddd");
+         affected(dis,"ddddd");
          break;
          
     case 0x3D:
          snprintf(dis->topcode,sizeof(dis->topcode),"MUL");
-         snprintf(dis->flags,sizeof(dis->flags),"--a-a");
+         affected(dis,"--a-a");
          break;
          
     case 0x3E:
@@ -409,12 +418,12 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x3F:
          snprintf(dis->topcode,sizeof(dis->topcode),"SWI");
-         snprintf(dis->flags,sizeof(dis->flags),"-----");
+         affected(dis,"-----");
          break;
          
     case 0x40:
          snprintf(dis->topcode,sizeof(dis->topcode),"NEGA");
-         snprintf(dis->flags,sizeof(dis->flags),"uaaaa");
+         affected(dis,"uaaaa");
          break;
          
     case 0x41:
@@ -427,12 +436,12 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x43:
          snprintf(dis->topcode,sizeof(dis->topcode),"COMA");
-         snprintf(dis->flags,sizeof(dis->flags),"-aa01");
+         affected(dis,"-aa01");
          break;
          
     case 0x44:
          snprintf(dis->topcode,sizeof(dis->topcode),"LSRA");
-         snprintf(dis->flags,sizeof(dis->flags),"-0a0s");
+         affected(dis,"-0a0s");
          break;
          
     case 0x45:
@@ -441,27 +450,27 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x46:
          snprintf(dis->topcode,sizeof(dis->topcode),"RORA");
-         snprintf(dis->flags,sizeof(dis->flags),"-aa-s");
+         affected(dis,"-aa-s");
          break;
          
     case 0x47:
          snprintf(dis->topcode,sizeof(dis->topcode),"ASRA");
-         snprintf(dis->flags,sizeof(dis->flags),"uaa-s");
+         affected(dis,"uaa-s");
          break;
          
     case 0x48:
          snprintf(dis->topcode,sizeof(dis->topcode),"LSLA");
-         snprintf(dis->flags,sizeof(dis->flags),"naaas");
+         affected(dis,"naaas");
          break;
          
     case 0x49:
          snprintf(dis->topcode,sizeof(dis->topcode),"ROLA");
-         snprintf(dis->flags,sizeof(dis->flags),"-aaas");
+         affected(dis,"-aaas");
          break;
          
     case 0x4A:
          snprintf(dis->topcode,sizeof(dis->topcode),"DECA");
-         snprintf(dis->flags,sizeof(dis->flags),"-aaa-");
+         affected(dis,"-aaa-");
          break;
          
     case 0x4B:
@@ -470,12 +479,12 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x4C:
          snprintf(dis->topcode,sizeof(dis->topcode),"INCA");
-         snprintf(dis->flags,sizeof(dis->flags),"-aaa-");
+         affected(dis,"-aaa-");
          break;
          
     case 0x4D:
          snprintf(dis->topcode,sizeof(dis->topcode),"TSTA");
-         snprintf(dis->flags,sizeof(dis->flags),"-aa0-");
+         affected(dis,"-aa0-");
          break;
          
     case 0x4E:
@@ -484,12 +493,12 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x4F:
          snprintf(dis->topcode,sizeof(dis->topcode),"CLRA");
-         snprintf(dis->flags,sizeof(dis->flags),"-0100");
+         affected(dis,"-0100");
          break;
          
     case 0x50:
          snprintf(dis->topcode,sizeof(dis->topcode),"NEGB");
-         snprintf(dis->flags,sizeof(dis->flags),"uaaaa");
+         affected(dis,"uaaaa");
          break;
          
     case 0x51:
@@ -502,12 +511,12 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x53:
          snprintf(dis->topcode,sizeof(dis->topcode),"COMB");
-         snprintf(dis->flags,sizeof(dis->flags),"-aa01");
+         affected(dis,"-aa01");
          break;
          
     case 0x54:
          snprintf(dis->topcode,sizeof(dis->topcode),"LSRB");
-         snprintf(dis->flags,sizeof(dis->flags),"-0a-s");
+         affected(dis,"-0a-s");
          break;
          
     case 0x55:
@@ -516,27 +525,27 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x56:
          snprintf(dis->topcode,sizeof(dis->topcode),"RORB");
-         snprintf(dis->flags,sizeof(dis->flags),"-aa-s");
+         affected(dis,"-aa-s");
          break;
          
     case 0x57:
          snprintf(dis->topcode,sizeof(dis->topcode),"ASRB");
-         snprintf(dis->flags,sizeof(dis->flags),"uaa-s");
+         affected(dis,"uaa-s");
          break;
          
     case 0x58:
          snprintf(dis->topcode,sizeof(dis->topcode),"LSLB");
-         snprintf(dis->flags,sizeof(dis->flags),"naaas");
+         affected(dis,"naaas");
          break;
          
     case 0x59:
          snprintf(dis->topcode,sizeof(dis->topcode),"ROLB");
-         snprintf(dis->flags,sizeof(dis->flags),"-aaas");
+         affected(dis,"-aaas");
          break;
          
     case 0x5A:
          snprintf(dis->topcode,sizeof(dis->topcode),"DECB");
-         snprintf(dis->flags,sizeof(dis->flags),"-aaa-");
+         affected(dis,"-aaa-");
          break;
          
     case 0x5B:
@@ -545,12 +554,12 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x5C:
          snprintf(dis->topcode,sizeof(dis->topcode),"INCB");
-         snprintf(dis->flags,sizeof(dis->flags),"-aaa-");
+         affected(dis,"-aaa-");
          break;
          
     case 0x5D:
          snprintf(dis->topcode,sizeof(dis->topcode),"TSTB");
-         snprintf(dis->flags,sizeof(dis->flags),"-aa0-");
+         affected(dis,"-aa0-");
          break;
          
     case 0x5E:
@@ -559,7 +568,7 @@ int mc6809dis_step(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x5F:
          snprintf(dis->topcode,sizeof(dis->topcode),"CLRB");
-         snprintf(dis->flags,sizeof(dis->flags),"-0100");
+         affected(dis,"-0100");
          break;
          
     case 0x60:
@@ -1286,7 +1295,7 @@ static int page2(mc6809dis__t *dis,mc6809__t *cpu)
          
     case 0x3F:
          snprintf(dis->topcode,sizeof(dis->topcode),"SWI2");
-         snprintf(dis->flags,sizeof(dis->flags),"-----");
+         affected(dis,"-----");
          break;
          
     case 0x83:
@@ -1400,7 +1409,7 @@ static int page3(mc6809dis__t *dis,mc6809__t *cpu)
   {
     case 0x3F:
          snprintf(dis->topcode,sizeof(dis->topcode),"SWI3");
-         snprintf(dis->flags,sizeof(dis->flags),"-----");
+         affected(dis,"-----");
          break;
          
     case 0x83:
@@ -1481,7 +1490,7 @@ void mc6809dis_indexed(
   
   snprintf(dis->operand,sizeof(dis->operand),"%02X",mode);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
-  snprintf(dis->flags,sizeof(dis->flags),"%s",flags);
+  affected(dis,flags);
   
   if (mode < 0x80)
   {
@@ -1825,7 +1834,7 @@ void mc6809dis_immediate(
   assert(op  != NULL);
   
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
-  snprintf(dis->flags,sizeof(dis->flags),"%s",flags);
+  affected(dis,flags);
   
   if (b16)
   {
@@ -1872,7 +1881,7 @@ void mc6809dis_direct(
   snprintf(dis->operand,sizeof(dis->operand),"%02X",addr.b[LSB]);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
   snprintf(dis->toperand,sizeof(dis->toperand),"%02X",addr.b[LSB]);
-  snprintf(dis->flags,sizeof(dis->flags),"%s",flags);
+  affected(dis,flags);
   
   if (cpu != NULL)
   {
@@ -1920,7 +1929,7 @@ void mc6809dis_extended(
   snprintf(dis->operand,sizeof(dis->operand),"%04X",addr.w);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
   snprintf(dis->toperand,sizeof(dis->toperand),"%04X",addr.w);
-  snprintf(dis->flags,sizeof(dis->flags),"%s",flags);
+  affected(dis,flags);
   
   if (cpu != NULL)
   {
@@ -1960,7 +1969,7 @@ void mc6809dis_relative(
   else
     snprintf(dis->data,sizeof(dis->data),"forwards %s",data);
   
-  snprintf(dis->flags,sizeof(dis->flags),"-----");
+  affected(dis,"-----");
 }
 
 /*************************************************************************/
@@ -1985,7 +1994,7 @@ void mc6809dis_lrelative(
   else
     snprintf(dis->data,sizeof(dis->data),"forwards %s",data);
   
-  snprintf(dis->flags,sizeof(dis->flags),"-----");
+  affected(dis,"-----");
 }
 
 /*************************************************************************/
@@ -2051,7 +2060,7 @@ static void psh(mc6809dis__t *dis,char const *op,bool s)
   post = (*dis->read)(dis,dis->next++);
   snprintf(dis->operand,sizeof(dis->operand),"%02X",post);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
-  snprintf(dis->flags,sizeof(dis->flags),"-----");
+  affected(dis,"-----");
   
   mc6809dis_pshregs(dis->toperand,sizeof(dis->toperand),post,s);
 }
@@ -2065,7 +2074,7 @@ static void pul(mc6809dis__t *dis,char const *op,bool s)
   post = (*dis->read)(dis,dis->next++);
   snprintf(dis->operand,sizeof(dis->operand),"%02X",post);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
-  snprintf(dis->flags,sizeof(dis->flags),"ccccc");
+  affected(dis,"ccccc");
   
   mc6809dis_pulregs(dis->toperand,sizeof(dis->toperand),post,s);
 }
@@ -2090,7 +2099,7 @@ static void exgtfr(mc6809dis__t *dis,char const *op)
   byte = (*dis->read)(dis,dis->next++);
   snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
-  snprintf(dis->flags,sizeof(dis->flags),"ccccc");
+  affected(dis,"ccccc");
   
   if (((byte & 0x88) == 0x00) || ((byte & 0x88) == 0x88))
   {
@@ -2119,7 +2128,7 @@ static void ccimmediate(mc6809dis__t *dis,char const *op)
   snprintf(dis->operand,sizeof(dis->operand),"%02X",byte);
   snprintf(dis->topcode,sizeof(dis->topcode),"%s",op);
   snprintf(dis->toperand,sizeof(dis->toperand),"#%02X",byte);
-  snprintf(dis->flags,sizeof(dis->flags),"ddddd");
+  affected(dis,"ddddd");
   mc6809dis_cc(dis->data,sizeof(dis->data),byte);
 }
 
@@ -2158,6 +2167,26 @@ static mc6809byte__t cctobyte(mc6809__t *cpu)
   res |= cpu->cc.v ? 0x02 : 0x00;
   res |= cpu->cc.c ? 0x01 : 0x00;
   return res;
+}
+
+/**************************************************************************/
+
+static void affected(mc6809dis__t *dis,char const *flags)
+{
+  assert(dis   != NULL);
+  assert(flags != NULL);
+  assert(flags[0]);
+  assert(flags[1]);
+  assert(flags[2]);
+  assert(flags[3]);
+  assert(flags[4]);
+  assert(flags[5] == '\0');
+  
+  dis->cc.h = flags[0];
+  dis->cc.n = flags[1];
+  dis->cc.z = flags[2];
+  dis->cc.v = flags[3];
+  dis->cc.c = flags[4];
 }
 
 /**************************************************************************/

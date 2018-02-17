@@ -36,7 +36,14 @@ typedef struct mc6809dis
   char topcode [ 6];
   char toperand[19];
   char data    [32];
-  char flags   [ 6];
+  struct
+  {
+    char h;
+    char n;
+    char z;
+    char v;
+    char c;
+  } cc;
   
   mc6809addr__t pc;
   mc6809addr__t next;
