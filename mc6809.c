@@ -1947,7 +1947,7 @@ int mc6809_step(mc6809__t *cpu)
          ea = mc6809_direct(cpu);
          cpu->U.b[MSB] = (*cpu->read)(cpu,ea++,false);
          cpu->U.b[LSB] = (*cpu->read)(cpu,ea,false);
-         op_ldst16(cpu,cpu->d.w);
+         op_ldst16(cpu,cpu->U.w);
          break;
          
     case 0xDF:
@@ -1955,7 +1955,7 @@ int mc6809_step(mc6809__t *cpu)
          ea = mc6809_direct(cpu);
          (*cpu->write)(cpu,ea++,cpu->U.b[MSB]);
          (*cpu->write)(cpu,ea,cpu->U.b[LSB]);
-         op_ldst16(cpu,cpu->d.w);
+         op_ldst16(cpu,cpu->U.w);
          break;
          
     case 0xE0:
