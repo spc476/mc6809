@@ -33,9 +33,6 @@ CFLAGS  = -g -Wall -Wextra -pedantic
 LDFLAGS = -g
 LDLIBS  = 
 
-% : %.o
-	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-
 %.a :
 	$(AR) $(ARFLAGS) $@ $?
 
