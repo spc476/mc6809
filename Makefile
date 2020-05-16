@@ -50,7 +50,7 @@ mc6809.o       : mc6809.c       mc6809.h
 mc6809dis.o    : mc6809dis.c    mc6809.h mc6809dis.h
 
 clean:
-	/bin/rm -rf *.o mc09emulator mc09disasm *~ libmc6809.a
+	$(RM) *.o mc09emulator mc09disasm *~ libmc6809.a
 
 install: libmc6809.a
 	$(INSTALL) -d $(DESTDIR)$(libdir)
