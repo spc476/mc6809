@@ -2344,7 +2344,7 @@ static int page2(mc6809__t *cpu)
     case 0x2F:
          cpu->cycles += 4;
          ea = mc6809_lrelative(cpu);
-         if (bhi(cpu))
+         if (ble(cpu))
          {
            cpu->cycles++;
            cpu->pc.w = ea;
