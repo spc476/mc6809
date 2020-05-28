@@ -3016,7 +3016,7 @@ static mc6809byte__t op_neg(mc6809__t *cpu,mc6809byte__t const src)
   cpu->cc.n = (res >  0x7F);
   cpu->cc.z = (res == 0x00);
   cpu->cc.v = (src == 0x80);
-  cpu->cc.c = (src >  0x7F);
+  cpu->cc.c = (src != 0x00);
   return res;
 }
 
