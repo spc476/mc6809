@@ -72,8 +72,8 @@ int main(int argc,char *argv[])
   
   switch(argc)
   {
-    case 4: start  = strtoul(argv[3],NULL,16);
-    case 3: dis.pc = strtoul(argv[2],NULL,16);
+    case 4: start  = strtoul(argv[3],NULL,16); /* fall through */
+    case 3: dis.pc = strtoul(argv[2],NULL,16); /* fall through */
     case 2: fname  = argv[1]; break;
     default:
          fprintf(stderr,"usage: %s bin [load = 0 [start = 0]]\n",argv[0]);
