@@ -3225,7 +3225,6 @@ static mc6809byte__t op_sbc(
   mc6809byte__t ci;
   
   assert(cpu       != NULL);
-  assert(cpu->cc.c <= 1);
   
   res       = dest - src - cpu->cc.c;
   ci        = res ^ dest ^ src;
@@ -3318,7 +3317,6 @@ static mc6809byte__t op_adc(
   mc6809byte__t ci;
   
   assert(cpu       != NULL);
-  assert(cpu->cc.c <= 1);
   
   res       = dest + src + cpu->cc.c;
   ci        = res ^ dest ^ src;
