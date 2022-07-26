@@ -3231,7 +3231,7 @@ static mc6809byte__t op_sbc(
   cpu->cc.n = (res >  0x7F);
   cpu->cc.z = (res == 0x00);
   cpu->cc.c = src >= dest;
-  cpu->cc.v  = ((ci & 0x80) != 0) ^ cpu->cc.c;
+  cpu->cc.v = ((ci & 0x80) != 0) ^ cpu->cc.c;
   return res;
 }
 
@@ -3324,7 +3324,7 @@ static mc6809byte__t op_adc(
   cpu->cc.n = (res >  0x7F);
   cpu->cc.z = (res == 0x00);
   cpu->cc.c = (res < dest) || (res < src);
-  cpu->cc.v  = ((ci & 0x80) != 0) ^ cpu->cc.c;
+  cpu->cc.v = ((ci & 0x80) != 0) ^ cpu->cc.c;
   return res;
 }
 
@@ -3366,7 +3366,7 @@ static mc6809byte__t op_add(
   cpu->cc.n = (res >  0x7F);
   cpu->cc.z = (res == 0x00);
   cpu->cc.c = (res < dest) || (res < src);
-  cpu->cc.v  = ((ci & 0x80) != 0) ^ cpu->cc.c;
+  cpu->cc.v = ((ci & 0x80) != 0) ^ cpu->cc.c;
   return res;
 }
 
