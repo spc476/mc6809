@@ -226,58 +226,88 @@ int mc6809_step(mc6809__t *cpu)
     cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_NMI,false);
     cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_NMI + 1,false);
     cpu->cwai      = false;
+    cpu->sync      = false;
     return 0;
   }
-  else if (cpu->firq && !cpu->cc.f)
+  else if (cpu->firq)
   {
-    cpu->firq = false;
-    if (!cpu->cwai)
+    unsigned long cycles;
+    
+    if (cpu->sync)
     {
-      cpu->cc.e    = false;
-      cpu->cycles += 10;
-      (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
-      (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
-      (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
+      cpu->cycles += 3;
+      cpu->sync    = false;
+      cpu->irq     = false;
+      cycles       = 7;
     }
-    cpu->cc.f      = true;
-    cpu->cc.i      = true;
-    cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_FIRQ,false);
-    cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_FIRQ + 1,false);
-    cpu->cwai      = false;
+    else
+      cycles = 10;
+      
+    if (!cpu->cc.f)
+    {
+      cpu->firq = false;
+      if (!cpu->cwai)
+      {
+        cpu->cc.e    = false;
+        cpu->cycles += cycles;
+        (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
+        (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
+        (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
+      }
+      cpu->cc.f      = true;
+      cpu->cc.i      = true;
+      cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_FIRQ,false);
+      cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_FIRQ + 1,false);
+      cpu->cwai      = false;
+    }
     return 0;
   }
-  else if (cpu->irq && !cpu->cc.i)
+  else if (cpu->irq)
   {
-    cpu->irq  = false;
-    if (!cpu->cwai)
+    unsigned long cycles;
+    
+    if (cpu->sync)
     {
-      cpu->cc.e    = true;
-      cpu->cycles += 19;
-      (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
-      (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
-      (*cpu->write)(cpu,--cpu->S.w,cpu->U.b[LSB]);
-      (*cpu->write)(cpu,--cpu->S.w,cpu->U.b[MSB]);
-      (*cpu->write)(cpu,--cpu->S.w,cpu->Y.b[LSB]);
-      (*cpu->write)(cpu,--cpu->S.w,cpu->Y.b[MSB]);
-      (*cpu->write)(cpu,--cpu->S.w,cpu->X.b[LSB]);
-      (*cpu->write)(cpu,--cpu->S.w,cpu->X.b[MSB]);
-      (*cpu->write)(cpu,--cpu->S.w,cpu->dp);
-      (*cpu->write)(cpu,--cpu->S.w,cpu->B);
-      (*cpu->write)(cpu,--cpu->S.w,cpu->A);
-      (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
+      cpu->cycles += 3;
+      cpu->sync    = false;
+      cpu->irq     = false;
+      cycles       = 16;
     }
-    cpu->cc.i      = true;
-    cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_IRQ,false);
-    cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_IRQ + 1,false);
-    cpu->cwai      = false;
+    else
+      cycles = 19;
+      
+    if (!cpu->cc.i)
+    {
+      cpu->irq  = false;
+      if (!cpu->cwai)
+      {
+        cpu->cc.e    = true;
+        cpu->cycles += cycles;
+        (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[LSB]);
+        (*cpu->write)(cpu,--cpu->S.w,cpu->pc.b[MSB]);
+        (*cpu->write)(cpu,--cpu->S.w,cpu->U.b[LSB]);
+        (*cpu->write)(cpu,--cpu->S.w,cpu->U.b[MSB]);
+        (*cpu->write)(cpu,--cpu->S.w,cpu->Y.b[LSB]);
+        (*cpu->write)(cpu,--cpu->S.w,cpu->Y.b[MSB]);
+        (*cpu->write)(cpu,--cpu->S.w,cpu->X.b[LSB]);
+        (*cpu->write)(cpu,--cpu->S.w,cpu->X.b[MSB]);
+        (*cpu->write)(cpu,--cpu->S.w,cpu->dp);
+        (*cpu->write)(cpu,--cpu->S.w,cpu->B);
+        (*cpu->write)(cpu,--cpu->S.w,cpu->A);
+        (*cpu->write)(cpu,--cpu->S.w,mc6809_cctobyte(cpu));
+      }
+      cpu->cc.i      = true;
+      cpu->pc.b[MSB] = (*cpu->read)(cpu,MC6809_VECTOR_IRQ,false);
+      cpu->pc.b[LSB] = (*cpu->read)(cpu,MC6809_VECTOR_IRQ + 1,false);
+      cpu->cwai      = false;
+    }
     return 0;
   }
   
   cpu->cycles++;
-  if (cpu->cwai)
+  if (cpu->cwai || cpu->sync)
     return 0;
     
-  cpu->sync   = false;
   cpu->instpc = cpu->pc.w;
   inst        = (*cpu->read)(cpu,cpu->pc.w++,true);
   
@@ -3449,4 +3479,3 @@ static mc6809addr__t op_add16(
 }
 
 /************************************************************************/
-
