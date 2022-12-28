@@ -237,7 +237,7 @@ int mc6809_step(mc6809__t *cpu)
     {
       cpu->cycles += 3;
       cpu->sync    = false;
-      cpu->irq     = false;
+      cpu->firq    = false;
       cycles       = 7;
     }
     else
