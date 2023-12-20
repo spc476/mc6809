@@ -2073,7 +2073,7 @@ int mc6809_step(mc6809__t *cpu)
          break;
          
     case 0xED:
-         cpu->cycles += 6;
+         cpu->cycles += 4;
          ea = mc6809_indexed(cpu);
          (*cpu->write)(cpu,ea++,cpu->A);
          (*cpu->write)(cpu,ea,cpu->B);
