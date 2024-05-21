@@ -262,7 +262,7 @@ static void cpu_write(
 /************************************************************************/
 
 static void cpu_fault(
-        mc6809__t      *cpu __attribute__((unused)),
+        mc6809__t      *cpu,
         mc6809fault__t  fault
 )
 {
