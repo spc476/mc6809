@@ -28,8 +28,8 @@ includedir  = $(prefix)/include
 exec_prefix = $(prefix)
 libdir      = $(exec_prefix)/lib
 
-CC      = gcc -std=c99
-CFLAGS  = -g -Wall -Wextra -pedantic
+CC      = gcc -std=c99 -Wall -Wextra -pedantic
+CFLAGS  = -g -fmerge-all-constants
 LDFLAGS = -g
 LDLIBS  = 
 
